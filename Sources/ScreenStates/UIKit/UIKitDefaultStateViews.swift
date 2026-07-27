@@ -16,6 +16,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     }
 
     private func setUp() {
+        accessibilityIdentifier = "screenStates.loading"
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         addSubview(activityIndicator)
         NSLayoutConstraint.activate([
@@ -41,6 +42,7 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     }
 
     private func setUp(title: String) {
+        accessibilityIdentifier = "screenStates.empty"
         titleLabel.text = title
         titleLabel.textColor = .secondaryLabel
         titleLabel.font = .preferredFont(forTextStyle: .body)
@@ -75,6 +77,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     }
 
     private func setUp(message: String, showsRetry: Bool) {
+        accessibilityIdentifier = "screenStates.error"
         messageLabel.text = message
         messageLabel.textColor = .secondaryLabel
         messageLabel.font = .preferredFont(forTextStyle: .body)
@@ -86,6 +89,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         retryButton.configuration = configuration
         retryButton.addAction(UIAction { [weak self] _ in self?.onRetry?() }, for: .touchUpInside)
         retryButton.isHidden = !showsRetry
+        retryButton.accessibilityIdentifier = "screenStates.error.retryButton"
 
         let stack = UIStackView(arrangedSubviews: [messageLabel, retryButton])
         stack.axis = .vertical

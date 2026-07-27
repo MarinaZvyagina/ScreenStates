@@ -8,6 +8,7 @@ public struct ScreenStateDefaultLoadingView: View {
     public var body: some View {
         ProgressView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityIdentifier("screenStates.loading")
     }
 }
 
@@ -23,6 +24,7 @@ public struct ScreenStateDefaultEmptyView: View {
 
     public var body: some View {
         ContentUnavailableView(title, systemImage: systemImage)
+            .accessibilityIdentifier("screenStates.empty")
     }
 }
 
@@ -45,8 +47,10 @@ public struct ScreenStateDefaultErrorView: View {
         } actions: {
             if let onRetry {
                 Button("Retry", action: onRetry)
+                    .accessibilityIdentifier("screenStates.error.retryButton")
             }
         }
+        .accessibilityIdentifier("screenStates.error")
     }
 }
 #endif
