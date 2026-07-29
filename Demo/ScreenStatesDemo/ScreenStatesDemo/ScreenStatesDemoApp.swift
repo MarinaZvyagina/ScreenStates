@@ -4,19 +4,32 @@ import SwiftUI
 /// `ScreenStateView`, "Tasks" is built with UIKit's
 /// `ScreenStateContainerView`. Both auto-cycle through Loading, Empty,
 /// Data, and Error every couple of seconds to show the whole state
-/// machine without any manual interaction.
+/// machine without any manual interaction — the app also hops between the
+/// two tabs on its own, so the whole thing is watchable hands-off.
 @main
 struct ScreenStatesDemoApp: App {
+    @State private var selection = 0
+
     var body: some Scene {
         WindowGroup {
-            TabView {
+            TabView(selection: $selection) {
                 ArticlesScreen()
                     .tabItem { Label("Articles", systemImage: "newspaper") }
+                    .tag(0)
 
                 TasksScreenRepresentable()
                     .tabItem { Label("Tasks", systemImage: "checklist") }
+                    .tag(1)
                     .ignoresSafeArea(edges: .bottom)
             }
+            .task { await autoSwitchTabs() }
+        }
+    }
+
+    private func autoSwitchTabs() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(6))
+            selection = selection == 0 ? 1 : 0
         }
     }
 }

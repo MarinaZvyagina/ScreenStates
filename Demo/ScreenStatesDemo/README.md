@@ -1,5 +1,9 @@
 # ScreenStates Demo
 
+<p align="center">
+  <img src="Media/demo.gif" alt="ScreenStates demo: a SwiftUI screen and a UIKit screen each cycling through Loading, Empty, Data, and Error" width="340">
+</p>
+
 A runnable iOS app showing the library on two screens, built with two
 different paradigms:
 
@@ -11,7 +15,9 @@ Both screens call a simulated, flaky `DemoArticleService` / `DemoTaskService`
 through the library's real `loadCollection(_:)` API every couple of seconds,
 so opening either tab cycles through **Loading → Empty → Data → Error →
 Data** entirely on its own — no backend required. The Retry button on the
-Error placeholder calls the exact same reload path.
+Error placeholder calls the exact same reload path. The app also switches
+between the two tabs on its own every 6 seconds, so the whole thing is
+watchable hands-off — which is how the GIF above was recorded.
 
 ## Running it
 

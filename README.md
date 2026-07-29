@@ -13,6 +13,12 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 Sensible default placeholders (built on `ContentUnavailableView` / `UIActivityIndicatorView`) that you can fully replace
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
+<p align="center">
+  <img src="Demo/ScreenStatesDemo/Media/demo.gif" alt="ScreenStates demo: a SwiftUI screen and a UIKit screen each cycling through Loading, Empty, Data, and Error" width="340">
+</p>
+
+<p align="center"><em>The <a href="Demo/ScreenStatesDemo">demo app</a> — one SwiftUI screen, one UIKit screen, both auto-cycling through all four states.</em></p>
+
 ## Requirements
 
 - iOS 17.0+
