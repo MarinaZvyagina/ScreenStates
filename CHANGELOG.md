@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.1.0]
+
+- Add `Demo/ScreenStatesDemo`, a runnable two-screen app (SwiftUI + UIKit)
+  that cycles through all four states via the library's real
+  `loadCollection(_:)` API, with a recorded GIF embedded in the README.
+  The library itself is unchanged.
+
 ## [1.0.1]
 
 - Add stable `accessibilityIdentifier`s (`screenStates.loading`, `screenStates.empty`,
