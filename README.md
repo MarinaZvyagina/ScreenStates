@@ -163,6 +163,13 @@ ScreenStateContainerView<[Article]>(
 )
 ```
 
+## Demo app
+
+[`Demo/ScreenStatesDemo`](Demo/ScreenStatesDemo) is a runnable two-screen app —
+one SwiftUI screen, one UIKit screen — that auto-cycles through all four
+states every couple of seconds using the library's real API. Open
+`Demo/ScreenStatesDemo/ScreenStatesDemo.xcodeproj` and run it.
+
 ## API reference
 
 | Type | Purpose |
