@@ -4,6 +4,7 @@
 [![Platforms](https://img.shields.io/badge/platforms-iOS%2017%2B-blue.svg)](#requirements)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/documentation-DocC-blue.svg)](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)
 
 Every screen that loads data has the same four states: **Empty**, **Loading**, **Data**, and **Error**. ScreenStates gives you one small, dependency-free type — `ScreenState<Value>` — to model that, plus ready-to-use SwiftUI and UIKit views that render it, so you stop rebuilding the same `if/else` ladder in every screen.
 
@@ -175,6 +176,12 @@ ScreenStateContainerView<[Article]>(
 one SwiftUI screen, one UIKit screen — that auto-cycles through all four
 states every couple of seconds using the library's real API. Open
 `Demo/ScreenStatesDemo/ScreenStatesDemo.xcodeproj` and run it.
+
+## Documentation
+
+Full API reference and getting-started guides for both paradigms are published at
+**[marinazvyagina.github.io/ScreenStates](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)**,
+generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/generate-docs.sh).
 
 ## API reference
 
