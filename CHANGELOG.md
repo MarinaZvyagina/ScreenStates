@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.2.0]
+
+- Add a DocC documentation site (module landing page + Getting Started
+  articles for SwiftUI and UIKit), published via GitHub Pages at
+  https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/.
+  Regenerate it with `Scripts/generate-docs.sh`. The library itself is
+  unchanged.
+
 ## [1.1.0]
 
 - Add `Demo/ScreenStatesDemo`, a runnable two-screen app (SwiftUI + UIKit)
