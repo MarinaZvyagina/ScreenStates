@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.3.0]
+
+- Add `ScreenOpenSource<Screen>`, an independent type modeling how a screen
+  came to be visible (`.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`,
+  `.shortcut(id:)`, `.tabSelection`, `.unknown`), with `isPop` and
+  `originatingScreen` helpers, so a screen can change its behavior (e.g.
+  skip a reload on `.pop`) based on it. Apps supply the value themselves —
+  the library can't detect navigation on its own.
+
 ## [1.2.0]
 
 - Add a DocC documentation site (module landing page + Getting Started
