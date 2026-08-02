@@ -25,6 +25,11 @@ Requires iOS 17.0+ and Swift 6.0.
 - ``ScreenState``
 - ``ScreenStateStore``
 
+### Navigation context
+
+- <doc:TrackingOpenSource>
+- ``ScreenOpenSource``
+
 ### SwiftUI
 
 - ``ScreenStateView``

@@ -81,6 +81,33 @@ await store.loadCollection {
 
 You can also drive the state manually with `setLoading()`, `setEmpty()`, `setData(_:)`, and `setError(_:)`.
 
+## How a screen was opened
+
+`ScreenState` only models what a screen is showing right now. `ScreenOpenSource` is a separate, independent type for *how the screen came to be visible* — freshly pushed, popped back to, presented modally, deep-linked, or opened from a Home Screen shortcut — so a screen can change its behavior accordingly (e.g. skip a reload when merely returning to it):
+
+```swift
+public enum ScreenOpenSource<Screen> {
+    case push(from: Screen)
+    case pop(from: Screen)
+    case presented(from: Screen)
+    case deepLink(URL)
+    case shortcut(id: String)
+    case tabSelection
+    case unknown
+}
+```
+
+ScreenStates can't detect this on its own — pass it in wherever your app already knows the answer (a coordinator, a router, a `NavigationStack` path change, `onOpenURL`, a shortcut-item handler):
+
+```swift
+func onAppear(source: ScreenOpenSource<AppScreen>) {
+    if source.isPop {
+        return // already have data from before — nothing to do
+    }
+    Task { await store.loadCollection { try await api.fetchArticles() } }
+}
+```
+
 ## Quick start — SwiftUI
 
 ```swift
@@ -193,6 +220,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
+| `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen` helpers |
 
 ## License
 
