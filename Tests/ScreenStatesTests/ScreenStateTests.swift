@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import ScreenStates
 
@@ -86,5 +87,54 @@ struct ScreenStateStoreTests {
 
         store.setLoading()
         #expect(store.state.isLoading)
+    }
+}
+
+@Suite("ScreenOpenSource")
+struct ScreenOpenSourceTests {
+    private enum AppScreen: Hashable {
+        case home
+        case settings
+    }
+
+    @Test("originatingScreen is set for push, pop, and presented")
+    func originatingScreenForNavigationCases() {
+        #expect(ScreenOpenSource.push(from: AppScreen.home).originatingScreen == .home)
+        #expect(ScreenOpenSource.pop(from: AppScreen.settings).originatingScreen == .settings)
+        #expect(ScreenOpenSource.presented(from: AppScreen.home).originatingScreen == .home)
+    }
+
+    @Test("originatingScreen is nil for deep link, shortcut, tab selection, and unknown")
+    func originatingScreenForNonNavigationCases() {
+        #expect(ScreenOpenSource<AppScreen>.deepLink(URL(string: "myapp://home")!).originatingScreen == nil)
+        #expect(ScreenOpenSource<AppScreen>.shortcut(id: "new-note").originatingScreen == nil)
+        #expect(ScreenOpenSource<AppScreen>.tabSelection.originatingScreen == nil)
+        #expect(ScreenOpenSource<AppScreen>.unknown.originatingScreen == nil)
+    }
+
+    @Test("isPop is true only for .pop")
+    func isPopHelper() {
+        #expect(ScreenOpenSource.pop(from: AppScreen.home).isPop)
+        #expect(!ScreenOpenSource.push(from: AppScreen.home).isPop)
+        #expect(!ScreenOpenSource<AppScreen>.tabSelection.isPop)
+    }
+
+    @Test("Equatable compares by case and payload")
+    func equatable() {
+        #expect(ScreenOpenSource.push(from: AppScreen.home) == ScreenOpenSource.push(from: AppScreen.home))
+        #expect(ScreenOpenSource.push(from: AppScreen.home) != ScreenOpenSource.push(from: AppScreen.settings))
+        #expect(ScreenOpenSource.push(from: AppScreen.home) != ScreenOpenSource.pop(from: AppScreen.home))
+        #expect(ScreenOpenSource<AppScreen>.tabSelection == ScreenOpenSource<AppScreen>.tabSelection)
+    }
+
+    @Test("Hashable values work in a Set")
+    func hashable() {
+        let sources: Set<ScreenOpenSource<AppScreen>> = [
+            .push(from: .home),
+            .push(from: .home),
+            .pop(from: .home),
+            .tabSelection
+        ]
+        #expect(sources.count == 3)
     }
 }
