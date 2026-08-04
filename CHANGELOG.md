@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.4.0]
+
+- Rework the demo app's content: the SwiftUI screen now shows Rey Skywalker
+  facts, the UIKit screen shows Kylo Ren facts (each with a lightsaber-color
+  accent), replacing the generic Articles/Tasks placeholders. No character
+  artwork is used — SF Symbols and text only. The library itself is
+  unchanged.
+
 ## [1.3.0]
 
 - Add `ScreenOpenSource<Screen>`, an independent type modeling how a screen
