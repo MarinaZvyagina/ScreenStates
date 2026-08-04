@@ -5,13 +5,17 @@
 </p>
 
 A runnable iOS app showing the library on two screens, built with two
-different paradigms:
+different paradigms — and, since a plain "Articles" list is a bit dry,
+themed around two *Star Wars* characters instead:
 
-- **Articles** — SwiftUI, using `ScreenStateStore` + `ScreenStateView`.
-- **Tasks** — UIKit, using `ScreenStateStore` + `ScreenStateContainerView`,
-  wrapped for the tab bar with `UIViewControllerRepresentable`.
+- **Rey Skywalker** — SwiftUI, using `ScreenStateStore` + `ScreenStateView`,
+  listing facts about her with a golden-lightsaber accent.
+- **Kylo Ren** — UIKit, using `ScreenStateStore` + `ScreenStateContainerView`,
+  wrapped for the tab bar with `UIViewControllerRepresentable`, with a
+  red-lightsaber accent. No character artwork is used anywhere — just SF
+  Symbols and text, to stay clear of Lucasfilm/Disney-owned imagery.
 
-Both screens call a simulated, flaky `DemoArticleService` / `DemoTaskService`
+Both screens call a simulated, flaky `ReyFactsService` / `KyloRenFactsService`
 through the library's real `loadCollection(_:)` API every couple of seconds,
 so opening either tab cycles through **Loading → Empty → Data → Error →
 Data** entirely on its own — no backend required. The Retry button on the
