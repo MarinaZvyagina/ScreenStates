@@ -1,12 +1,12 @@
 import SwiftUI
 import UIKit
 
-/// Hosts the UIKit `TasksViewController` (inside a `UINavigationController`
+/// Hosts the UIKit `KyloRenViewController` (inside a `UINavigationController`
 /// for a matching nav bar) so it can sit alongside the SwiftUI screen in the
 /// demo's `TabView`.
-struct TasksScreenRepresentable: UIViewControllerRepresentable {
+struct KyloRenScreenRepresentable: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UINavigationController {
-        UINavigationController(rootViewController: TasksViewController())
+        UINavigationController(rootViewController: KyloRenViewController())
     }
 
     func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}

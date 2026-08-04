@@ -1,24 +1,24 @@
 import ScreenStates
 import UIKit
 
-/// The UIKit half of the demo: the same idea as ``ArticlesScreen``, but
-/// built with ``ScreenStateContainerView`` instead of ``ScreenStateView``.
-/// The cycling `Task` is started in `viewWillAppear` and cancelled in
+/// The UIKit half of the demo: the same idea as ``ReyScreen``, but built
+/// with ``ScreenStateContainerView`` instead of ``ScreenStateView``. The
+/// cycling `Task` is started in `viewWillAppear` and cancelled in
 /// `viewWillDisappear`, the UIKit analogue of SwiftUI's `.task { }`.
-final class TasksViewController: UIViewController {
-    private let store = ScreenStateStore<[DemoTask]>()
-    private let service = DemoTaskService()
+final class KyloRenViewController: UIViewController {
+    private let store = ScreenStateStore<[CharacterFact]>()
+    private let service = KyloRenFactsService()
     private var cycleTask: Task<Void, Never>?
 
-    private lazy var container = ScreenStateContainerView<[DemoTask]>(
+    private lazy var container = ScreenStateContainerView<[CharacterFact]>(
         onRetry: { [weak self] in self?.reload() }
-    ) { tasks in
-        TasksListView(tasks: tasks)
+    ) { facts in
+        CharacterFactsListView(facts: facts, tintColor: .systemRed)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Tasks"
+        title = "Kylo Ren"
         view.backgroundColor = .systemBackground
 
         container.translatesAutoresizingMaskIntoConstraints = false
@@ -52,12 +52,12 @@ final class TasksViewController: UIViewController {
     /// Free of any reference to `self`, so restarting it on retry never
     /// risks retaining the view controller.
     private static func makeCycleTask(
-        store: ScreenStateStore<[DemoTask]>,
-        service: DemoTaskService
+        store: ScreenStateStore<[CharacterFact]>,
+        service: KyloRenFactsService
     ) -> Task<Void, Never> {
         Task {
             while !Task.isCancelled {
-                await store.loadCollection { try await service.fetchTasks() }
+                await store.loadCollection { try await service.fetchFacts() }
                 try? await Task.sleep(for: .seconds(2))
             }
         }

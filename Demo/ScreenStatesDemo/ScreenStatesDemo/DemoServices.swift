@@ -4,32 +4,32 @@ import Foundation
 /// different state (empty, populated, failed, populated with different
 /// data) so the four `ScreenState` cases are all visible without a real
 /// network call.
-actor DemoArticleService {
+actor ReyFactsService {
     private var callCount = 0
 
-    func fetchArticles() async throws -> [Article] {
+    func fetchFacts() async throws -> [CharacterFact] {
         callCount += 1
         try await Task.sleep(for: .milliseconds(700))
         switch callCount % 4 {
         case 1: return []
-        case 2: return Article.samples
+        case 2: return CharacterFact.reySamples
         case 3: throw DemoError.network
-        default: return Array(Article.samples.prefix(2))
+        default: return Array(CharacterFact.reySamples.prefix(2))
         }
     }
 }
 
-actor DemoTaskService {
+actor KyloRenFactsService {
     private var callCount = 0
 
-    func fetchTasks() async throws -> [DemoTask] {
+    func fetchFacts() async throws -> [CharacterFact] {
         callCount += 1
         try await Task.sleep(for: .milliseconds(700))
         switch callCount % 4 {
         case 1: throw DemoError.network
         case 2: return []
-        case 3: return DemoTask.samples
-        default: return DemoTask.samples.map { DemoTask(title: $0.title, isDone: !$0.isDone) }
+        case 3: return CharacterFact.kyloRenSamples
+        default: return Array(CharacterFact.kyloRenSamples.prefix(2))
         }
     }
 }

@@ -1,42 +1,30 @@
 import Foundation
 
-struct Article: Identifiable, Sendable {
+struct CharacterFact: Identifiable, Sendable {
     let id: UUID
-    let title: String
-    let subtitle: String
+    let icon: String
+    let text: String
 
-    init(id: UUID = UUID(), title: String, subtitle: String) {
+    init(id: UUID = UUID(), icon: String, text: String) {
         self.id = id
-        self.title = title
-        self.subtitle = subtitle
+        self.icon = icon
+        self.text = text
     }
 }
 
-extension Article {
-    static let samples: [Article] = [
-        Article(title: "Swift 6 Concurrency In Practice", subtitle: "A field guide to strict concurrency checking"),
-        Article(title: "What's New in Observation", subtitle: "Replacing Combine in everyday SwiftUI code"),
-        Article(title: "Designing Resilient Screens", subtitle: "Empty, Loading, Data, and Error as first-class states")
+extension CharacterFact {
+    static let reySamples: [CharacterFact] = [
+        CharacterFact(icon: "sun.max.fill", text: "Grew up scavenging starship wreckage on the desert world of Jakku."),
+        CharacterFact(icon: "figure.walk.motion", text: "Trained in the ways of the Force by Luke Skywalker and Leia Organa."),
+        CharacterFact(icon: "bolt.fill", text: "Builds and wields her own golden lightsaber."),
+        CharacterFact(icon: "shield.fill", text: "Defeats Emperor Palpatine on Exegol, ending the Sith once and for all.")
     ]
-}
 
-struct DemoTask: Identifiable, Sendable {
-    let id: UUID
-    let title: String
-    var isDone: Bool
-
-    init(id: UUID = UUID(), title: String, isDone: Bool) {
-        self.id = id
-        self.title = title
-        self.isDone = isDone
-    }
-}
-
-extension DemoTask {
-    static let samples: [DemoTask] = [
-        DemoTask(title: "Wire up ScreenStateStore", isDone: true),
-        DemoTask(title: "Bind ScreenStateContainerView", isDone: true),
-        DemoTask(title: "Ship the demo", isDone: false)
+    static let kyloRenSamples: [CharacterFact] = [
+        CharacterFact(icon: "person.fill.questionmark", text: "Born Ben Solo, son of Han Solo and Leia Organa."),
+        CharacterFact(icon: "flame.fill", text: "Once Luke Skywalker's apprentice, turned to the dark side by Snoke."),
+        CharacterFact(icon: "bolt.fill", text: "Wields an unstable crossguard lightsaber of his own design."),
+        CharacterFact(icon: "crown.fill", text: "Rises to become Supreme Leader of the First Order.")
     ]
 }
 

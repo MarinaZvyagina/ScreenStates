@@ -1,13 +1,13 @@
 import UIKit
 
-/// Plain UIKit content view for the `.data` case of the Tasks screen — a
-/// simple checklist built from a stack of rows.
-final class TasksListView: UIView {
-    init(tasks: [DemoTask]) {
+/// Plain UIKit content view for the `.data` case of the Kylo Ren screen — a
+/// simple list of facts built from a stack of rows.
+final class CharacterFactsListView: UIView {
+    init(facts: [CharacterFact], tintColor: UIColor) {
         super.init(frame: .zero)
         backgroundColor = .systemBackground
 
-        let stack = UIStackView(arrangedSubviews: tasks.map(Self.makeRow))
+        let stack = UIStackView(arrangedSubviews: facts.map { Self.makeRow(for: $0, tintColor: tintColor) })
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -24,14 +24,15 @@ final class TasksListView: UIView {
         fatalError("init(coder:) is unavailable")
     }
 
-    private static func makeRow(for task: DemoTask) -> UIView {
-        let icon = UIImageView(image: UIImage(systemName: task.isDone ? "checkmark.circle.fill" : "circle"))
-        icon.tintColor = task.isDone ? .systemGreen : .secondaryLabel
+    private static func makeRow(for fact: CharacterFact, tintColor: UIColor) -> UIView {
+        let icon = UIImageView(image: UIImage(systemName: fact.icon))
+        icon.tintColor = tintColor
         icon.setContentHuggingPriority(.required, for: .horizontal)
 
         let label = UILabel()
-        label.text = task.title
+        label.text = fact.text
         label.font = .preferredFont(forTextStyle: .body)
+        label.numberOfLines = 0
 
         let row = UIStackView(arrangedSubviews: [icon, label])
         row.axis = .horizontal

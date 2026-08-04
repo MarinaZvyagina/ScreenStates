@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Two screens, two paradigms: "Articles" is built with SwiftUI's
-/// `ScreenStateView`, "Tasks" is built with UIKit's
+/// Two screens, two paradigms: "Rey Skywalker" is built with SwiftUI's
+/// `ScreenStateView`, "Kylo Ren" is built with UIKit's
 /// `ScreenStateContainerView`. Both auto-cycle through Loading, Empty,
 /// Data, and Error every couple of seconds to show the whole state
 /// machine without any manual interaction — the app also hops between the
@@ -13,12 +13,12 @@ struct ScreenStatesDemoApp: App {
     var body: some Scene {
         WindowGroup {
             TabView(selection: $selection) {
-                ArticlesScreen()
-                    .tabItem { Label("Articles", systemImage: "newspaper") }
+                ReyScreen()
+                    .tabItem { Label("Rey", systemImage: "sun.max.fill") }
                     .tag(0)
 
-                TasksScreenRepresentable()
-                    .tabItem { Label("Tasks", systemImage: "checklist") }
+                KyloRenScreenRepresentable()
+                    .tabItem { Label("Kylo Ren", systemImage: "flame.fill") }
                     .tag(1)
                     .ignoresSafeArea(edges: .bottom)
             }
