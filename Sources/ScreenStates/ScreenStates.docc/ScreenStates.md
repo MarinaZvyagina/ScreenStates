@@ -30,6 +30,14 @@ Requires iOS 17.0+ and Swift 6.0.
 - <doc:TrackingOpenSource>
 - ``ScreenOpenSource``
 
+### Analytics
+
+- <doc:TrackingAnalytics>
+- ``ScreenAnalyticsService``
+- ``ScreenAnalyticsTracker``
+- ``ScreenAnalyticsEvent``
+- ``AnalyticsValue``
+
 ### SwiftUI
 
 - ``ScreenStateView``

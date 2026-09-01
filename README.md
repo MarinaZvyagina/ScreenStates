@@ -121,6 +121,29 @@ func onAppear(source: ScreenOpenSource<AppScreen>) {
 }
 ```
 
+## Analytics
+
+ScreenStates can turn screen opens and `ScreenState` transitions into analytics events, without depending on any specific analytics SDK. Implement `ScreenAnalyticsTracker` once per backend you use — Firebase, Mixpanel, Amplitude, your own logging endpoint, a debug console print, whatever — converting the event's backend-agnostic `AnalyticsValue` parameters to that SDK's own format:
+
+```swift
+struct ConsoleScreenTracker: ScreenAnalyticsTracker {
+    func track(_ event: ScreenAnalyticsEvent) {
+        print(event.name, event.parameters)
+    }
+}
+```
+
+Then hand as many trackers as you like to a `ScreenAnalyticsService`, and wire it to a screen:
+
+```swift
+let analytics = ScreenAnalyticsService(trackers: [ConsoleScreenTracker(), FirebaseScreenTracker()])
+
+analytics.trackScreenOpened("Articles", source: openSource?.analyticsKind)
+analytics.observeStateChanges(of: store, screen: "Articles")
+```
+
+`trackScreenOpened(_:source:)` sends one `screen_opened` event. `observeStateChanges(of:screen:)` uses the same `withObservationTracking` mechanism as `ScreenStateContainerView` to watch a `ScreenStateStore` and sends a `screen_state_changed` event (with the error's description, when transitioning to `.error`) for every subsequent transition — call it once, e.g. right where you create the store. Every tracker registered with the service receives every event, so you can fan the same screen out to multiple analytics backends at once.
+
 ## Quick start — SwiftUI
 
 ```swift
@@ -234,7 +257,11 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
-| `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen` helpers |
+| `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
+| `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)` and `.screenStateChanged(screen:from:to:errorDescription:)` factories |
+| `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
+| `ScreenAnalyticsTracker` | Protocol you implement per analytics backend: `track(_ event: ScreenAnalyticsEvent)` |
+| `ScreenAnalyticsService` | Fans events out to every registered `ScreenAnalyticsTracker`: `track(_:)`, `trackScreenOpened(_:source:)`, `observeStateChanges(of:screen:)` |
 
 ## License
 

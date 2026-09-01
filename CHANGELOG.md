@@ -3,6 +3,22 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.6.0]
+
+- Add an analytics layer: `ScreenAnalyticsTracker`, a protocol you implement
+  once per analytics backend (Firebase, Mixpanel, Amplitude, your own
+  endpoint, ...) to convert a backend-agnostic `ScreenAnalyticsEvent` (name +
+  `[String: AnalyticsValue]` parameters) into that SDK's own format;
+  `ScreenAnalyticsService`, which fans events out to every registered
+  tracker via `track(_:)`, sends a `screen_opened` event via
+  `trackScreenOpened(_:source:)`, and can automatically send a
+  `screen_state_changed` event for every subsequent `ScreenState` transition
+  on a store via `observeStateChanges(of:screen:)` (using the same
+  `withObservationTracking` mechanism as `ScreenStateContainerView`). Also
+  adds `ScreenState.analyticsKind` and `ScreenOpenSource.analyticsKind`
+  helpers. ScreenStates ships no concrete tracker implementations, so the
+  library stays dependency-free.
+
 ## [1.5.0]
 
 - Add `refresh(_:)` and `refreshCollection(_:)` to `ScreenStateStore`, for
