@@ -88,6 +88,95 @@ struct ScreenStateStoreTests {
         store.setLoading()
         #expect(store.state.isLoading)
     }
+
+    @Test("refresh(_:) falls back to load(_:) when there's no data yet")
+    func refreshWithNoExistingData() async {
+        let store = ScreenStateStore<Int>()
+        await store.refresh { 7 }
+        #expect(store.state == .data(7))
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("refresh(_:) keeps existing data on screen and sets isRefreshing while in flight")
+    func refreshKeepsDataWhileInFlight() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        let gate = Gate()
+
+        let task = Task {
+            await store.refresh {
+                await gate.waitForOpen()
+                return 2
+            }
+        }
+
+        await gate.waitForStart()
+        #expect(store.state == .data(1))
+        #expect(store.isRefreshing)
+
+        await gate.open()
+        await task.value
+
+        #expect(store.state == .data(2))
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("refresh(_:) failure leaves old data in place and reports refreshError")
+    func refreshFailureKeepsOldData() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+
+        await store.refresh { throw SampleError() }
+
+        #expect(store.state == .data(1))
+        #expect(store.refreshError is SampleError)
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("load(_:) clears a stale refreshError from a previous failed refresh")
+    func loadClearsStaleRefreshError() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        await store.refresh { throw SampleError() }
+        #expect(store.refreshError != nil)
+
+        await store.load { 2 }
+        #expect(store.refreshError == nil)
+    }
+
+    @Test("refreshCollection(_:) maps a newly empty result to .empty")
+    func refreshCollectionToEmpty() async {
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1, 2, 3])
+
+        await store.refreshCollection { [] }
+
+        #expect(store.state.isEmpty)
+        #expect(!store.isRefreshing)
+    }
+}
+
+/// Lets a test observe a `ScreenStateStore` in the middle of an in-flight
+/// async operation instead of only before/after it, by suspending the
+/// operation until the test explicitly releases it.
+private actor Gate {
+    private var startContinuation: CheckedContinuation<Void, Never>?
+    private var openContinuation: CheckedContinuation<Void, Never>?
+
+    func waitForStart() async {
+        await withCheckedContinuation { startContinuation = $0 }
+    }
+
+    func waitForOpen() async {
+        startContinuation?.resume()
+        startContinuation = nil
+        await withCheckedContinuation { openContinuation = $0 }
+    }
+
+    func open() {
+        openContinuation?.resume()
+        openContinuation = nil
+    }
 }
 
 @Suite("ScreenOpenSource")

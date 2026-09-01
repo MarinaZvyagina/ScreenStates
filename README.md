@@ -81,6 +81,19 @@ await store.loadCollection {
 
 You can also drive the state manually with `setLoading()`, `setEmpty()`, `setData(_:)`, and `setError(_:)`.
 
+### Refreshing without losing data
+
+`load(_:)`/`loadCollection(_:)` always show `.loading` first, which is right for an initial fetch but wrong for pull-to-refresh — the existing list shouldn't vanish behind a spinner just because it's being refetched. Use `refresh(_:)`/`refreshCollection(_:)` instead: they keep whatever is currently in `state` on screen while `operation` runs, and leave it there if `operation` fails instead of switching to `.error`:
+
+```swift
+List(articles) { ... }
+    .refreshable {
+        await store.refreshCollection { try await api.fetchArticles() }
+    }
+```
+
+While a refresh is in flight, `store.isRefreshing` is `true`; if it fails, `store.state` is untouched and the error is reported via `store.refreshError` instead (so you can show a toast without discarding the list). Both fall back to `load(_:)`/`loadCollection(_:)` automatically when there's no data yet to preserve.
+
 ## How a screen was opened
 
 `ScreenState` only models what a screen is showing right now. `ScreenOpenSource` is a separate, independent type for *how the screen came to be visible* — freshly pushed, popped back to, presented modally, deep-linked, or opened from a Home Screen shortcut — so a screen can change its behavior accordingly (e.g. skip a reload when merely returning to it):
@@ -216,7 +229,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | Type | Purpose |
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty` helpers |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |

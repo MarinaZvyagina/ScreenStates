@@ -46,6 +46,21 @@ ScreenStateView(store.state) { articles in
 }
 ```
 
+## Refreshing without losing data
+
+`loadCollection(_:)` always shows `.loading` first, which is right for the initial fetch but wrong for pull-to-refresh — the list shouldn't disappear behind a spinner while it's being refetched. Use `refreshCollection(_:)` instead: it keeps the current `.data` on screen while the operation runs, and leaves it there if the operation fails instead of switching to `.error`:
+
+```swift
+List(articles) { article in
+    Text(article.title)
+}
+.refreshable {
+    await store.refreshCollection { try await api.fetchArticles() }
+}
+```
+
+`store.isRefreshing` is `true` for the duration; a failure is reported via `store.refreshError` rather than by discarding `state`, so the list stays visible and you can surface the error separately (a toast, for example).
+
 ## See Also
 
 - ``ScreenStateStore``

@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.5.0]
+
+- Add `refresh(_:)` and `refreshCollection(_:)` to `ScreenStateStore`, for
+  the pull-to-refresh case: unlike `load(_:)`/`loadCollection(_:)`, they
+  keep whatever is currently in `state` on screen while the operation runs
+  (`isRefreshing` reports the in-flight status) and leave it there on
+  failure instead of switching to `.error`, reporting the failure via the
+  new `refreshError` property instead. Both fall back to
+  `load(_:)`/`loadCollection(_:)` when there's no data yet to preserve. No
+  changes to `ScreenState` itself — purely additive on the store.
+
 ## [1.4.0]
 
 - Rework the demo app's content: the SwiftUI screen now shows Rey Skywalker
