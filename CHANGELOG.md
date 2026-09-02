@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.7.0]
+
+- Add a GitHub Actions workflow (`.github/workflows/tests.yml`) that runs
+  `xcodebuild test` against an iOS Simulator on every push to `main` and
+  every pull request, plus a Tests badge in the README. The library itself
+  is unchanged.
+
 ## [1.6.0]
 
 - Add an analytics layer: `ScreenAnalyticsTracker`, a protocol you implement

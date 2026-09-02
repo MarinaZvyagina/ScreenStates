@@ -1,5 +1,6 @@
 # ScreenStates
 
+[![Tests](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml/badge.svg)](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%2017%2B-blue.svg)](#requirements)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
