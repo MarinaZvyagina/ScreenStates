@@ -29,11 +29,13 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
 
 /// Default placeholder shown when a screen has no data to display.
 public final class ScreenStateDefaultEmptyUIView: UIView {
+    private let iconMask = UIImageView()
+    private let iconGradient = GradientUIView()
     private let titleLabel = UILabel()
 
-    public init(title: String = "Nothing Here") {
+    public init(title: String = "Nothing Here", systemImage: String = "tray.fill") {
         super.init(frame: .zero)
-        setUp(title: title)
+        setUp(title: title, systemImage: systemImage)
     }
 
     @available(*, unavailable)
@@ -41,20 +43,58 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
         fatalError("init(coder:) is unavailable")
     }
 
-    private func setUp(title: String) {
+    private func setUp(title: String, systemImage: String) {
         accessibilityIdentifier = "screenStates.empty"
+
+        iconMask.image = UIImage(
+            systemName: systemImage,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
+        )
+        iconMask.contentMode = .center
+        iconMask.translatesAutoresizingMaskIntoConstraints = false
+
+        iconGradient.gradientLayer.colors = [
+            UIColor.systemPink.cgColor,
+            UIColor.systemOrange.cgColor,
+            UIColor.systemYellow.cgColor
+        ]
+        iconGradient.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        iconGradient.gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        iconGradient.mask = iconMask
+        iconGradient.translatesAutoresizingMaskIntoConstraints = false
+
         titleLabel.text = title
         titleLabel.textColor = .secondaryLabel
         titleLabel.font = .preferredFont(forTextStyle: .body)
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(titleLabel)
+
+        let stack = UIStackView(arrangedSubviews: [iconGradient, titleLabel])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
         NSLayoutConstraint.activate([
-            titleLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
+            iconGradient.widthAnchor.constraint(equalToConstant: 56),
+            iconGradient.heightAnchor.constraint(equalToConstant: 56),
+            stack.centerXAnchor.constraint(equalTo: centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
         ])
+    }
+}
+
+/// A `UIView` backed by a `CAGradientLayer`, used to paint a solid gradient
+/// through another view set as its `mask` (an SF Symbol icon, in
+/// ``ScreenStateDefaultEmptyUIView``) — UIKit's equivalent of SwiftUI's
+/// `.foregroundStyle(LinearGradient(...))` on an `Image`.
+private final class GradientUIView: UIView {
+    override class var layerClass: AnyClass { CAGradientLayer.self }
+
+    var gradientLayer: CAGradientLayer {
+        layer as! CAGradientLayer
     }
 }
 

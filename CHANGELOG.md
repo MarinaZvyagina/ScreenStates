@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.8.0]
+
+- Give the default Empty placeholder (`ScreenStateDefaultEmptyView` in
+  SwiftUI, `ScreenStateDefaultEmptyUIView` in UIKit) a bigger icon rendered
+  with a vibrant pink/orange/yellow gradient, replacing the plain gray
+  system-image tint (SwiftUI) and the icon-less text-only layout (UIKit).
+  Both still accept the same `title`/`systemImage` parameters as before.
+
 ## [1.7.0]
 
 - Add a GitHub Actions workflow (`.github/workflows/tests.yml`) that runs

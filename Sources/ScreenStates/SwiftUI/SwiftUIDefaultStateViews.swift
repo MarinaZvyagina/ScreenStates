@@ -17,14 +17,28 @@ public struct ScreenStateDefaultEmptyView: View {
     private let title: String
     private let systemImage: String
 
-    public init(title: String = "Nothing Here", systemImage: String = "tray") {
+    public init(title: String = "Nothing Here", systemImage: String = "tray.fill") {
         self.title = title
         self.systemImage = systemImage
     }
 
     public var body: some View {
-        ContentUnavailableView(title, systemImage: systemImage)
-            .accessibilityIdentifier("screenStates.empty")
+        ContentUnavailableView {
+            Label {
+                Text(title)
+            } icon: {
+                Image(systemName: systemImage)
+                    .font(.system(size: 56))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.pink, .orange, .yellow],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+        }
+        .accessibilityIdentifier("screenStates.empty")
     }
 }
 
