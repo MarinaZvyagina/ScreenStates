@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.9.0]
+
+- Give the default Loading placeholder (`ScreenStateDefaultLoadingView` in
+  SwiftUI, `ScreenStateDefaultLoadingUIView` in UIKit) the same vibrant
+  gradient treatment as the Empty placeholder: a spinning ring stroked with
+  a pink/orange/yellow angular gradient, replacing the plain gray
+  `ProgressView`/`UIActivityIndicatorView`. No API changes — both still
+  have a parameterless `init()`.
+
 ## [1.8.0]
 
 - Give the default Empty placeholder (`ScreenStateDefaultEmptyView` in

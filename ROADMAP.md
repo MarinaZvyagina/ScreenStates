@@ -4,7 +4,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 
 ## Week 1 — Visual consistency
 
-- [ ] Give `ScreenStateDefaultLoadingView`/`ScreenStateDefaultLoadingUIView` the same vibrant gradient treatment the Empty placeholder got, instead of a plain gray spinner.
+- [x] Give `ScreenStateDefaultLoadingView`/`ScreenStateDefaultLoadingUIView` the same vibrant gradient treatment the Empty placeholder got, instead of a plain gray spinner.
 - [ ] Give `ScreenStateDefaultErrorView`/`ScreenStateDefaultErrorUIView` a warm red/orange gradient icon, consistent with the Empty and Loading placeholders.
 - [ ] Announce state transitions to VoiceOver (`UIAccessibility.post` in UIKit, an `AccessibilityNotification` in SwiftUI) from the default placeholders.
 - [ ] Localize the three default placeholder texts via a String Catalog (`Localizable.xcstrings`), starting with English + Russian.

@@ -3,7 +3,8 @@ import UIKit
 
 /// Default placeholder shown while a screen's data is loading.
 public final class ScreenStateDefaultLoadingUIView: UIView {
-    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let gradientRing = GradientUIView()
+    private let ringMask = CAShapeLayer()
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -17,13 +18,53 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
 
     private func setUp() {
         accessibilityIdentifier = "screenStates.loading"
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(activityIndicator)
+        isAccessibilityElement = true
+        accessibilityLabel = "Loading"
+
+        gradientRing.gradientLayer.type = .conic
+        gradientRing.gradientLayer.colors = [
+            UIColor.systemPink.cgColor,
+            UIColor.systemOrange.cgColor,
+            UIColor.systemYellow.cgColor,
+            UIColor.systemPink.cgColor
+        ]
+        gradientRing.translatesAutoresizingMaskIntoConstraints = false
+
+        ringMask.fillColor = UIColor.clear.cgColor
+        ringMask.strokeColor = UIColor.black.cgColor
+        ringMask.lineWidth = 4
+        ringMask.lineCap = .round
+        ringMask.strokeStart = 0
+        ringMask.strokeEnd = 0.75
+        gradientRing.layer.mask = ringMask
+
+        addSubview(gradientRing)
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
+            gradientRing.centerXAnchor.constraint(equalTo: centerXAnchor),
+            gradientRing.centerYAnchor.constraint(equalTo: centerYAnchor),
+            gradientRing.widthAnchor.constraint(equalToConstant: 44),
+            gradientRing.heightAnchor.constraint(equalToConstant: 44)
         ])
-        activityIndicator.startAnimating()
+
+        let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
+        rotation.fromValue = 0
+        rotation.toValue = Double.pi * 2
+        rotation.duration = 1
+        rotation.repeatCount = .infinity
+        gradientRing.layer.add(rotation, forKey: "rotation")
+    }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        let bounds = gradientRing.bounds
+        ringMask.frame = bounds
+        ringMask.path = UIBezierPath(
+            arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
+            radius: min(bounds.width, bounds.height) / 2 - ringMask.lineWidth / 2,
+            startAngle: -.pi / 2,
+            endAngle: 1.5 * .pi,
+            clockwise: true
+        ).cgPath
     }
 }
 

@@ -3,11 +3,23 @@ import SwiftUI
 
 /// Default placeholder shown while a screen's data is loading.
 public struct ScreenStateDefaultLoadingView: View {
+    @State private var isRotating = false
+
     public init() {}
 
     public var body: some View {
-        ProgressView()
+        Circle()
+            .trim(from: 0, to: 0.75)
+            .stroke(
+                AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center),
+                style: StrokeStyle(lineWidth: 4, lineCap: .round)
+            )
+            .frame(width: 44, height: 44)
+            .rotationEffect(.degrees(isRotating ? 360 : 0))
+            .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
+            .onAppear { isRotating = true }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityLabel("Loading")
             .accessibilityIdentifier("screenStates.loading")
     }
 }

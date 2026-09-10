@@ -12,7 +12,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 One generic enum for all four states, usable in any screen, any paradigm
 - 🔹 Built on the **Observation** framework (`@Observable`) — no Combine, no third-party dependencies
 - 🔹 Works with **SwiftUI** (`ScreenStateView`) and **UIKit** (`ScreenStateContainerView`) from the same store
-- 🔹 Sensible default placeholders (built on `ContentUnavailableView` / `UIActivityIndicatorView`) that you can fully replace
+- 🔹 Vibrant, ready-made Empty/Loading/Error placeholders (built on `ContentUnavailableView` and custom gradient views) that you can fully replace
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
 <p align="center">
