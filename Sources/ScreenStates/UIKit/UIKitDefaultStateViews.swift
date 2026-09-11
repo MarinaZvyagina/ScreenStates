@@ -142,6 +142,8 @@ private final class GradientUIView: UIView {
 /// Default placeholder shown when a screen's data failed to load, with an
 /// optional Retry button.
 public final class ScreenStateDefaultErrorUIView: UIView {
+    private let iconMask = UIImageView()
+    private let iconGradient = GradientUIView()
     private let messageLabel = UILabel()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
@@ -159,6 +161,23 @@ public final class ScreenStateDefaultErrorUIView: UIView {
 
     private func setUp(message: String, showsRetry: Bool) {
         accessibilityIdentifier = "screenStates.error"
+
+        iconMask.image = UIImage(
+            systemName: "exclamationmark.triangle.fill",
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
+        )
+        iconMask.contentMode = .center
+        iconMask.translatesAutoresizingMaskIntoConstraints = false
+
+        iconGradient.gradientLayer.colors = [
+            UIColor.systemRed.cgColor,
+            UIColor.systemOrange.cgColor
+        ]
+        iconGradient.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        iconGradient.gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+        iconGradient.mask = iconMask
+        iconGradient.translatesAutoresizingMaskIntoConstraints = false
+
         messageLabel.text = message
         messageLabel.textColor = .secondaryLabel
         messageLabel.font = .preferredFont(forTextStyle: .body)
@@ -172,13 +191,15 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         retryButton.isHidden = !showsRetry
         retryButton.accessibilityIdentifier = "screenStates.error.retryButton"
 
-        let stack = UIStackView(arrangedSubviews: [messageLabel, retryButton])
+        let stack = UIStackView(arrangedSubviews: [iconGradient, messageLabel, retryButton])
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
+            iconGradient.widthAnchor.constraint(equalToConstant: 56),
+            iconGradient.heightAnchor.constraint(equalToConstant: 56),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),

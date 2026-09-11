@@ -67,7 +67,19 @@ public struct ScreenStateDefaultErrorView: View {
 
     public var body: some View {
         ContentUnavailableView {
-            Label("Something Went Wrong", systemImage: "exclamationmark.triangle")
+            Label {
+                Text("Something Went Wrong")
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 56))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.red, .orange],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
         } description: {
             Text(error.localizedDescription)
         } actions: {

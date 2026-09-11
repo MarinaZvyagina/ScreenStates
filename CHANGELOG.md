@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.10.0]
+
+- Give the default Error placeholder (`ScreenStateDefaultErrorView` in
+  SwiftUI, `ScreenStateDefaultErrorUIView` in UIKit) a bigger triangle icon
+  rendered with a warm red/orange gradient, replacing the plain gray
+  system-image tint (SwiftUI) and the icon-less layout (UIKit) — matching
+  the gradient treatment the Empty and Loading placeholders already have.
+  No API changes.
+
 ## [1.9.0]
 
 - Give the default Loading placeholder (`ScreenStateDefaultLoadingView` in
