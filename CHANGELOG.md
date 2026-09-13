@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.11.0]
+
+- Announce every state transition to VoiceOver from the default Empty,
+  Loading, and Error placeholders — an `AccessibilityNotification.Announcement`
+  in SwiftUI, `UIAccessibility.post(notification: .announcement, ...)` in
+  UIKit — so a screen reader user learns the screen went from Loading to
+  Data/Empty/Error without having to explore the screen first. No API
+  changes.
+
 ## [1.10.0]
 
 - Give the default Error placeholder (`ScreenStateDefaultErrorView` in

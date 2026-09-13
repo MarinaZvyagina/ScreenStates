@@ -13,6 +13,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 Built on the **Observation** framework (`@Observable`) — no Combine, no third-party dependencies
 - 🔹 Works with **SwiftUI** (`ScreenStateView`) and **UIKit** (`ScreenStateContainerView`) from the same store
 - 🔹 Vibrant, ready-made Empty/Loading/Error placeholders (built on `ContentUnavailableView` and custom gradient views) that you can fully replace
+- 🔹 Default placeholders announce every state change to VoiceOver and expose stable accessibility identifiers for XCUITest
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
 <p align="center">

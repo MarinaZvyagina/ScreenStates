@@ -66,6 +66,12 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
             clockwise: true
         ).cgPath
     }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        UIAccessibility.post(notification: .announcement, argument: "Loading")
+    }
 }
 
 /// Default placeholder shown when a screen has no data to display.
@@ -124,6 +130,12 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
         ])
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        UIAccessibility.post(notification: .announcement, argument: titleLabel.text)
     }
 }
 
@@ -205,6 +217,12 @@ public final class ScreenStateDefaultErrorUIView: UIView {
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
         ])
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        UIAccessibility.post(notification: .announcement, argument: "Something Went Wrong. \(messageLabel.text ?? "")")
     }
 }
 #endif

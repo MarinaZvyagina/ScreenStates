@@ -17,7 +17,10 @@ public struct ScreenStateDefaultLoadingView: View {
             .frame(width: 44, height: 44)
             .rotationEffect(.degrees(isRotating ? 360 : 0))
             .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
-            .onAppear { isRotating = true }
+            .onAppear {
+                isRotating = true
+                AccessibilityNotification.Announcement("Loading").post()
+            }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityLabel("Loading")
             .accessibilityIdentifier("screenStates.loading")
@@ -51,6 +54,9 @@ public struct ScreenStateDefaultEmptyView: View {
             }
         }
         .accessibilityIdentifier("screenStates.empty")
+        .onAppear {
+            AccessibilityNotification.Announcement(title).post()
+        }
     }
 }
 
@@ -89,6 +95,9 @@ public struct ScreenStateDefaultErrorView: View {
             }
         }
         .accessibilityIdentifier("screenStates.error")
+        .onAppear {
+            AccessibilityNotification.Announcement("Something Went Wrong. \(error.localizedDescription)").post()
+        }
     }
 }
 #endif
