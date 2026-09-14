@@ -19,7 +19,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     private func setUp() {
         accessibilityIdentifier = "screenStates.loading"
         isAccessibilityElement = true
-        accessibilityLabel = "Loading"
+        accessibilityLabel = .screenStatesLoading
 
         gradientRing.gradientLayer.type = .conic
         gradientRing.gradientLayer.colors = [
@@ -70,7 +70,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
-        UIAccessibility.post(notification: .announcement, argument: "Loading")
+        UIAccessibility.post(notification: .announcement, argument: String.screenStatesLoading)
     }
 }
 
@@ -80,7 +80,7 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     private let iconGradient = GradientUIView()
     private let titleLabel = UILabel()
 
-    public init(title: String = "Nothing Here", systemImage: String = "tray.fill") {
+    public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
         super.init(frame: .zero)
         setUp(title: title, systemImage: systemImage)
     }
@@ -197,7 +197,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         messageLabel.numberOfLines = 0
 
         var configuration = UIButton.Configuration.borderedTinted()
-        configuration.title = "Retry"
+        configuration.title = .screenStatesRetry
         retryButton.configuration = configuration
         retryButton.addAction(UIAction { [weak self] _ in self?.onRetry?() }, for: .touchUpInside)
         retryButton.isHidden = !showsRetry
@@ -222,7 +222,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
-        UIAccessibility.post(notification: .announcement, argument: "Something Went Wrong. \(messageLabel.text ?? "")")
+        UIAccessibility.post(notification: .announcement, argument: "\(String.screenStatesSomethingWentWrong). \(messageLabel.text ?? "")")
     }
 }
 #endif

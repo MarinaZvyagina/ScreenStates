@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.12.0]
+
+- Localize the default placeholders' text (English + Russian) via a String
+  Catalog (`Resources/Localizable.xcstrings`), resolved from the package's
+  own `Bundle.module` so a custom `title` an app passes in is never run
+  back through localization. The resolved strings are exposed as public
+  `String` statics (`screenStatesLoading`, `screenStatesNothingHere`,
+  `screenStatesSomethingWentWrong`, `screenStatesRetry`) since they're used
+  as default argument values in the placeholders' public initializers.
+
 ## [1.11.0]
 
 - Announce every state transition to VoiceOver from the default Empty,

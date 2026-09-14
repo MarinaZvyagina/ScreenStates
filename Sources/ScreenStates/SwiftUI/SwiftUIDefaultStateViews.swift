@@ -19,10 +19,10 @@ public struct ScreenStateDefaultLoadingView: View {
             .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
             .onAppear {
                 isRotating = true
-                AccessibilityNotification.Announcement("Loading").post()
+                AccessibilityNotification.Announcement(String.screenStatesLoading).post()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .accessibilityLabel("Loading")
+            .accessibilityLabel(String.screenStatesLoading)
             .accessibilityIdentifier("screenStates.loading")
     }
 }
@@ -32,7 +32,7 @@ public struct ScreenStateDefaultEmptyView: View {
     private let title: String
     private let systemImage: String
 
-    public init(title: String = "Nothing Here", systemImage: String = "tray.fill") {
+    public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
         self.title = title
         self.systemImage = systemImage
     }
@@ -74,7 +74,7 @@ public struct ScreenStateDefaultErrorView: View {
     public var body: some View {
         ContentUnavailableView {
             Label {
-                Text("Something Went Wrong")
+                Text(String.screenStatesSomethingWentWrong)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 56))
@@ -90,13 +90,13 @@ public struct ScreenStateDefaultErrorView: View {
             Text(error.localizedDescription)
         } actions: {
             if let onRetry {
-                Button("Retry", action: onRetry)
+                Button(String.screenStatesRetry, action: onRetry)
                     .accessibilityIdentifier("screenStates.error.retryButton")
             }
         }
         .accessibilityIdentifier("screenStates.error")
         .onAppear {
-            AccessibilityNotification.Announcement("Something Went Wrong. \(error.localizedDescription)").post()
+            AccessibilityNotification.Announcement("\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)").post()
         }
     }
 }

@@ -14,7 +14,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ScreenStates"
+            name: "ScreenStates",
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(
             name: "ScreenStatesTests",

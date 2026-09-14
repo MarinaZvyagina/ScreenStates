@@ -14,6 +14,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 Works with **SwiftUI** (`ScreenStateView`) and **UIKit** (`ScreenStateContainerView`) from the same store
 - 🔹 Vibrant, ready-made Empty/Loading/Error placeholders (built on `ContentUnavailableView` and custom gradient views) that you can fully replace
 - 🔹 Default placeholders announce every state change to VoiceOver and expose stable accessibility identifiers for XCUITest
+- 🔹 Default placeholder text is localized (English + Russian) via a String Catalog
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
 <p align="center">

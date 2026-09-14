@@ -1,0 +1,74 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Loading" : {
+      "comment" : "Announced to VoiceOver and shown as the accessibility label while a screen's data is loading.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузка"
+          }
+        }
+      }
+    },
+    "Nothing Here" : {
+      "comment" : "Default title shown when a screen has no data to display.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing Here"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ничего нет"
+          }
+        }
+      }
+    },
+    "Retry" : {
+      "comment" : "Title of the button that retries loading after an error.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "Something Went Wrong" : {
+      "comment" : "Default title shown when a screen's data failed to load.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что-то пошло не так"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
