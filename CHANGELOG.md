@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.13.0]
+
+- Add regression tests protecting all six default placeholders' gradient
+  treatment: the SwiftUI ones render to a `UIImage` via `ImageRenderer`
+  and assert at least one pixel is clearly colorful (avoiding the
+  cross-Xcode-version flakiness of exact pixel-for-pixel snapshot
+  comparison); the UIKit ones check the underlying `CAGradientLayer`
+  stops directly, since this package's test target has no live
+  window/scene to render a `UIView` hierarchy into. Two UIKit internals
+  (`GradientUIView` and the placeholders' `iconGradient`/`gradientRing`
+  properties) moved from `private` to internal so `@testable import`
+  tests can reach them — no public API changes.
+
 ## [1.12.0]
 
 - Localize the default placeholders' text (English + Russian) via a String

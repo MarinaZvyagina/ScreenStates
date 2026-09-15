@@ -3,7 +3,10 @@ import UIKit
 
 /// Default placeholder shown while a screen's data is loading.
 public final class ScreenStateDefaultLoadingUIView: UIView {
-    private let gradientRing = GradientUIView()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// gradient stops without any rendering — this module's test target
+    /// has no live window/scene to snapshot a real render into.
+    let gradientRing = GradientUIView()
     private let ringMask = CAShapeLayer()
 
     public override init(frame: CGRect) {
@@ -77,7 +80,10 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
 /// Default placeholder shown when a screen has no data to display.
 public final class ScreenStateDefaultEmptyUIView: UIView {
     private let iconMask = UIImageView()
-    private let iconGradient = GradientUIView()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// gradient stops without any rendering — this module's test target
+    /// has no live window/scene to snapshot a real render into.
+    let iconGradient = GradientUIView()
     private let titleLabel = UILabel()
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
@@ -142,8 +148,9 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
 /// A `UIView` backed by a `CAGradientLayer`, used to paint a solid gradient
 /// through another view set as its `mask` (an SF Symbol icon, in
 /// ``ScreenStateDefaultEmptyUIView``) — UIKit's equivalent of SwiftUI's
-/// `.foregroundStyle(LinearGradient(...))` on an `Image`.
-private final class GradientUIView: UIView {
+/// `.foregroundStyle(LinearGradient(...))` on an `Image`. Internal (not
+/// `private`) so `@testable import` tests can reach it.
+final class GradientUIView: UIView {
     override class var layerClass: AnyClass { CAGradientLayer.self }
 
     var gradientLayer: CAGradientLayer {
@@ -155,7 +162,10 @@ private final class GradientUIView: UIView {
 /// optional Retry button.
 public final class ScreenStateDefaultErrorUIView: UIView {
     private let iconMask = UIImageView()
-    private let iconGradient = GradientUIView()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// gradient stops without any rendering — this module's test target
+    /// has no live window/scene to snapshot a real render into.
+    let iconGradient = GradientUIView()
     private let messageLabel = UILabel()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?

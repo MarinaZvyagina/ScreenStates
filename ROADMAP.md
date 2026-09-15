@@ -8,7 +8,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 - [x] Give `ScreenStateDefaultErrorView`/`ScreenStateDefaultErrorUIView` a warm red/orange gradient icon, consistent with the Empty and Loading placeholders.
 - [x] Announce state transitions to VoiceOver (`UIAccessibility.post` in UIKit, an `AccessibilityNotification` in SwiftUI) from the default placeholders.
 - [x] Localize the three default placeholder texts via a String Catalog (`Localizable.xcstrings`), starting with English + Russian.
-- [ ] Add snapshot/regression tests for all six default placeholder views (SwiftUI + UIKit) to protect the new visuals going forward.
+- [x] Add snapshot/regression tests for all six default placeholder views (SwiftUI + UIKit) to protect the new visuals going forward.
 
 ## Week 2 — Developer ergonomics
 
