@@ -6,7 +6,7 @@ Send screen-opened and state-transition events to any analytics backend with ``S
 
 Every screen that models its state with ``ScreenStateStore`` already knows exactly when it was opened and when it moves between Empty, Loading, Data, and Error. ``ScreenAnalyticsService`` turns those moments into ``ScreenAnalyticsEvent``s and fans them out to as many ``ScreenAnalyticsTracker``s as you register — one per analytics backend (Firebase, Mixpanel, Amplitude, your own logging endpoint, a debug console print, ...).
 
-ScreenStates ships no concrete tracker implementations, so the core module stays dependency-free. You write one small adapter per backend, converting the event's backend-agnostic ``AnalyticsValue`` parameters into that SDK's own format:
+ScreenStates ships no backend-specific tracker implementations, so the core module stays dependency-free — but it does include ``PrintScreenAnalyticsTracker`` (logs every event to the console) and ``NoOpScreenAnalyticsTracker`` (silently discards everything), so you don't have to hand-roll a console logger just to confirm events fire at the right moments. For a real backend, write one small adapter, converting the event's backend-agnostic ``AnalyticsValue`` parameters into that SDK's own format:
 
 ```swift
 struct FirebaseScreenTracker: ScreenAnalyticsTracker {
@@ -28,7 +28,7 @@ An adapter is also free to remap `event.name` to whatever vocabulary its backend
 ## Wiring a screen
 
 ```swift
-let analytics = ScreenAnalyticsService(trackers: [FirebaseScreenTracker(), ConsoleScreenTracker()])
+let analytics = ScreenAnalyticsService(trackers: [FirebaseScreenTracker(), PrintScreenAnalyticsTracker()])
 
 func onAppear(source: ScreenOpenSource<AppScreen>) {
     analytics.trackScreenOpened("Articles", source: source.analyticsKind)
@@ -45,3 +45,5 @@ Both ``ScreenState`` and ``ScreenOpenSource`` expose an `analyticsKind` helper �
 - ``ScreenAnalyticsService``
 - ``ScreenAnalyticsTracker``
 - ``ScreenAnalyticsEvent``
+- ``PrintScreenAnalyticsTracker``
+- ``NoOpScreenAnalyticsTracker``

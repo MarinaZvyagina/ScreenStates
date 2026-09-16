@@ -53,6 +53,34 @@ struct ScreenAnalyticsEventTests {
     }
 }
 
+@Suite("AnalyticsValue")
+struct AnalyticsValueTests {
+    @Test("description formats every case as plain text")
+    func description() {
+        #expect(AnalyticsValue.string("Articles").description == "Articles")
+        #expect(AnalyticsValue.int(3).description == "3")
+        #expect(AnalyticsValue.double(1.5).description == "1.5")
+        #expect(AnalyticsValue.bool(true).description == "true")
+    }
+}
+
+@Suite("Convenience trackers")
+@MainActor
+struct ConvenienceTrackerTests {
+    @Test("PrintScreenAnalyticsTracker accepts any event without crashing")
+    func printTrackerHandlesEvents() {
+        let tracker = PrintScreenAnalyticsTracker()
+        tracker.track(.screenOpened(screen: "Articles", source: "push"))
+        tracker.track(.screenStateChanged(screen: "Articles", from: "loading", to: "data"))
+    }
+
+    @Test("NoOpScreenAnalyticsTracker accepts any event and does nothing")
+    func noOpTrackerHandlesEvents() {
+        let tracker = NoOpScreenAnalyticsTracker()
+        tracker.track(.screenOpened(screen: "Articles"))
+    }
+}
+
 @Suite("ScreenAnalyticsService")
 @MainActor
 struct ScreenAnalyticsServiceTests {

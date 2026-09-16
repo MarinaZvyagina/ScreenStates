@@ -139,11 +139,13 @@ struct ConsoleScreenTracker: ScreenAnalyticsTracker {
 Then hand as many trackers as you like to a `ScreenAnalyticsService`, and wire it to a screen:
 
 ```swift
-let analytics = ScreenAnalyticsService(trackers: [ConsoleScreenTracker(), FirebaseScreenTracker()])
+let analytics = ScreenAnalyticsService(trackers: [PrintScreenAnalyticsTracker(), FirebaseScreenTracker()])
 
 analytics.trackScreenOpened("Articles", source: openSource?.analyticsKind)
 analytics.observeStateChanges(of: store, screen: "Articles")
 ```
+
+ScreenStates ships two ready-made trackers so you don't have to write `ConsoleScreenTracker` yourself: `PrintScreenAnalyticsTracker` logs every event to the console (handy for confirming events fire at the right moments during development), and `NoOpScreenAnalyticsTracker` silently discards everything (a harmless placeholder for tests, Previews, or a build where you don't want a real backend wired up yet).
 
 `trackScreenOpened(_:source:)` sends one `screen_opened` event. `observeStateChanges(of:screen:)` uses the same `withObservationTracking` mechanism as `ScreenStateContainerView` to watch a `ScreenStateStore` and sends a `screen_state_changed` event (with the error's description, when transitioning to `.error`) for every subsequent transition — call it once, e.g. right where you create the store. Every tracker registered with the service receives every event, so you can fan the same screen out to multiple analytics backends at once.
 
@@ -265,6 +267,8 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
 | `ScreenAnalyticsTracker` | Protocol you implement per analytics backend: `track(_ event: ScreenAnalyticsEvent)` |
 | `ScreenAnalyticsService` | Fans events out to every registered `ScreenAnalyticsTracker`: `track(_:)`, `trackScreenOpened(_:source:)`, `observeStateChanges(of:screen:)` |
+| `PrintScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that logs every event to the console |
+| `NoOpScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that silently discards every event |
 
 ## License
 

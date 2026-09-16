@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.14.0]
+
+- Add `PrintScreenAnalyticsTracker` (logs every event to the console) and
+  `NoOpScreenAnalyticsTracker` (silently discards every event) as
+  ready-made `ScreenAnalyticsTracker`s for quick debugging, tests, and
+  Previews, so you don't have to hand-roll a console logger yourself. Also
+  add `AnalyticsValue: CustomStringConvertible` for readable console
+  output.
+
 ## [1.13.0]
 
 - Add regression tests protecting all six default placeholders' gradient

@@ -37,6 +37,8 @@ Requires iOS 17.0+ and Swift 6.0.
 - ``ScreenAnalyticsTracker``
 - ``ScreenAnalyticsEvent``
 - ``AnalyticsValue``
+- ``PrintScreenAnalyticsTracker``
+- ``NoOpScreenAnalyticsTracker``
 
 ### SwiftUI
 
