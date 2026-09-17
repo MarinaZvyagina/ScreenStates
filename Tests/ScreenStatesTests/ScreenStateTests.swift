@@ -154,6 +154,28 @@ struct ScreenStateStoreTests {
         #expect(store.state.isEmpty)
         #expect(!store.isRefreshing)
     }
+
+    @Test("preview(_:) pins the store to the given state")
+    func previewPinsState() {
+        #expect(ScreenStateStore<Int>.preview(.data(9)).state == .data(9))
+    }
+
+    @Test("previewLoading/previewEmpty are pinned to their state")
+    func previewLoadingAndEmpty() {
+        #expect(ScreenStateStore<Int>.previewLoading.state.isLoading)
+        #expect(ScreenStateStore<Int>.previewEmpty.state.isEmpty)
+    }
+
+    @Test("previewData(_:) is pinned to .data(value)")
+    func previewData() {
+        #expect(ScreenStateStore<Int>.previewData(9).state == .data(9))
+    }
+
+    @Test("previewError(_:) is pinned to .error with the given message")
+    func previewError() {
+        let store = ScreenStateStore<Int>.previewError("Offline")
+        #expect((store.state.error as? ScreenStatePreviewError)?.errorDescription == "Offline")
+    }
 }
 
 /// Lets a test observe a `ScreenStateStore` in the middle of an in-flight

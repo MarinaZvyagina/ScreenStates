@@ -24,6 +24,7 @@ Requires iOS 17.0+ and Swift 6.0.
 
 - ``ScreenState``
 - ``ScreenStateStore``
+- ``ScreenStatePreviewError``
 
 ### Navigation context
 

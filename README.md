@@ -97,6 +97,34 @@ List(articles) { ... }
 
 While a refresh is in flight, `store.isRefreshing` is `true`; if it fails, `store.state` is untouched and the error is reported via `store.refreshError` instead (so you can show a toast without discarding the list). Both fall back to `load(_:)`/`loadCollection(_:)` automatically when there's no data yet to preserve.
 
+### Previewing a screen in a specific state
+
+Driving a store through a real `load(_:)` call just to see what the Empty or Error placeholder looks like is annoying in a `#Preview`. Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and use the `preview`-prefixed factories to pin that store to one state:
+
+```swift
+struct ArticlesScreen: View {
+    let store: ScreenStateStore<[Article]>
+
+    var body: some View {
+        ScreenStateView(store.state) { articles in
+            List(articles) { Text($0.title) }
+        }
+    }
+}
+
+#Preview("Empty") {
+    ArticlesScreen(store: .previewEmpty)
+}
+#Preview("Error") {
+    ArticlesScreen(store: .previewError("Couldn't reach the server"))
+}
+#Preview("Data") {
+    ArticlesScreen(store: .previewData([.sample]))
+}
+```
+
+`previewError(_:)` uses a built-in `ScreenStatePreviewError` so you don't need a placeholder `Error` type of your own. `preview(_:)` accepts any `ScreenState` directly for anything the named helpers don't cover.
+
 ## How a screen was opened
 
 `ScreenState` only models what a screen is showing right now. `ScreenOpenSource` is a separate, independent type for *how the screen came to be visible* — freshly pushed, popped back to, presented modally, deep-linked, or opened from a Home Screen shortcut — so a screen can change its behavior accordingly (e.g. skip a reload when merely returning to it):
@@ -257,7 +285,8 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | Type | Purpose |
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind` helpers |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
+| `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |

@@ -61,6 +61,31 @@ List(articles) { article in
 
 `store.isRefreshing` is `true` for the duration; a failure is reported via `store.refreshError` rather than by discarding `state`, so the list stays visible and you can surface the error separately (a toast, for example).
 
+## Previewing a screen in a specific state
+
+Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and pin that store to one state with a `preview`-prefixed factory instead of driving it through a real `loadCollection(_:)` call:
+
+```swift
+struct ArticlesScreen: View {
+    let store: ScreenStateStore<[Article]>
+
+    var body: some View {
+        ScreenStateView(store.state) { articles in
+            List(articles) { Text($0.title) }
+        }
+    }
+}
+
+#Preview("Empty") {
+    ArticlesScreen(store: .previewEmpty)
+}
+#Preview("Error") {
+    ArticlesScreen(store: .previewError("Couldn't reach the server"))
+}
+```
+
+``ScreenStateStore/previewError(_:)`` uses a built-in ``ScreenStatePreviewError`` so a preview doesn't need a placeholder `Error` type of its own. ``ScreenStateStore/preview(_:)`` accepts any ``ScreenState`` directly for anything the named helpers don't cover.
+
 ## See Also
 
 - ``ScreenStateStore``

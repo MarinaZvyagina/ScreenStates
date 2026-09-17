@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.15.0]
+
+- Add `ScreenStateStore` factories for SwiftUI Previews: `preview(_:)`
+  pins a store to any `ScreenState`, and `previewLoading`, `previewEmpty`,
+  `previewData(_:)`, `previewError(_:)` cover the four cases by name.
+  `previewError(_:)` uses a new `ScreenStatePreviewError` so a preview
+  doesn't need a placeholder `Error` type of its own.
+
 ## [1.14.0]
 
 - Add `PrintScreenAnalyticsTracker` (logs every event to the console) and
