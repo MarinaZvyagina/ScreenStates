@@ -84,6 +84,21 @@ await store.loadCollection {
 
 You can also drive the state manually with `setLoading()`, `setEmpty()`, `setData(_:)`, and `setError(_:)`.
 
+### Transforming the wrapped value
+
+`map(_:)` and `flatMap(_:)` transform a `.data` payload without manually switching over every other case first — the same idea as `Optional.map`/`Optional.flatMap`:
+
+```swift
+let titles: ScreenState<[String]> = state.map { articles in articles.map(\.title) }
+
+let unread: ScreenState<[Article]> = state.flatMap { articles in
+    let unread = articles.filter { !$0.isRead }
+    return unread.isEmpty ? .empty : .data(unread) // flatMap can produce .empty itself
+}
+```
+
+Use `map(_:)` when the transform always succeeds and never changes the "shape" of the result; reach for `flatMap(_:)` when it might, like filtering a collection down to nothing.
+
 ### Refreshing without losing data
 
 `load(_:)`/`loadCollection(_:)` always show `.loading` first, which is right for an initial fetch but wrong for pull-to-refresh — the existing list shouldn't vanish behind a spinner just because it's being refetched. Use `refresh(_:)`/`refreshCollection(_:)` instead: they keep whatever is currently in `state` on screen while `operation` runs, and leave it there if `operation` fails instead of switching to `.error`:
@@ -318,7 +333,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 
 | Type | Purpose |
 |---|---|
-| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind` helpers |
+| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `map(_:)`, `flatMap(_:)` helpers |
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |

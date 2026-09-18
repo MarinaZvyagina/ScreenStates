@@ -16,7 +16,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 - [x] Add `ScreenStateStore` factory helpers for SwiftUI Previews (e.g. a store pinned to a fixed `ScreenState`).
 - [x] Add a SwiftUI `.screenState(_:onRetry:content:)` view modifier as sugar alongside `ScreenStateView`.
 - [x] Add a UIKit `ScreenStateViewController` base class wrapping the `ScreenStateContainerView` + `bind(to:)` boilerplate.
-- [ ] Add `ScreenState.map`/`flatMap` to transform the wrapped value without manually unwrapping `.data`.
+- [x] Add `ScreenState.map`/`flatMap` to transform the wrapped value without manually unwrapping `.data`.
 
 ## Week 3 — Platform reach & infrastructure
 

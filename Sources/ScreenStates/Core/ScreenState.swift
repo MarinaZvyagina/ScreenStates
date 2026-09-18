@@ -30,6 +30,43 @@ extension ScreenState {
     public var isEmpty: Bool {
         if case .empty = self { true } else { false }
     }
+
+    /// Transforms the wrapped value with `transform` if the state is
+    /// `.data`, leaving every other case untouched — the `.data` case of
+    /// `Optional.map`.
+    ///
+    /// ```swift
+    /// let titles: ScreenState<[String]> = state.map { articles in articles.map(\.title) }
+    /// ```
+    public func map<NewValue>(_ transform: (Value) -> NewValue) -> ScreenState<NewValue> {
+        switch self {
+        case .empty: .empty
+        case .loading: .loading
+        case .data(let value): .data(transform(value))
+        case .error(let error): .error(error)
+        }
+    }
+
+    /// Transforms the wrapped value into a whole new `ScreenState` with
+    /// `transform` if the state is `.data`, leaving every other case
+    /// untouched — the `.data` case of `Optional.flatMap`, useful when the
+    /// transform itself might produce `.empty` (e.g. after filtering a
+    /// collection down to nothing).
+    ///
+    /// ```swift
+    /// let filtered: ScreenState<[Article]> = state.flatMap { articles in
+    ///     let unread = articles.filter { !$0.isRead }
+    ///     return unread.isEmpty ? .empty : .data(unread)
+    /// }
+    /// ```
+    public func flatMap<NewValue>(_ transform: (Value) -> ScreenState<NewValue>) -> ScreenState<NewValue> {
+        switch self {
+        case .empty: .empty
+        case .loading: .loading
+        case .data(let value): transform(value)
+        case .error(let error): .error(error)
+        }
+    }
 }
 
 extension ScreenState: Equatable where Value: Equatable {

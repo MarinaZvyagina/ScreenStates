@@ -37,6 +37,25 @@ struct ScreenStateTests {
         #expect(ScreenState<Int>.empty == ScreenState<Int>.empty)
         #expect(ScreenState<Int>.loading != ScreenState<Int>.empty)
     }
+
+    @Test("map(_:) transforms the .data payload and leaves every other case untouched")
+    func mapHelper() {
+        #expect(ScreenState<Int>.data(2).map { $0 * 10 } == .data(20))
+        #expect(ScreenState<Int>.empty.map { $0 * 10 } == .empty)
+        #expect(ScreenState<Int>.loading.map { $0 * 10 } == .loading)
+        let error = SampleError()
+        #expect(ScreenState<Int>.error(error).map { $0 * 10 }.error is SampleError)
+    }
+
+    @Test("flatMap(_:) lets the transform produce a whole new ScreenState and leaves every other case untouched")
+    func flatMapHelper() {
+        #expect(ScreenState<[Int]>.data([1, 2]).flatMap { $0.isEmpty ? .empty : .data($0.count) } == .data(2))
+        #expect(ScreenState<[Int]>.data([]).flatMap { $0.isEmpty ? .empty : .data($0.count) } == .empty)
+        #expect(ScreenState<[Int]>.empty.flatMap { .data($0.count) } == .empty)
+        #expect(ScreenState<[Int]>.loading.flatMap { .data($0.count) } == .loading)
+        let error = SampleError()
+        #expect(ScreenState<[Int]>.error(error).flatMap { .data($0.count) }.error is SampleError)
+    }
 }
 
 @Suite("ScreenStateStore")

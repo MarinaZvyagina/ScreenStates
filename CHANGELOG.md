@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.18.0]
+
+- Add `ScreenState.map(_:)` and `flatMap(_:)` to transform a `.data`
+  payload without manually switching over every other case first — the
+  same idea as `Optional.map`/`Optional.flatMap`. Every other case
+  (`.empty`, `.loading`, `.error`) passes through untouched; `flatMap(_:)`
+  lets the transform itself produce a different case, e.g. `.empty` after
+  filtering a collection down to nothing.
+
 ## [1.17.0]
 
 - Add `ScreenStateViewController<Value>`, a `UIViewController` base class
