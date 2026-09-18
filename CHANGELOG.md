@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.16.0]
+
+- Add `View.screenState(_:onRetry:content:)`, a view-modifier alternative
+  to constructing `ScreenStateView` directly, plus a matching overload for
+  the fully-customized empty/loading/error initializer. Pure sugar — both
+  just build a `ScreenStateView` under the hood.
+
 ## [1.15.0]
 
 - Add `ScreenStateStore` factories for SwiftUI Previews: `preview(_:)`

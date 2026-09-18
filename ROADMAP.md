@@ -14,7 +14,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 
 - [x] Ship `PrintScreenAnalyticsTracker` and `NoOpScreenAnalyticsTracker` as ready-made `ScreenAnalyticsTracker`s for quick debugging and tests.
 - [x] Add `ScreenStateStore` factory helpers for SwiftUI Previews (e.g. a store pinned to a fixed `ScreenState`).
-- [ ] Add a SwiftUI `.screenState(_:onRetry:content:)` view modifier as sugar alongside `ScreenStateView`.
+- [x] Add a SwiftUI `.screenState(_:onRetry:content:)` view modifier as sugar alongside `ScreenStateView`.
 - [ ] Add a UIKit `ScreenStateViewController` base class wrapping the `ScreenStateContainerView` + `bind(to:)` boilerplate.
 - [ ] Add `ScreenState.map`/`flatMap` to transform the wrapped value without manually unwrapping `.data`.
 

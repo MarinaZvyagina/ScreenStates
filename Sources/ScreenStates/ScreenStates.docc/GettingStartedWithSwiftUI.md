@@ -30,6 +30,15 @@ struct ArticlesScreen: View {
 
 `store.loadCollection(_:)` sets `.loading`, runs the closure, and maps the outcome to `.data`, `.empty` (when the result is an empty collection), or `.error`. `ScreenStateView` shows the default Loading spinner, Empty placeholder, or Error view — with a working Retry button wired to `onRetry` — automatically.
 
+If you'd rather not wrap the whole call site in an initializer, `.screenState(_:onRetry:content:)` is the same thing as a view modifier:
+
+```swift
+EmptyView()
+    .screenState(store.state, onRetry: reload) { articles in
+        List(articles) { article in Text(article.title) }
+    }
+```
+
 ## Customizing the placeholders
 
 Pass `empty`, `loading`, and `error` view builders to fully replace the defaults:

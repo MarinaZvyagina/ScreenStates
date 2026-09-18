@@ -203,6 +203,15 @@ struct ArticlesScreen: View {
 
 That's it: `ScreenStateView` shows the default Loading spinner, Empty placeholder, or Error view (with a working Retry button) automatically, and your `content` closure only ever runs for the `.data` case.
 
+If you'd rather not wrap the whole call site in an initializer, `.screenState(_:onRetry:content:)` is the same thing as a modifier:
+
+```swift
+EmptyView()
+    .screenState(store.state, onRetry: reload) { articles in
+        List(articles) { article in Text(article.title) }
+    }
+```
+
 ### Custom Empty / Loading / Error views
 
 ```swift
@@ -288,6 +297,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
+| `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
