@@ -51,6 +51,7 @@ Requires iOS 17.0+ and Swift 6.0.
 ### UIKit
 
 - ``ScreenStateContainerView``
+- ``ScreenStateViewController``
 - ``ScreenStateDefaultEmptyUIView``
 - ``ScreenStateDefaultLoadingUIView``
 - ``ScreenStateDefaultErrorUIView``

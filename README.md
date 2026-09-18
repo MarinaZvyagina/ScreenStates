@@ -264,6 +264,31 @@ final class ArticlesViewController: UIViewController {
 
 `bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so `ScreenStateContainerView` re-renders automatically whenever `store.state` changes, with no Combine, delegates, or NotificationCenter involved.
 
+### Skipping the boilerplate with ScreenStateViewController
+
+Every screen above repeats the same `viewDidLoad()` boilerplate: pin the container to the view's edges, then bind it to the store. Subclass `ScreenStateViewController<Value>` instead and it's handled for you:
+
+```swift
+final class ArticlesViewController: ScreenStateViewController<[Article]> {
+    private let articleStore: ScreenStateStore<[Article]>
+
+    init() {
+        let store = ScreenStateStore<[Article]>()
+        articleStore = store
+        super.init(store: store, onRetry: { Task { await store.loadCollection { try await api.fetchArticles() } } }) { articles in
+            ArticleListView(articles: articles)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        Task { await articleStore.loadCollection { try await api.fetchArticles() } }
+    }
+}
+```
+
+`store` is exposed as a public property; the fully-customized-placeholders initializer is available too, mirroring `ScreenStateContainerView`'s own two initializers.
+
 ### Custom Empty / Loading / Error views
 
 ```swift
@@ -299,6 +324,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
+| `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |

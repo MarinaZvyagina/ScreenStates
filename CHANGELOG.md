@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.17.0]
+
+- Add `ScreenStateViewController<Value>`, a `UIViewController` base class
+  that owns a `ScreenStateContainerView` pinned to the view's edges and
+  bound to a `ScreenStateStore`, wrapping the `viewDidLoad()` boilerplate
+  every UIKit screen using ScreenStates otherwise repeats. Mirrors
+  `ScreenStateContainerView`'s own two initializers (default placeholders,
+  or fully customized).
+
 ## [1.16.0]
 
 - Add `View.screenState(_:onRetry:content:)`, a view-modifier alternative

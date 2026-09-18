@@ -42,6 +42,31 @@ final class ArticlesViewController: UIViewController {
 
 `bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so the container re-renders automatically whenever `store.state` changes, with no Combine, delegates, or `NotificationCenter` involved.
 
+## Skipping the boilerplate with ScreenStateViewController
+
+Every screen above repeats the same `viewDidLoad()` boilerplate: pin the container to the view's edges, then bind it to the store. Subclass ``ScreenStateViewController`` instead and it's handled for you:
+
+```swift
+final class ArticlesViewController: ScreenStateViewController<[Article]> {
+    private let articleStore: ScreenStateStore<[Article]>
+
+    init() {
+        let store = ScreenStateStore<[Article]>()
+        articleStore = store
+        super.init(store: store, onRetry: { Task { await store.loadCollection { try await api.fetchArticles() } } }) { articles in
+            ArticleListView(articles: articles)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        Task { await articleStore.loadCollection { try await api.fetchArticles() } }
+    }
+}
+```
+
+`store` is exposed as a public property; the fully-customized-placeholders initializer is available too, mirroring ``ScreenStateContainerView``'s own two initializers.
+
 ## Customizing the placeholders
 
 Pass `emptyView`, `loadingView`, and an `errorView` builder to fully replace the defaults:
@@ -59,4 +84,5 @@ ScreenStateContainerView<[Article]>(
 
 - ``ScreenStateStore``
 - ``ScreenStateContainerView``
+- ``ScreenStateViewController``
 - <doc:GettingStartedWithSwiftUI>
