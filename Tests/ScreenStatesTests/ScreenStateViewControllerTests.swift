@@ -1,3 +1,6 @@
+// ScreenStateViewController itself only compiles under this same guard
+// (UIKit isn't available on macOS, and isn't a good fit on watchOS).
+#if canImport(UIKit) && !os(watchOS)
 import Foundation
 import Testing
 import UIKit
@@ -67,3 +70,4 @@ struct ScreenStateViewControllerTests {
         #expect(receivedValue == 7)
     }
 }
+#endif

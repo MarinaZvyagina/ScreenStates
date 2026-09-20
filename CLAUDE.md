@@ -4,14 +4,18 @@ A small, dependency-free Swift package: one `ScreenState<Value>` enum (Empty/Loa
 
 ## Build & test
 
-This package only declares `.iOS(.v17)` in `Package.swift`, so plain `swift build`/`swift test` fail on macOS (they target the host macOS SDK by default, and the code uses iOS/Observation APIs unavailable there). Always test via `xcodebuild` against an iOS Simulator instead, picking whatever simulator is actually installed rather than hardcoding a device name:
+`Package.swift` declares iOS 17+, macOS 14+, tvOS 17+, watchOS 10+, and visionOS 1+ (the Observation framework's own minimums). `swift build`/`swift test` now work directly on macOS — useful as a fast local sanity check, and good at catching a missing `#if canImport(UIKit)`/`#if canImport(SwiftUI)` guard (macOS has neither UIKit-the-full-framework nor, e.g., `UIImage`, so anything that assumes either will fail to build there first).
+
+The authoritative check — and what CI runs — is still `xcodebuild` against an iOS Simulator, since that's the primary target and covers the UIKit-specific tests `swift test` skips on macOS. Pick whatever simulator is actually installed rather than hardcoding a device name:
 
 ```bash
 UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | test("iPhone"))][0].udid')
 xcodebuild test -scheme ScreenStates -destination "platform=iOS Simulator,id=$UDID"
 ```
 
-This is exactly what `.github/workflows/tests.yml` runs in CI.
+This is exactly what `.github/workflows/tests.yml` runs in CI. Run both `swift test` and the `xcodebuild` command above before committing a change that touches platform guards.
+
+The tvOS/watchOS/visionOS platform SDKs are **not installed** on this machine and disk space is tight (~12GB free as of 2026-09-19) — `xcodebuild -downloadPlatform <name>` risks filling the disk. Before attempting one of those downloads, run `df -h /` and stop if free space is low; otherwise verify guard correctness by code review and the two builds above (every UIKit-only file is `#if canImport(UIKit) && !os(watchOS)`, exactly like `ScreenStateContainerView`/`ScreenStateViewController` themselves, so any test file that touches them needs the same guard — this was missed once already, see `git log --oneline -- Tests/`).
 
 ## Commit conventions
 

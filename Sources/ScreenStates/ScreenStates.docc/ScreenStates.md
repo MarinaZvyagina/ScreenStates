@@ -1,6 +1,6 @@
 # ``ScreenStates``
 
-Give any iOS screen a standard `Empty` / `Loading` / `Data` / `Error` state, usable from both UIKit and SwiftUI.
+Give any screen a standard `Empty` / `Loading` / `Data` / `Error` state, usable from both UIKit and SwiftUI.
 
 ## Overview
 
@@ -11,7 +11,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - Works with SwiftUI (``ScreenStateView``) and UIKit (``ScreenStateContainerView``) from the same store.
 - Sensible default placeholders that you can fully replace.
 
-Requires iOS 17.0+ and Swift 6.0.
+Requires iOS 17.0+, macOS 14.0+, tvOS 17.0+, watchOS 10.0+, or visionOS 1.0+, and Swift 6.0. The UIKit types are available on iOS, tvOS, and visionOS — not macOS or watchOS.
 
 ## Topics
 

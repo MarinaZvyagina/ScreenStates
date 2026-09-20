@@ -1,3 +1,8 @@
+// UIImage (used for both the UIKit structural checks and the SwiftUI
+// ImageRenderer-based pixel checks below) only exists where UIKit does —
+// on macOS, ImageRenderer exposes .nsImage instead, and there's no
+// UIActivityIndicatorView-style UIKit surface to test structurally either.
+#if canImport(UIKit) && !os(watchOS)
 import Foundation
 import Testing
 import UIKit
@@ -123,4 +128,5 @@ private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -
     }
     return false
 }
+#endif
 #endif

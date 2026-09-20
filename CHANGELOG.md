@@ -3,6 +3,24 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.19.0]
+
+- Broaden `Package.swift`'s `platforms` from iOS-only to iOS 17+, macOS
+  14+, tvOS 17+, watchOS 10+, and visionOS 1+ (matching the Observation
+  framework's own minimums). `ScreenState`, `ScreenStateStore`, the
+  SwiftUI views, and the Analytics module now work on all five;
+  `ScreenStateContainerView`/`ScreenStateViewController` stay iOS/tvOS/
+  visionOS-only, since their existing `#if canImport(UIKit) && !os(watchOS)`
+  guard already correctly excludes both watchOS and macOS. The library
+  sources needed no other changes — but this surfaced two test files
+  (`PlaceholderVisualTests.swift`, `ScreenStateViewControllerTests.swift`)
+  with an unconditional `import UIKit` (and, for the former, SwiftUI
+  helpers using `UIImage`/`ImageRenderer.uiImage`, unavailable on macOS),
+  now fixed with the same guard. `swift build`/`swift test` work directly
+  on macOS as of this change; tvOS/watchOS/visionOS SDKs aren't installed
+  on this machine, so those three weren't independently compiled — a good
+  candidate for CI to verify going forward.
+
 ## [1.18.0]
 
 - Add `ScreenState.map(_:)` and `flatMap(_:)` to transform a `.data`

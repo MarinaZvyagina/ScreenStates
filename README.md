@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml/badge.svg)](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![Platforms](https://img.shields.io/badge/platforms-iOS%2017%2B-blue.svg)](#requirements)
+[![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20visionOS-blue.svg)](#requirements)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/documentation-DocC-blue.svg)](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)
@@ -25,8 +25,10 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 
 ## Requirements
 
-- iOS 17.0+
+- iOS 17.0+, macOS 14.0+, tvOS 17.0+, watchOS 10.0+, or visionOS 1.0+
 - Swift 6.0 / Xcode 16+
+
+`ScreenState`, `ScreenStateStore`, the SwiftUI views, and the Analytics module work on all five platforms. `ScreenStateContainerView` and `ScreenStateViewController` are UIKit, so they're available on iOS, tvOS, and visionOS — not macOS (no UIKit there) or watchOS (UIKit exists but isn't a good fit for the platform, so ScreenStates doesn't build it there either); use the SwiftUI views on those two instead.
 
 ## Installation — Swift Package Manager
 
