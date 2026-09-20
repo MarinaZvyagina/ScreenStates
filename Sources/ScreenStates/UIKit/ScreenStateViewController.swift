@@ -77,5 +77,13 @@ open class ScreenStateViewController<Value>: UIViewController {
         ])
         container.bind(to: store)
     }
+
+    #if os(tvOS)
+    /// Delegates to ``container``, which in turn delegates to whichever
+    /// placeholder is currently shown.
+    open override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        [container]
+    }
+    #endif
 }
 #endif

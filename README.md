@@ -30,6 +30,8 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 
 `ScreenState`, `ScreenStateStore`, the SwiftUI views, and the Analytics module work on all five platforms. `ScreenStateContainerView` and `ScreenStateViewController` are UIKit, so they're available on iOS, tvOS, and visionOS — not macOS (no UIKit there) or watchOS (UIKit exists but isn't a good fit for the platform, so ScreenStates doesn't build it there either); use the SwiftUI views on those two instead.
 
+On tvOS, the default placeholders are tuned for the focus engine: the Error placeholder sends focus straight to its Retry button, and the container re-evaluates focus after every state change so the Siri Remote never seems stuck on a view that just got swapped out.
+
 ## Installation — Swift Package Manager
 
 **In Xcode:** File → Add Package Dependencies… → enter the repository URL → select the `ScreenStates` product → Add Package.

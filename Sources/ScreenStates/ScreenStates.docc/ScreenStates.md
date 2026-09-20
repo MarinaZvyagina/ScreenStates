@@ -13,6 +13,8 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 
 Requires iOS 17.0+, macOS 14.0+, tvOS 17.0+, watchOS 10.0+, or visionOS 1.0+, and Swift 6.0. The UIKit types are available on iOS, tvOS, and visionOS — not macOS or watchOS.
 
+On tvOS, the default placeholders are tuned for the focus engine: the Error placeholder sends focus straight to its Retry button, and the container re-evaluates focus after every state change so the Siri Remote never seems stuck on a view that just got swapped out.
+
 ## Topics
 
 ### Essentials

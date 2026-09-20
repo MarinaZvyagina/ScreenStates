@@ -3,6 +3,23 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.20.0]
+
+- Tune the default placeholders for tvOS's focus engine. Swapping content
+  programmatically (as `ScreenStateContainerView` does on every state
+  change) doesn't automatically nudge the focus engine, so the Siri
+  Remote could appear stuck on a view that was just removed —
+  `ScreenStateContainerView` now calls `setNeedsFocusUpdate()`/
+  `updateFocusIfNeeded()` after swapping, and it, `ScreenStateViewController`,
+  and the default Error placeholder (SwiftUI and UIKit) all declare a
+  `preferredFocusEnvironments`/`prefersDefaultFocus` chain that sends
+  focus straight to the Retry button when it's showing. No new public
+  API — these are tvOS-only overrides of existing UIKit/SwiftUI focus
+  hooks, guarded with `#if os(tvOS)`. The tvOS SDK isn't installed on
+  this machine (see `CLAUDE.md`), so this change is based on careful API
+  review rather than a real tvOS build — worth a first real run on tvOS
+  hardware/simulator when the SDK is available.
+
 ## [1.19.0]
 
 - Broaden `Package.swift`'s `platforms` from iOS-only to iOS 17+, macOS

@@ -65,6 +65,9 @@ public struct ScreenStateDefaultEmptyView: View {
 public struct ScreenStateDefaultErrorView: View {
     private let error: Error
     private let onRetry: (() -> Void)?
+    #if os(tvOS)
+    @Namespace private var focusNamespace
+    #endif
 
     public init(error: Error, onRetry: (() -> Void)? = nil) {
         self.error = error
@@ -92,12 +95,18 @@ public struct ScreenStateDefaultErrorView: View {
             if let onRetry {
                 Button(String.screenStatesRetry, action: onRetry)
                     .accessibilityIdentifier("screenStates.error.retryButton")
+                    #if os(tvOS)
+                    .prefersDefaultFocus(true, in: focusNamespace)
+                    #endif
             }
         }
         .accessibilityIdentifier("screenStates.error")
         .onAppear {
             AccessibilityNotification.Announcement("\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)").post()
         }
+        #if os(tvOS)
+        .focusScope(focusNamespace)
+        #endif
     }
 }
 #endif

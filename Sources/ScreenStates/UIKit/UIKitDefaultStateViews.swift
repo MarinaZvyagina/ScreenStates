@@ -234,5 +234,13 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         guard window != nil else { return }
         UIAccessibility.post(notification: .announcement, argument: "\(String.screenStatesSomethingWentWrong). \(messageLabel.text ?? "")")
     }
+
+    #if os(tvOS)
+    /// Sends focus straight to the Retry button (when shown) instead of
+    /// making the Siri Remote user hunt for it.
+    public override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        retryButton.isHidden ? super.preferredFocusEnvironments : [retryButton]
+    }
+    #endif
 }
 #endif

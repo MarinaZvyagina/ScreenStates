@@ -103,6 +103,25 @@ public final class ScreenStateContainerView<Value>: UIView {
             viewToShow.leadingAnchor.constraint(equalTo: leadingAnchor),
             viewToShow.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+
+        #if os(tvOS)
+        // Swapping content programmatically (rather than through a natural
+        // view controller transition) doesn't automatically nudge the focus
+        // engine, so the Siri Remote can appear stuck on a view that was
+        // just removed — e.g. going from Error (focused on Retry) to
+        // Loading or Empty, which have nothing focusable at all.
+        setNeedsFocusUpdate()
+        updateFocusIfNeeded()
+        #endif
     }
+
+    #if os(tvOS)
+    /// Delegates to whichever placeholder is currently shown, so the focus
+    /// engine lands on its preferred target (e.g. the Error view's Retry
+    /// button) instead of guessing.
+    public override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        currentContentView.map { [$0] } ?? super.preferredFocusEnvironments
+    }
+    #endif
 }
 #endif
