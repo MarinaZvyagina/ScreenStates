@@ -1,6 +1,21 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
+/// Default placeholder sizing — smaller on watchOS's compact screens,
+/// where a 56pt icon (sized right for iOS/macOS/tvOS/visionOS) would
+/// dominate the whole display.
+private enum ScreenStatesMetrics {
+    #if os(watchOS)
+    static let iconSize: CGFloat = 28
+    static let spinnerSize: CGFloat = 24
+    static let spinnerLineWidth: CGFloat = 3
+    #else
+    static let iconSize: CGFloat = 56
+    static let spinnerSize: CGFloat = 44
+    static let spinnerLineWidth: CGFloat = 4
+    #endif
+}
+
 /// Default placeholder shown while a screen's data is loading.
 public struct ScreenStateDefaultLoadingView: View {
     @State private var isRotating = false
@@ -12,9 +27,9 @@ public struct ScreenStateDefaultLoadingView: View {
             .trim(from: 0, to: 0.75)
             .stroke(
                 AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center),
-                style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                style: StrokeStyle(lineWidth: ScreenStatesMetrics.spinnerLineWidth, lineCap: .round)
             )
-            .frame(width: 44, height: 44)
+            .frame(width: ScreenStatesMetrics.spinnerSize, height: ScreenStatesMetrics.spinnerSize)
             .rotationEffect(.degrees(isRotating ? 360 : 0))
             .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
             .onAppear {
@@ -43,7 +58,7 @@ public struct ScreenStateDefaultEmptyView: View {
                 Text(title)
             } icon: {
                 Image(systemName: systemImage)
-                    .font(.system(size: 56))
+                    .font(.system(size: ScreenStatesMetrics.iconSize))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [.pink, .orange, .yellow],
@@ -80,7 +95,7 @@ public struct ScreenStateDefaultErrorView: View {
                 Text(String.screenStatesSomethingWentWrong)
             } icon: {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 56))
+                    .font(.system(size: ScreenStatesMetrics.iconSize))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [.red, .orange],

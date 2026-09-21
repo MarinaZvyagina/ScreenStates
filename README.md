@@ -32,6 +32,8 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 
 On tvOS, the default placeholders are tuned for the focus engine: the Error placeholder sends focus straight to its Retry button, and the container re-evaluates focus after every state change so the Siri Remote never seems stuck on a view that just got swapped out.
 
+On watchOS, the default placeholders' icon and loading spinner are sized down (28pt/24pt instead of 56pt/44pt) so they don't dominate a compact watch screen the way an iPhone-sized icon would.
+
 ## Installation — Swift Package Manager
 
 **In Xcode:** File → Add Package Dependencies… → enter the repository URL → select the `ScreenStates` product → Add Package.

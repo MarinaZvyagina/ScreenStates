@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.21.0]
+
+- Tune the default SwiftUI placeholders' sizing for watchOS's compact
+  screens: the Empty/Error icon shrinks from 56pt to 28pt, and the
+  Loading spinner from 44pt (4pt stroke) to 24pt (3pt stroke) — an
+  iPhone-sized icon would otherwise dominate a watch display. iOS/macOS/
+  tvOS/visionOS sizing is unchanged. No new public API.
+
 ## [1.20.0]
 
 - Tune the default placeholders for tvOS's focus engine. Swapping content

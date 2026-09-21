@@ -15,6 +15,8 @@ Requires iOS 17.0+, macOS 14.0+, tvOS 17.0+, watchOS 10.0+, or visionOS 1.0+, an
 
 On tvOS, the default placeholders are tuned for the focus engine: the Error placeholder sends focus straight to its Retry button, and the container re-evaluates focus after every state change so the Siri Remote never seems stuck on a view that just got swapped out.
 
+On watchOS, the default placeholders' icon and loading spinner are sized down so they don't dominate a compact watch screen the way an iPhone-sized icon would.
+
 ## Topics
 
 ### Essentials
