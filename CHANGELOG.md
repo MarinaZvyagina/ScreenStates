@@ -3,6 +3,25 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.23.0]
+
+- Fix the UIKit Empty/Error placeholders' icon rendering, which could clip
+  the icon against its 56x56 box or, for the Error placeholder specifically,
+  render no icon at all. The icon was previously painted by masking a
+  `CAGradientLayer` with a `UIImageView` that was never added to the view
+  hierarchy, so it only got a real `frame` once `layoutSubviews()` happened
+  to run — a mask view with no frame yet renders nothing, and a fresh
+  `ScreenStateDefaultErrorUIView` (recreated on every `.error` transition,
+  unlike the reused Empty/Loading placeholders) could be composited for the
+  first time before that ever happened, losing a Core Animation first-commit
+  race and staying permanently blank. Both placeholders now bake the
+  gradient directly into a `UIImage` up front (`sourceIn`-blended over the
+  SF Symbol) and display it with a plain `UIImageView`, removing the masking
+  race entirely. No API changes — `iconGradient`/`iconMask` (both internal)
+  are replaced by a single internal `iconView: UIImageView`, and the
+  UIKit gradient-stop regression tests now check the baked image's pixels
+  instead, the same way the SwiftUI tests already did.
+
 ## [1.22.0]
 
 - Add code coverage reporting to CI: `tests.yml` now runs with

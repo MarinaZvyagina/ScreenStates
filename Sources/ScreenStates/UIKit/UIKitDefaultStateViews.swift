@@ -1,6 +1,37 @@
 #if canImport(UIKit) && !os(watchOS)
 import UIKit
 
+/// Bakes `image` (expected to be a template-rendered SF Symbol) tinted with
+/// a linear gradient into a single bitmap, so it can be shown with a plain
+/// `UIImageView` — no `CALayer` mask involved. A `CAGradientLayer` masked by
+/// another view's layer only paints correctly once both layers have been
+/// through at least one Core Animation commit with real geometry; a mask
+/// view that's never added to the view hierarchy (as here) isn't guaranteed
+/// to get one before the very first commit, and a freshly-created view
+/// composited into its superview immediately (as ``ScreenStateDefaultErrorUIView``
+/// is on every `.error` transition) can lose that race and render nothing
+/// at all. Compositing the gradient into a bitmap up front sidesteps the
+/// race entirely: drawing happens synchronously, sized to `image.size`, with
+/// no dependency on Auto Layout or the view's own first layout pass.
+private func gradientTintedImage(_ image: UIImage, colors: [UIColor], startPoint: CGPoint, endPoint: CGPoint) -> UIImage {
+    let renderer = UIGraphicsImageRenderer(size: image.size)
+    return renderer.image { context in
+        image.draw(at: .zero)
+        context.cgContext.setBlendMode(.sourceIn)
+        guard let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: colors.map(\.cgColor) as CFArray,
+            locations: nil
+        ) else { return }
+        context.cgContext.drawLinearGradient(
+            gradient,
+            start: CGPoint(x: startPoint.x * image.size.width, y: startPoint.y * image.size.height),
+            end: CGPoint(x: endPoint.x * image.size.width, y: endPoint.y * image.size.height),
+            options: [.drawsBeforeStartLocation, .drawsAfterEndLocation]
+        )
+    }
+}
+
 /// Default placeholder shown while a screen's data is loading.
 public final class ScreenStateDefaultLoadingUIView: UIView {
     /// Internal (not `private`) so `@testable import` tests can verify the
@@ -79,11 +110,10 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
 
 /// Default placeholder shown when a screen has no data to display.
 public final class ScreenStateDefaultEmptyUIView: UIView {
-    private let iconMask = UIImageView()
     /// Internal (not `private`) so `@testable import` tests can verify the
-    /// gradient stops without any rendering — this module's test target
-    /// has no live window/scene to snapshot a real render into.
-    let iconGradient = GradientUIView()
+    /// rendered icon's colors — this module's test target has no live
+    /// window/scene to snapshot the whole view hierarchy into.
+    let iconView = UIImageView()
     private let titleLabel = UILabel()
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
@@ -99,22 +129,22 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     private func setUp(title: String, systemImage: String) {
         accessibilityIdentifier = "screenStates.empty"
 
-        iconMask.image = UIImage(
+        if let symbol = UIImage(
             systemName: systemImage,
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
-        )
-        iconMask.contentMode = .center
-        iconMask.translatesAutoresizingMaskIntoConstraints = false
-
-        iconGradient.gradientLayer.colors = [
-            UIColor.systemPink.cgColor,
-            UIColor.systemOrange.cgColor,
-            UIColor.systemYellow.cgColor
-        ]
-        iconGradient.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        iconGradient.gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        iconGradient.mask = iconMask
-        iconGradient.translatesAutoresizingMaskIntoConstraints = false
+        ) {
+            iconView.image = gradientTintedImage(
+                symbol,
+                colors: [UIColor.systemPink, .systemOrange, .systemYellow],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
+        }
+        // .scaleAspectFit, not .center: SF Symbols aren't square at a given
+        // point size (e.g. "tray.fill" at 56pt renders ~79x54), so .center
+        // would clip a wider-than-tall icon against this fixed square box.
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
 
         titleLabel.text = title
         titleLabel.textColor = .secondaryLabel
@@ -122,15 +152,15 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let stack = UIStackView(arrangedSubviews: [iconGradient, titleLabel])
+        let stack = UIStackView(arrangedSubviews: [iconView, titleLabel])
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
-            iconGradient.widthAnchor.constraint(equalToConstant: 56),
-            iconGradient.heightAnchor.constraint(equalToConstant: 56),
+            iconView.widthAnchor.constraint(equalToConstant: 56),
+            iconView.heightAnchor.constraint(equalToConstant: 56),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
@@ -145,10 +175,9 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     }
 }
 
-/// A `UIView` backed by a `CAGradientLayer`, used to paint a solid gradient
-/// through another view set as its `mask` (an SF Symbol icon, in
-/// ``ScreenStateDefaultEmptyUIView``) — UIKit's equivalent of SwiftUI's
-/// `.foregroundStyle(LinearGradient(...))` on an `Image`. Internal (not
+/// A `UIView` backed by a `CAGradientLayer`, used by
+/// ``ScreenStateDefaultLoadingUIView``'s spinning ring — UIKit's equivalent
+/// of SwiftUI's `.foregroundStyle(LinearGradient(...))`. Internal (not
 /// `private`) so `@testable import` tests can reach it.
 final class GradientUIView: UIView {
     override class var layerClass: AnyClass { CAGradientLayer.self }
@@ -161,11 +190,10 @@ final class GradientUIView: UIView {
 /// Default placeholder shown when a screen's data failed to load, with an
 /// optional Retry button.
 public final class ScreenStateDefaultErrorUIView: UIView {
-    private let iconMask = UIImageView()
     /// Internal (not `private`) so `@testable import` tests can verify the
-    /// gradient stops without any rendering — this module's test target
-    /// has no live window/scene to snapshot a real render into.
-    let iconGradient = GradientUIView()
+    /// rendered icon's colors — this module's test target has no live
+    /// window/scene to snapshot the whole view hierarchy into.
+    let iconView = UIImageView()
     private let messageLabel = UILabel()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
@@ -184,21 +212,22 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     private func setUp(message: String, showsRetry: Bool) {
         accessibilityIdentifier = "screenStates.error"
 
-        iconMask.image = UIImage(
+        if let symbol = UIImage(
             systemName: "exclamationmark.triangle.fill",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
-        )
-        iconMask.contentMode = .center
-        iconMask.translatesAutoresizingMaskIntoConstraints = false
-
-        iconGradient.gradientLayer.colors = [
-            UIColor.systemRed.cgColor,
-            UIColor.systemOrange.cgColor
-        ]
-        iconGradient.gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        iconGradient.gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        iconGradient.mask = iconMask
-        iconGradient.translatesAutoresizingMaskIntoConstraints = false
+        ) {
+            iconView.image = gradientTintedImage(
+                symbol,
+                colors: [UIColor.systemRed, .systemOrange],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
+        }
+        // .scaleAspectFit, not .center: SF Symbols aren't square at a given
+        // point size (e.g. "tray.fill" at 56pt renders ~79x54), so .center
+        // would clip a wider-than-tall icon against this fixed square box.
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
 
         messageLabel.text = message
         messageLabel.textColor = .secondaryLabel
@@ -213,15 +242,15 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         retryButton.isHidden = !showsRetry
         retryButton.accessibilityIdentifier = "screenStates.error.retryButton"
 
-        let stack = UIStackView(arrangedSubviews: [iconGradient, messageLabel, retryButton])
+        let stack = UIStackView(arrangedSubviews: [iconView, messageLabel, retryButton])
         stack.axis = .vertical
         stack.spacing = 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
-            iconGradient.widthAnchor.constraint(equalToConstant: 56),
-            iconGradient.heightAnchor.constraint(equalToConstant: 56),
+            iconView.widthAnchor.constraint(equalToConstant: 56),
+            iconView.heightAnchor.constraint(equalToConstant: 56),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),

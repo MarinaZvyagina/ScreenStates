@@ -14,18 +14,17 @@ import SwiftUI
 /// Regression tests protecting the default placeholders' gradient
 /// treatment.
 ///
-/// For UIKit, this module's test target has no live window/scene to
-/// render a `UIView` hierarchy into (SPM test bundles don't run inside a
-/// real app shell), so instead of rendering pixels these check the
-/// `CAGradientLayer` stops directly via the `internal` (not `private`)
-/// `iconGradient`/`gradientRing` properties.
-///
-/// For SwiftUI, `ImageRenderer` *can* rasterize a view with no window, so
-/// these render to a `UIImage` and assert at least one sufficiently opaque
-/// pixel is clearly colorful — a cheap, environment-independent way to
+/// The Empty/Error UIKit icons are pre-rendered `UIImage`s (see
+/// `gradientTintedImage` in `UIKitDefaultStateViews.swift`), reachable via
+/// the `internal` (not `private`) `iconView` property, so they're checked
+/// the same way as the SwiftUI renders: at least one sufficiently opaque
+/// pixel must be clearly colorful — a cheap, environment-independent way to
 /// catch a regression back to a plain gray tint, avoiding the
 /// cross-Xcode-version flakiness of exact pixel-for-pixel snapshot
-/// comparison against a checked-in reference image.
+/// comparison against a checked-in reference image. The Loading UIKit ring
+/// still animates via a live `CAGradientLayer` with no static bitmap to
+/// inspect, so it's checked structurally via `gradientRing`'s gradient
+/// stops instead.
 @Suite("Default placeholder visuals")
 @MainActor
 struct PlaceholderVisualTests {
@@ -40,13 +39,13 @@ struct PlaceholderVisualTests {
     @Test("ScreenStateDefaultEmptyUIView tints its icon with a colorful gradient, not a plain gray one")
     func emptyUIViewIsColorful() {
         let view = ScreenStateDefaultEmptyUIView()
-        #expect(hasSaturatedColor(view.iconGradient))
+        #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
     @Test("ScreenStateDefaultErrorUIView tints its icon with a colorful gradient, not a plain gray one")
     func errorUIViewIsColorful() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
-        #expect(hasSaturatedColor(view.iconGradient))
+        #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
     #if canImport(SwiftUI)
@@ -87,16 +86,6 @@ private func isSaturated(_ cgColor: CGColor, threshold: CGFloat) -> Bool {
     return max(r, g, b) - min(r, g, b) > threshold
 }
 
-// MARK: - SwiftUI rendering
-
-#if canImport(SwiftUI)
-@MainActor
-private func snapshotImage<V: View>(of view: V, size: CGSize) -> UIImage {
-    let renderer = ImageRenderer(content: view.frame(width: size.width, height: size.height))
-    renderer.scale = 2
-    return renderer.uiImage ?? UIImage()
-}
-
 /// `true` if any sufficiently opaque pixel in `image` is clearly colorful
 /// (its channels diverge by more than `threshold`) rather than grayscale.
 private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -> Bool {
@@ -127,6 +116,16 @@ private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -
         }
     }
     return false
+}
+
+// MARK: - SwiftUI rendering
+
+#if canImport(SwiftUI)
+@MainActor
+private func snapshotImage<V: View>(of view: V, size: CGSize) -> UIImage {
+    let renderer = ImageRenderer(content: view.frame(width: size.width, height: size.height))
+    renderer.scale = 2
+    return renderer.uiImage ?? UIImage()
 }
 #endif
 #endif
