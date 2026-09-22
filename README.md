@@ -1,6 +1,7 @@
 # ScreenStates
 
 [![Tests](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml/badge.svg)](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/MarinaZvyagina/ScreenStates/main/.github/badges/coverage.json)](https://github.com/MarinaZvyagina/ScreenStates/actions/workflows/tests.yml)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20visionOS-blue.svg)](#requirements)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)

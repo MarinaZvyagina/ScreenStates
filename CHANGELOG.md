@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.22.0]
+
+- Add code coverage reporting to CI: `tests.yml` now runs with
+  `-enableCodeCoverage YES` and, on pushes to `main`, updates a
+  self-hosted shields.io "endpoint" badge (`.github/badges/coverage.json`,
+  no external coverage service or secret needed) with the `ScreenStates`
+  target's line coverage percentage, committing with `[skip ci]` to avoid
+  re-triggering itself. New Coverage badge in the README. The library
+  itself is unchanged.
+
 ## [1.21.0]
 
 - Tune the default SwiftUI placeholders' sizing for watchOS's compact

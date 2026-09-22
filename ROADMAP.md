@@ -23,7 +23,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 - [x] Broaden `Package.swift`'s `platforms` to macOS/tvOS/watchOS/visionOS, auditing every `#if canImport` guard.
 - [x] Tune the default Loading/Empty placeholders for tvOS's focus engine.
 - [x] Tune default placeholder sizing/typography for watchOS's compact screens.
-- [ ] Add code coverage reporting to CI, plus a coverage badge in the README.
+- [x] Add code coverage reporting to CI, plus a coverage badge in the README.
 - [ ] Add a CI check that builds the DocC catalog, so broken doc comments/links fail the build.
 
 ## Week 4 — Analytics depth & community health

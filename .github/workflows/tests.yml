@@ -10,6 +10,8 @@ jobs:
   test:
     name: Test on iOS Simulator
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -22,4 +24,31 @@ jobs:
           echo "Using simulator $UDID"
           xcodebuild test \
             -scheme ScreenStates \
-            -destination "platform=iOS Simulator,id=$UDID"
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult
+
+      # Self-hosted shields.io "endpoint" badge — no external coverage
+      # service or secret needed. Only runs on pushes to main (not PRs,
+      # which may come from forks without push access) and skips
+      # committing when the percentage hasn't changed.
+      - name: Update coverage badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          PERCENT=$(xcrun xccov view --report --json TestResults.xcresult | jq '(.targets[] | select(.name == "ScreenStates") | .lineCoverage) * 100 | floor')
+          COLOR="red"
+          if [ "$PERCENT" -ge 80 ]; then COLOR="brightgreen"; elif [ "$PERCENT" -ge 60 ]; then COLOR="yellow"; fi
+          mkdir -p .github/badges
+          printf '{"schemaVersion":1,"label":"coverage","message":"%s%%","color":"%s"}\n' "$PERCENT" "$COLOR" > .github/badges/coverage.json
+
+          if git diff --quiet -- .github/badges/coverage.json; then
+            echo "Coverage unchanged ($PERCENT%), nothing to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/badges/coverage.json
+          git commit -m "ci: update coverage badge to ${PERCENT}% [skip ci]"
+          git push
