@@ -17,7 +17,10 @@ public struct ScreenStateView<Value, Content: View>: View {
     private let errorView: (Error) -> AnyView
 
     /// Uses the built-in Empty / Loading / Error placeholders.
-    /// - Parameter onRetry: wired to the default error view's Retry button.
+    /// - Parameters:
+    ///   - state: the state to render.
+    ///   - onRetry: wired to the default error view's Retry button.
+    ///   - content: builds the view shown for ``ScreenState/data(_:)``.
     public init(
         _ state: ScreenState<Value>,
         onRetry: (() -> Void)? = nil,

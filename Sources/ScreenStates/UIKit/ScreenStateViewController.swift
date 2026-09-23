@@ -31,7 +31,10 @@ open class ScreenStateViewController<Value>: UIViewController {
     private let container: ScreenStateContainerView<Value>
 
     /// Uses the built-in Empty / Loading / Error placeholders.
-    /// - Parameter onRetry: wired to the default error view's Retry button.
+    /// - Parameters:
+    ///   - store: the store driving this screen's content.
+    ///   - onRetry: wired to the default error view's Retry button.
+    ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public init(
         store: ScreenStateStore<Value>,
         onRetry: (() -> Void)? = nil,

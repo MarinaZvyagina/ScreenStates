@@ -29,7 +29,9 @@ public final class ScreenStateContainerView<Value>: UIView {
     private var currentContentView: UIView?
 
     /// Uses the built-in Empty / Loading / Error placeholders.
-    /// - Parameter onRetry: wired to the default error view's Retry button.
+    /// - Parameters:
+    ///   - onRetry: wired to the default error view's Retry button.
+    ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public convenience init(
         onRetry: (() -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView

@@ -3,6 +3,20 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.24.0]
+
+- Add a `docs` job to `.github/workflows/tests.yml` that runs `xcodebuild
+  docbuild` with `OTHER_DOCC_FLAGS="--warnings-as-errors"`, so a broken doc
+  comment or symbol link fails CI instead of only showing up as a build
+  warning the next time someone happens to run `Scripts/generate-docs.sh`
+  locally. Turning this on surfaced three existing gaps — `store`/
+  `contentProvider` on `ScreenStateViewController.init(store:onRetry:content:)`,
+  `contentProvider` on `ScreenStateContainerView.init(onRetry:content:)`,
+  and `state`/`content` on `ScreenStateView.init(_:onRetry:content:)` were
+  undocumented once any other parameter on the same initializer was (DocC
+  only enforces completeness once you've started) — now fixed. No API or
+  behavior changes.
+
 ## [1.23.0]
 
 - Fix the UIKit Empty/Error placeholders' icon rendering, which could clip

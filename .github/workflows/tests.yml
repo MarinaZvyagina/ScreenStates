@@ -7,6 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
+  docs:
+    name: Build DocC catalog
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build documentation
+        run: |
+          set -euo pipefail
+          xcodebuild docbuild \
+            -scheme ScreenStates \
+            -destination 'generic/platform=iOS' \
+            OTHER_DOCC_FLAGS="--warnings-as-errors"
+
   test:
     name: Test on iOS Simulator
     runs-on: macos-latest
