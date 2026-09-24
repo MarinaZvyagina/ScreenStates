@@ -34,40 +34,72 @@ public final class ScreenAnalyticsService {
     }
 
     /// Tracks every ``ScreenState`` transition on `store` from now on as a
-    /// `screen_state_changed` event named `screen`. Uses
-    /// `withObservationTracking` the same way ``ScreenStateContainerView``
-    /// mirrors a store — call it once, e.g. right after creating the store.
+    /// `screen_state_changed` event named `screen`, plus a
+    /// `screen_load_duration` event (see ``ScreenAnalyticsEvent/screenLoadDuration(screen:outcome:milliseconds:)``)
+    /// every time `.loading` is left for `.data`, `.empty`, or `.error`.
+    /// Uses `withObservationTracking` the same way
+    /// ``ScreenStateContainerView`` mirrors a store — call it once, e.g.
+    /// right after creating the store.
     public func observeStateChanges<Value>(of store: ScreenStateStore<Value>, screen: String) {
-        observe(store, screen: screen, lastKind: LastKind(store.state.analyticsKind))
+        let tracking = TransitionTracking(
+            kind: store.state.analyticsKind,
+            loadingStartedAt: store.state.isLoading ? .now : nil
+        )
+        observe(store, screen: screen, tracking: tracking)
     }
 
-    private func observe<Value>(_ store: ScreenStateStore<Value>, screen: String, lastKind: LastKind) {
+    private func observe<Value>(_ store: ScreenStateStore<Value>, screen: String, tracking: TransitionTracking) {
         withObservationTracking {
             _ = store.state
         } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
                 let newKind = store.state.analyticsKind
-                if newKind != lastKind.value {
+                if newKind != tracking.kind {
                     self.track(.screenStateChanged(
                         screen: screen,
-                        from: lastKind.value,
+                        from: tracking.kind,
                         to: newKind,
                         errorDescription: store.state.error?.localizedDescription
                     ))
-                    lastKind.value = newKind
+                    if newKind == "loading" {
+                        tracking.loadingStartedAt = .now
+                    } else if let startedAt = tracking.loadingStartedAt, tracking.kind == "loading" {
+                        self.track(.screenLoadDuration(
+                            screen: screen,
+                            outcome: newKind,
+                            milliseconds: startedAt.duration(to: .now).milliseconds
+                        ))
+                        tracking.loadingStartedAt = nil
+                    }
+                    tracking.kind = newKind
                 }
-                self.observe(store, screen: screen, lastKind: lastKind)
+                self.observe(store, screen: screen, tracking: tracking)
             }
         }
     }
 }
 
-/// Boxes the last-seen ``ScreenState/analyticsKind`` across the recursive
-/// re-subscriptions `observe(_:screen:lastKind:)` needs to keep tracking a
-/// store's changes indefinitely.
+/// Boxes the last-seen ``ScreenState/analyticsKind`` and, while it's
+/// `"loading"`, when that started, across the recursive re-subscriptions
+/// `observe(_:screen:tracking:)` needs to keep tracking a store's changes
+/// indefinitely.
 @MainActor
-private final class LastKind {
-    var value: String
-    init(_ value: String) { self.value = value }
+private final class TransitionTracking {
+    var kind: String
+    var loadingStartedAt: ContinuousClock.Instant?
+
+    init(kind: String, loadingStartedAt: ContinuousClock.Instant?) {
+        self.kind = kind
+        self.loadingStartedAt = loadingStartedAt
+    }
+}
+
+extension Duration {
+    /// The whole number of milliseconds in this duration, truncating any
+    /// remainder — plenty of precision for an analytics payload.
+    fileprivate var milliseconds: Int {
+        let (seconds, attoseconds) = components
+        return Int(seconds * 1000) + Int(attoseconds / 1_000_000_000_000_000)
+    }
 }

@@ -197,7 +197,7 @@ analytics.observeStateChanges(of: store, screen: "Articles")
 
 ScreenStates ships two ready-made trackers so you don't have to write `ConsoleScreenTracker` yourself: `PrintScreenAnalyticsTracker` logs every event to the console (handy for confirming events fire at the right moments during development), and `NoOpScreenAnalyticsTracker` silently discards everything (a harmless placeholder for tests, Previews, or a build where you don't want a real backend wired up yet).
 
-`trackScreenOpened(_:source:)` sends one `screen_opened` event. `observeStateChanges(of:screen:)` uses the same `withObservationTracking` mechanism as `ScreenStateContainerView` to watch a `ScreenStateStore` and sends a `screen_state_changed` event (with the error's description, when transitioning to `.error`) for every subsequent transition — call it once, e.g. right where you create the store. Every tracker registered with the service receives every event, so you can fan the same screen out to multiple analytics backends at once.
+`trackScreenOpened(_:source:)` sends one `screen_opened` event. `observeStateChanges(of:screen:)` uses the same `withObservationTracking` mechanism as `ScreenStateContainerView` to watch a `ScreenStateStore` and sends a `screen_state_changed` event (with the error's description, when transitioning to `.error`) for every subsequent transition — call it once, e.g. right where you create the store. It also times every `.loading` span: when the state leaves `.loading` for `.data`, `.empty`, or `.error`, it sends a `screen_load_duration` event carrying that outcome and the elapsed `duration_ms`, so you can chart load times and failure rates without wiring up your own stopwatch. Every tracker registered with the service receives every event, so you can fan the same screen out to multiple analytics backends at once.
 
 ## Quick start — SwiftUI
 
@@ -350,7 +350,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
-| `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)` and `.screenStateChanged(screen:from:to:errorDescription:)` factories |
+| `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
 | `ScreenAnalyticsTracker` | Protocol you implement per analytics backend: `track(_ event: ScreenAnalyticsEvent)` |
 | `ScreenAnalyticsService` | Fans events out to every registered `ScreenAnalyticsTracker`: `track(_:)`, `trackScreenOpened(_:source:)`, `observeStateChanges(of:screen:)` |

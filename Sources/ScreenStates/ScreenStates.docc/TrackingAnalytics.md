@@ -38,6 +38,8 @@ func onAppear(source: ScreenOpenSource<AppScreen>) {
 
 `trackScreenOpened(_:source:)` sends one `screen_opened` event. `observeStateChanges(of:screen:)` uses the same `withObservationTracking` mechanism ``ScreenStateContainerView`` uses to mirror a store, and sends a `screen_state_changed` event for every subsequent ``ScreenState`` transition — call it once, right where you create or first observe the store. When a transition lands on `.error`, the event also carries the error's `localizedDescription`.
 
+It also times how long the screen spends in `.loading`: the moment the state leaves `.loading` for `.data`, `.empty`, or `.error`, it sends a `screen_load_duration` event (``ScreenAnalyticsEvent/screenLoadDuration(screen:outcome:milliseconds:)``) with that outcome and the elapsed time in `duration_ms` — useful for a "how long do loads actually take, and how often do they end in an error" dashboard without hand-rolling a stopwatch around every `load(_:)` call.
+
 Both ``ScreenState`` and ``ScreenOpenSource`` expose an `analyticsKind` helper — a short, stable, payload-free name for the current case (`"loading"`, `"error"`, `"push"`, `"deep_link"`, ...) — so you can build custom ``ScreenAnalyticsEvent``s yourself for anything the built-in factories don't cover.
 
 ## See Also

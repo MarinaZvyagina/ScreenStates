@@ -3,6 +3,20 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.25.0]
+
+- Add `ScreenAnalyticsEvent.screenLoadDuration(screen:outcome:milliseconds:)`
+  and have `ScreenAnalyticsService.observeStateChanges(of:screen:)` send one
+  automatically every time a store's `.loading` span ends — `outcome` is the
+  resulting state's `analyticsKind` (`"data"`, `"empty"`, or `"error"`) and
+  `duration_ms` the elapsed time, measured with `ContinuousClock` so it's
+  unaffected by wall-clock adjustments. If a store is already `.loading`
+  when `observeStateChanges(of:screen:)` is called (the common case, since
+  `ScreenStateStore()` defaults to `.loading`), the clock starts then rather
+  than waiting for a transition *into* `.loading` that will never come.
+  Purely additive — existing `screen_state_changed` events are unchanged,
+  this is a new event alongside them.
+
 ## [1.24.0]
 
 - Add a `docs` job to `.github/workflows/tests.yml` that runs `xcodebuild

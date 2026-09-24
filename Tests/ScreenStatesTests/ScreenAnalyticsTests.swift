@@ -120,17 +120,87 @@ struct ScreenAnalyticsServiceTests {
         store.setLoading()
         await spy.waitUntil(count: 1)
 
+        // loading -> data also fires a screen_load_duration event (covered
+        // in detail by the ScreenLoadDurationTests suite below), so this
+        // waits for both.
+        store.setData(1)
+        await spy.waitUntil(count: 3)
+
+        // data -> error never passed through .loading, so no duration event.
+        store.setError(SampleError())
+        await spy.waitUntil(count: 4)
+
+        #expect(spy.events[0] == .screenStateChanged(screen: "Test", from: "empty", to: "loading"))
+        #expect(spy.events[1] == .screenStateChanged(screen: "Test", from: "loading", to: "data"))
+        #expect(spy.events[2].name == "screen_load_duration")
+        #expect(spy.events[3] == .screenStateChanged(screen: "Test", from: "data", to: "error", errorDescription: "sample failure"))
+    }
+}
+
+@Suite("ScreenAnalyticsService load duration tracking")
+@MainActor
+struct ScreenLoadDurationTests {
+    private struct SampleError: Error {}
+
+    @Test("observeStateChanges(of:screen:) tracks screen_load_duration when .loading resolves to .data, .empty, or .error")
+    func loadDurationForEveryOutcome() async {
+        for (transition, outcome) in [
+            ({ (store: ScreenStateStore<Int>) in store.setData(1) }, "data"),
+            ({ (store: ScreenStateStore<Int>) in store.setEmpty() }, "empty"),
+            ({ (store: ScreenStateStore<Int>) in store.setError(SampleError()) }, "error")
+        ] {
+            let store = ScreenStateStore<Int>(.empty)
+            let spy = SpyTracker()
+            let service = ScreenAnalyticsService(trackers: [spy])
+            service.observeStateChanges(of: store, screen: "Test")
+
+            store.setLoading()
+            await spy.waitUntil(count: 1)
+
+            transition(store)
+            await spy.waitUntil(count: 3)
+
+            let durationEvent = spy.events[2]
+            #expect(durationEvent.name == "screen_load_duration")
+            #expect(durationEvent.parameters["screen"] == .string("Test"))
+            #expect(durationEvent.parameters["outcome"] == .string(outcome))
+            guard case .int(let milliseconds)? = durationEvent.parameters["duration_ms"] else {
+                Issue.record("duration_ms missing or not an .int")
+                continue
+            }
+            #expect(milliseconds >= 0)
+        }
+    }
+
+    @Test("a transition that doesn't leave .loading, or never entered it, doesn't track a duration")
+    func noDurationWithoutLeavingLoading() async {
+        let store = ScreenStateStore<Int>(.empty)
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+        service.observeStateChanges(of: store, screen: "Test")
+
+        store.setData(1)
+        await spy.waitUntil(count: 1)
+
+        store.setError(SampleError())
+        await spy.waitUntil(count: 2)
+
+        #expect(spy.events.map(\.name) == ["screen_state_changed", "screen_state_changed"])
+    }
+
+    @Test("observing a store that's already .loading tracks the duration of its first resolution")
+    func loadDurationWhenAlreadyLoadingBeforeObserving() async {
+        let store = ScreenStateStore<Int>() // defaults to .loading
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+        service.observeStateChanges(of: store, screen: "Test")
+
         store.setData(1)
         await spy.waitUntil(count: 2)
 
-        store.setError(SampleError())
-        await spy.waitUntil(count: 3)
-
-        #expect(spy.events == [
-            .screenStateChanged(screen: "Test", from: "empty", to: "loading"),
-            .screenStateChanged(screen: "Test", from: "loading", to: "data"),
-            .screenStateChanged(screen: "Test", from: "data", to: "error", errorDescription: "sample failure")
-        ])
+        #expect(spy.events[0] == .screenStateChanged(screen: "Test", from: "loading", to: "data"))
+        #expect(spy.events[1].name == "screen_load_duration")
+        #expect(spy.events[1].parameters["outcome"] == .string("data"))
     }
 }
 

@@ -28,7 +28,7 @@ A month of small, incremental improvements to ScreenStates, one item per day. Se
 
 ## Week 4 — Analytics depth & community health
 
-- [ ] Track screen load duration (`.loading` → `.data`/`.error` elapsed time) as a new `ScreenAnalyticsEvent`.
+- [x] Track screen load duration (`.loading` → `.data`/`.error` elapsed time) as a new `ScreenAnalyticsEvent`.
 - [ ] Add `loadWithRetry(maxAttempts:backoff:)` to `ScreenStateStore` for automatic retry with backoff.
 - [ ] Add `CONTRIBUTING.md` plus issue/PR templates.
 - [ ] Add a DocC "Recipes" article covering common patterns (list + detail, one store per tab, master-detail).

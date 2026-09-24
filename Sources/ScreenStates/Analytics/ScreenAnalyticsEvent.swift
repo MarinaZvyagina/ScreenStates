@@ -45,6 +45,21 @@ extension ScreenAnalyticsEvent {
         }
         return ScreenAnalyticsEvent(name: "screen_state_changed", parameters: parameters)
     }
+
+    /// The default event for how long a screen spent in `.loading` before
+    /// settling on `outcome` — a terminal state's ``ScreenState/analyticsKind``
+    /// (`"data"`, `"empty"`, or `"error"`).
+    public static func screenLoadDuration(
+        screen: String,
+        outcome: String,
+        milliseconds: Int
+    ) -> ScreenAnalyticsEvent {
+        ScreenAnalyticsEvent(name: "screen_load_duration", parameters: [
+            "screen": .string(screen),
+            "outcome": .string(outcome),
+            "duration_ms": .int(milliseconds)
+        ])
+    }
 }
 
 extension ScreenState {
