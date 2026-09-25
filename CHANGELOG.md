@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.27.0]
+
+- Add `CONTRIBUTING.md` (build/test commands, commit conventions, what a
+  feature-level PR needs to update) plus GitHub issue templates (bug
+  report, feature request) and a pull request template, so a contributor
+  gets the same checklist a maintainer already follows. No source
+  changes.
+
 ## [1.26.0]
 
 - Add `loadWithRetry(maxAttempts:backoff:_:)` to `ScreenStateStore`, for

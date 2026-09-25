@@ -1,0 +1,48 @@
+name: Bug report
+description: Something in ScreenStates isn't working as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code snippet reproduces fastest.
+      placeholder: |
+        let store = ScreenStateStore<[Article]>()
+        await store.load { ... }
+        // ...
+      render: swift
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: ScreenStates version
+      placeholder: "1.27.0"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform & OS version
+      placeholder: "iOS 18.0 (Simulator)"
+    validations:
+      required: true
+
+  - type: input
+    id: xcode
+    attributes:
+      label: Xcode / Swift version
+      placeholder: "Xcode 16.0, Swift 6.0"
+    validations:
+      required: true

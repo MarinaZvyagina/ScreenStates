@@ -369,6 +369,10 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `PrintScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that logs every event to the console |
 | `NoOpScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that silently discards every event |
 
+## Contributing
+
+Bug reports, feature requests, and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for build/test commands and conventions.
+
 ## License
 
 Released under the [MIT License](LICENSE).

@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose new API or behavior for ScreenStates
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What screen-loading problem does this solve?
+      description: ScreenStates stays deliberately small — describe the concrete problem, not just the API you'd like.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: Sketch the signature/usage you have in mind, if you have one.
+      render: swift
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workarounds you've tried
+      description: What does solving this without the new API look like today?
