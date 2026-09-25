@@ -119,6 +119,18 @@ List(articles) { ... }
 
 While a refresh is in flight, `store.isRefreshing` is `true`; if it fails, `store.state` is untouched and the error is reported via `store.refreshError` instead (so you can show a toast without discarding the list). Both fall back to `load(_:)`/`loadCollection(_:)` automatically when there's no data yet to preserve.
 
+### Retrying on failure
+
+Some failures are worth retrying automatically before giving up — a flaky network call, for example. `loadWithRetry(maxAttempts:backoff:_:)` behaves like `load(_:)`, but retries a failing `operation` instead of settling into `.error` after the first failure:
+
+```swift
+await store.loadWithRetry(maxAttempts: 3) {
+    try await api.fetchArticles()
+}
+```
+
+`state` stays `.loading` across every attempt. `backoff` is called with the attempt number that just failed (`1`, `2`, …) and returns how long to wait before trying again; it defaults to doubling from one second. Only the final failure, once `maxAttempts` is reached, switches `state` to `.error`.
+
 ### Previewing a screen in a specific state
 
 Driving a store through a real `load(_:)` call just to see what the Empty or Error placeholder looks like is annoying in a `#Preview`. Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and use the `preview`-prefixed factories to pin that store to one state:
@@ -341,7 +353,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | Type | Purpose |
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `map(_:)`, `flatMap(_:)` helpers |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |

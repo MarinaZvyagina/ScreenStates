@@ -91,6 +91,82 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data([1, 2, 3]))
     }
 
+    @Test("loadWithRetry(_:) succeeds on the first attempt without invoking backoff")
+    func loadWithRetrySucceedsFirstTry() async {
+        let store = ScreenStateStore<Int>()
+        var backoffCalls = 0
+        await store.loadWithRetry(backoff: { _ in
+            backoffCalls += 1
+            return .zero
+        }) { 7 }
+        #expect(store.state == .data(7))
+        #expect(backoffCalls == 0)
+    }
+
+    @Test("loadWithRetry(_:) retries after a failure and succeeds")
+    func loadWithRetrySucceedsAfterRetry() async {
+        let store = ScreenStateStore<Int>()
+        let counter = AttemptCounter()
+        await store.loadWithRetry(backoff: { _ in .zero }) {
+            if await counter.next() == 1 { throw SampleError() }
+            return 42
+        }
+        #expect(store.state == .data(42))
+    }
+
+    @Test("loadWithRetry(_:) settles into .error once maxAttempts is exhausted")
+    func loadWithRetryExhaustsAttempts() async {
+        let store = ScreenStateStore<Int>()
+        let counter = AttemptCounter()
+        await store.loadWithRetry(maxAttempts: 3, backoff: { _ in .zero }) {
+            _ = await counter.next()
+            throw SampleError()
+        }
+        #expect(store.state.error is SampleError)
+        #expect(await counter.count == 3)
+    }
+
+    @Test("loadWithRetry(_:) keeps state .loading across retries")
+    func loadWithRetryStaysLoadingAcrossRetries() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+        let counter = AttemptCounter()
+
+        let task = Task {
+            await store.loadWithRetry(backoff: { _ in .zero }) {
+                if await counter.next() == 1 { throw SampleError() }
+                await gate.waitForOpen()
+                return 42
+            }
+        }
+
+        await gate.waitForStart()
+        #expect(store.state.isLoading)
+
+        await gate.open()
+        await task.value
+
+        #expect(store.state == .data(42))
+    }
+
+    @Test("loadWithRetry(_:) calls backoff with the attempt number that just failed")
+    func loadWithRetryPassesAttemptNumberToBackoff() async {
+        let store = ScreenStateStore<Int>()
+        var backoffAttempts: [Int] = []
+        let counter = AttemptCounter()
+
+        await store.loadWithRetry(maxAttempts: 3, backoff: { attempt in
+            backoffAttempts.append(attempt)
+            return .zero
+        }) {
+            if await counter.next() < 3 { throw SampleError() }
+            return 1
+        }
+
+        #expect(backoffAttempts == [1, 2])
+        #expect(store.state == .data(1))
+    }
+
     @Test("manual setters update state directly")
     func manualSetters() {
         let store = ScreenStateStore<Int>()
@@ -217,6 +293,17 @@ private actor Gate {
     func open() {
         openContinuation?.resume()
         openContinuation = nil
+    }
+}
+
+/// Counts calls from concurrent/`@Sendable` contexts, e.g. `loadWithRetry(_:)`'s
+/// `operation`, where a plain captured `var` isn't allowed.
+private actor AttemptCounter {
+    private(set) var count = 0
+
+    func next() -> Int {
+        count += 1
+        return count
     }
 }
 

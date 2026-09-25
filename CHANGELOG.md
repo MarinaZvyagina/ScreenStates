@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.26.0]
+
+- Add `loadWithRetry(maxAttempts:backoff:_:)` to `ScreenStateStore`, for
+  operations worth retrying automatically before giving up — a flaky
+  network call, for example. Like `load(_:)`, but retries a failing
+  `operation` up to `maxAttempts` times, keeping `state` at `.loading`
+  across every attempt; only the final failure switches it to `.error`.
+  `backoff` is called with the attempt number that just failed (`1`, `2`,
+  …) and returns how long to wait before the next try, defaulting to
+  doubling from one second. If the wait itself is cancelled, `state`
+  becomes `.error` with the cancellation error instead of retrying
+  further. Purely additive alongside `load(_:)`.
+
 ## [1.25.0]
 
 - Add `ScreenAnalyticsEvent.screenLoadDuration(screen:outcome:milliseconds:)`

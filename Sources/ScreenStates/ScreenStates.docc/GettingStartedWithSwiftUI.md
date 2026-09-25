@@ -70,6 +70,18 @@ List(articles) { article in
 
 `store.isRefreshing` is `true` for the duration; a failure is reported via `store.refreshError` rather than by discarding `state`, so the list stays visible and you can surface the error separately (a toast, for example).
 
+## Retrying on failure
+
+For a flaky call worth retrying automatically before showing an error, use ``ScreenStateStore/loadWithRetry(maxAttempts:backoff:_:)`` instead of `loadCollection(_:)`:
+
+```swift
+await store.loadWithRetry(maxAttempts: 3) {
+    try await api.fetchArticles()
+}
+```
+
+`state` stays `.loading` across every attempt; only the final failure, once `maxAttempts` is exhausted, switches it to `.error`. `backoff` is called with the attempt number that just failed and returns how long to wait before the next try, defaulting to doubling from one second.
+
 ## Previewing a screen in a specific state
 
 Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and pin that store to one state with a `preview`-prefixed factory instead of driving it through a real `loadCollection(_:)` call:

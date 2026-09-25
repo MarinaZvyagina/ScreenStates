@@ -163,6 +163,44 @@ public final class ScreenStateStore<Value> {
             refreshError = error
         }
     }
+
+    /// Like ``load(_:)``, but retries a failing `operation` instead of
+    /// settling into `.error` after the first failure. `state` stays
+    /// `.loading` across every attempt; only the final failure (once
+    /// `maxAttempts` is reached) or a success changes it.
+    ///
+    /// `backoff` is called with the attempt number that just failed (`1` for
+    /// the first failure, `2` for the second, …) and returns how long to
+    /// wait before trying again; the default doubles from one second. If
+    /// waiting is cancelled, `state` becomes `.error` with the cancellation
+    /// error instead of retrying further.
+    public func loadWithRetry(
+        maxAttempts: Int = 3,
+        backoff: (Int) -> Duration = { attempt in .seconds(1 << (attempt - 1)) },
+        _ operation: @Sendable () async throws -> Value
+    ) async {
+        refreshError = nil
+        setLoading()
+        var attempt = 1
+        while true {
+            do {
+                setData(try await operation())
+                return
+            } catch {
+                guard attempt < maxAttempts else {
+                    setError(error)
+                    return
+                }
+                do {
+                    try await Task.sleep(for: backoff(attempt))
+                } catch {
+                    setError(error)
+                    return
+                }
+                attempt += 1
+            }
+        }
+    }
 }
 
 extension ScreenStateStore where Value: Collection {
