@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.28.0]
+
+- Add a "Recipes" DocC article covering three common multi-screen
+  patterns built on `ScreenStateStore`: list + detail (a pushed detail
+  screen with its own store, using `.task(id:)` so it's reusable where
+  the same instance's ID can change instead of being recreated), one
+  store per tab (relying on `TabView`'s view-identity preservation to
+  avoid reloading on every switch), and master-detail with
+  `NavigationSplitView` (reusing the same detail screen from list +
+  detail, since its `.task(id:)` handles a changing selection on the
+  same instance). Linked from the module's Topics page and README's
+  Documentation section. No source or API changes.
+
 ## [1.27.0]
 
 - Add `CONTRIBUTING.md` (build/test commands, commit conventions, what a
