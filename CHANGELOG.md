@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.29.0]
+
+- Add `.spi.yml`, telling the [Swift Package Index](https://swiftpackageindex.com/MarinaZvyagina/ScreenStates)
+  to build the `ScreenStates` target's documentation, and add Swift-versions
+  and platform-compatibility SPI badges plus an "also listed on the Swift
+  Package Index" link to README. Submitting the repository URL at
+  [swiftpackageindex.com/add-a-package](https://swiftpackageindex.com/add-a-package)
+  is a one-time manual step outside this repo — the badges above will read
+  as "not yet indexed" until that's done. No source changes.
+
 ## [1.28.0]
 
 - Add a "Recipes" DocC article covering three common multi-screen

@@ -5,6 +5,8 @@
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS%20%7C%20visionOS-blue.svg)](#requirements)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
+[![Swift Package Index](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMarinaZvyagina%2FScreenStates%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/MarinaZvyagina/ScreenStates)
+[![Swift Package Index](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FMarinaZvyagina%2FScreenStates%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/MarinaZvyagina/ScreenStates)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/documentation-DocC-blue.svg)](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)
 
@@ -37,7 +39,7 @@ On watchOS, the default placeholders' icon and loading spinner are sized down (2
 
 ## Installation — Swift Package Manager
 
-**In Xcode:** File → Add Package Dependencies… → enter the repository URL → select the `ScreenStates` product → Add Package.
+**In Xcode:** File → Add Package Dependencies… → enter the repository URL → select the `ScreenStates` product → Add Package. Also listed on the [Swift Package Index](https://swiftpackageindex.com/MarinaZvyagina/ScreenStates).
 
 **In `Package.swift`:**
 
