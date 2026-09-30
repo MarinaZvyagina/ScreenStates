@@ -93,6 +93,11 @@ extension ScreenState: Sendable where Value: Sendable {}
 /// let store = ScreenStateStore<[Article]>()
 /// await store.load { try await api.fetchArticles() }
 /// ```
+///
+/// If a second `load`/`refresh`/`loadWithRetry` call starts before an
+/// earlier one has finished, only the most recently started call's result is
+/// ever applied — an earlier, now-stale response landing late can't
+/// overwrite state a newer call already produced.
 @MainActor
 @Observable
 public final class ScreenStateStore<Value> {
@@ -109,8 +114,23 @@ public final class ScreenStateStore<Value> {
     /// next load or refresh.
     public private(set) var refreshError: Error?
 
+    /// Bumped by every `load`/`refresh`/`loadWithRetry` call; a call whose
+    /// token no longer matches once its operation resolves knows a newer
+    /// call has since started, and drops its own result instead of applying
+    /// it.
+    private var generation = 0
+
     public init(_ initial: ScreenState<Value> = .loading) {
         state = initial
+    }
+
+    private func beginOperation() -> Int {
+        generation += 1
+        return generation
+    }
+
+    private func isCurrent(_ token: Int) -> Bool {
+        token == generation
     }
 
     public func setLoading() {
@@ -132,11 +152,15 @@ public final class ScreenStateStore<Value> {
     /// Runs `operation`, showing `.loading` while it's in flight and
     /// mapping its outcome to `.data` or `.error`.
     public func load(_ operation: @Sendable () async throws -> Value) async {
+        let token = beginOperation()
         refreshError = nil
         setLoading()
         do {
-            setData(try await operation())
+            let value = try await operation()
+            guard isCurrent(token) else { return }
+            setData(value)
         } catch {
+            guard isCurrent(token) else { return }
             setError(error)
         }
     }
@@ -154,12 +178,16 @@ public final class ScreenStateStore<Value> {
             await load(operation)
             return
         }
+        let token = beginOperation()
         refreshError = nil
         isRefreshing = true
-        defer { isRefreshing = false }
+        defer { if isCurrent(token) { isRefreshing = false } }
         do {
-            setData(try await operation())
+            let value = try await operation()
+            guard isCurrent(token) else { return }
+            setData(value)
         } catch {
+            guard isCurrent(token) else { return }
             refreshError = error
         }
     }
@@ -179,14 +207,18 @@ public final class ScreenStateStore<Value> {
         backoff: (Int) -> Duration = { attempt in .seconds(1 << (attempt - 1)) },
         _ operation: @Sendable () async throws -> Value
     ) async {
+        let token = beginOperation()
         refreshError = nil
         setLoading()
         var attempt = 1
         while true {
             do {
-                setData(try await operation())
+                let value = try await operation()
+                guard isCurrent(token) else { return }
+                setData(value)
                 return
             } catch {
+                guard isCurrent(token) else { return }
                 guard attempt < maxAttempts else {
                     setError(error)
                     return
@@ -194,9 +226,11 @@ public final class ScreenStateStore<Value> {
                 do {
                     try await Task.sleep(for: backoff(attempt))
                 } catch {
+                    guard isCurrent(token) else { return }
                     setError(error)
                     return
                 }
+                guard isCurrent(token) else { return }
                 attempt += 1
             }
         }
@@ -207,12 +241,15 @@ extension ScreenStateStore where Value: Collection {
     /// Like ``load(_:)``, but maps an empty result to `.empty` instead of
     /// `.data` — convenient when `Value` is a list of items to display.
     public func loadCollection(_ operation: @Sendable () async throws -> Value) async {
+        let token = beginOperation()
         refreshError = nil
         setLoading()
         do {
             let result = try await operation()
+            guard isCurrent(token) else { return }
             state = result.isEmpty ? .empty : .data(result)
         } catch {
+            guard isCurrent(token) else { return }
             setError(error)
         }
     }
@@ -224,13 +261,16 @@ extension ScreenStateStore where Value: Collection {
             await loadCollection(operation)
             return
         }
+        let token = beginOperation()
         refreshError = nil
         isRefreshing = true
-        defer { isRefreshing = false }
+        defer { if isCurrent(token) { isRefreshing = false } }
         do {
             let result = try await operation()
+            guard isCurrent(token) else { return }
             state = result.isEmpty ? .empty : .data(result)
         } catch {
+            guard isCurrent(token) else { return }
             refreshError = error
         }
     }

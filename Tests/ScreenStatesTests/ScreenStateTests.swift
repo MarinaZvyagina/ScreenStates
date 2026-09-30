@@ -77,6 +77,28 @@ struct ScreenStateStoreTests {
         #expect(store.state.error is SampleError)
     }
 
+    @Test("load(_:) drops a stale result once a newer call has already started")
+    func loadDropsStaleResult() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let staleTask = Task {
+            await store.load {
+                await gate.waitForOpen()
+                return 1
+            }
+        }
+        await gate.waitForStart()
+
+        await store.load { 2 }
+        #expect(store.state == .data(2))
+
+        await gate.open()
+        await staleTask.value
+
+        #expect(store.state == .data(2))
+    }
+
     @Test("loadCollection(_:) maps an empty result to .empty")
     func loadCollectionEmpty() async {
         let store = ScreenStateStore<[Int]>()
@@ -89,6 +111,28 @@ struct ScreenStateStoreTests {
         let store = ScreenStateStore<[Int]>()
         await store.loadCollection { [1, 2, 3] }
         #expect(store.state == .data([1, 2, 3]))
+    }
+
+    @Test("loadCollection(_:) drops a stale result once a newer call has already started")
+    func loadCollectionDropsStaleResult() async {
+        let store = ScreenStateStore<[Int]>()
+        let gate = Gate()
+
+        let staleTask = Task {
+            await store.loadCollection {
+                await gate.waitForOpen()
+                return [1]
+            }
+        }
+        await gate.waitForStart()
+
+        await store.loadCollection { [2, 3] }
+        #expect(store.state == .data([2, 3]))
+
+        await gate.open()
+        await staleTask.value
+
+        #expect(store.state == .data([2, 3]))
     }
 
     @Test("loadWithRetry(_:) succeeds on the first attempt without invoking backoff")
@@ -167,6 +211,28 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data(1))
     }
 
+    @Test("loadWithRetry(_:) drops a stale result once a newer call has already started")
+    func loadWithRetryDropsStaleResult() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let staleTask = Task {
+            await store.loadWithRetry(backoff: { _ in .zero }) {
+                await gate.waitForOpen()
+                return 1
+            }
+        }
+        await gate.waitForStart()
+
+        await store.load { 2 }
+        #expect(store.state == .data(2))
+
+        await gate.open()
+        await staleTask.value
+
+        #expect(store.state == .data(2))
+    }
+
     @Test("manual setters update state directly")
     func manualSetters() {
         let store = ScreenStateStore<Int>()
@@ -213,6 +279,46 @@ struct ScreenStateStoreTests {
         await task.value
 
         #expect(store.state == .data(2))
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("refresh(_:) drops a stale result and keeps isRefreshing true until the newest refresh finishes")
+    func refreshDropsStaleResultAndKeepsRefreshingUntilNewestFinishes() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        let staleGate = Gate()
+        let freshGate = Gate()
+
+        let staleTask = Task {
+            await store.refresh {
+                await staleGate.waitForOpen()
+                return 2
+            }
+        }
+        await staleGate.waitForStart()
+        #expect(store.isRefreshing)
+
+        let freshTask = Task {
+            await store.refresh {
+                await freshGate.waitForOpen()
+                return 3
+            }
+        }
+        await freshGate.waitForStart()
+
+        // Let the stale refresh resolve first -- its result must be dropped,
+        // and isRefreshing must stay true since the fresh refresh (the
+        // current generation) hasn't finished yet.
+        await staleGate.open()
+        await staleTask.value
+
+        #expect(store.state == .data(1))
+        #expect(store.isRefreshing)
+
+        await freshGate.open()
+        await freshTask.value
+
+        #expect(store.state == .data(3))
         #expect(!store.isRefreshing)
     }
 

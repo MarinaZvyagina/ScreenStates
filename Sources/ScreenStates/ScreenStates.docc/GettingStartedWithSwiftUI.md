@@ -82,6 +82,10 @@ await store.loadWithRetry(maxAttempts: 3) {
 
 `state` stays `.loading` across every attempt; only the final failure, once `maxAttempts` is exhausted, switches it to `.error`. `backoff` is called with the attempt number that just failed and returns how long to wait before the next try, defaulting to doubling from one second.
 
+## Overlapping calls are safe
+
+Nothing extra is needed to handle a screen firing off a second `loadCollection(_:)`/`refresh(_:)`/`loadWithRetry(_:)` call before an earlier one has finished — a fast double-tap on Retry, or a new query arriving before the previous one resolved. ``ScreenStateStore`` only ever applies the most recently started call's result; a slower, now-stale response landing late is dropped instead of overwriting state a newer call already produced.
+
 ## Previewing a screen in a specific state
 
 Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and pin that store to one state with a `preview`-prefixed factory instead of driving it through a real `loadCollection(_:)` call:

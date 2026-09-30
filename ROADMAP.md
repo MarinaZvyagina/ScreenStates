@@ -36,7 +36,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 5 — Resilience & concurrency safety
 
-- [ ] Guard `load(_:)`/`loadCollection(_:)`/`refresh(_:)`/`refreshCollection(_:)`/`loadWithRetry(_:)` against a stale operation resolving after a newer one already started — check for that race and drop the stale result instead of letting it overwrite fresher state.
+- [x] Guard `load(_:)`/`loadCollection(_:)`/`refresh(_:)`/`refreshCollection(_:)`/`loadWithRetry(_:)` against a stale operation resolving after a newer one already started — check for that race and drop the stale result instead of letting it overwrite fresher state.
 - [ ] Add `ScreenStateStore.cancel()` to explicitly cancel whatever `load`/`refresh` operation is currently in flight, keeping `state` as-is.
 - [ ] Cancel a `ScreenStateStore`'s in-flight operation automatically on `deinit`, so a torn-down screen's stale response can never run after the store it would have mutated is already gone.
 - [ ] Add `ScreenStateStore.reset(to:)` to snap a store back to `.loading` (or any given state) outside of a `load` call — useful for a full sign-out/reset flow.

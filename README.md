@@ -133,6 +133,10 @@ await store.loadWithRetry(maxAttempts: 3) {
 
 `state` stays `.loading` across every attempt. `backoff` is called with the attempt number that just failed (`1`, `2`, …) and returns how long to wait before trying again; it defaults to doubling from one second. Only the final failure, once `maxAttempts` is reached, switches `state` to `.error`.
 
+### Overlapping calls are safe
+
+If a screen fires off a second `load`/`loadCollection`/`refresh`/`refreshCollection`/`loadWithRetry` call before an earlier one has finished — a fast double-tap on Retry, or a new search query arriving before the previous one resolved — only the most recently started call's result is ever applied. An earlier, now-stale response landing late is silently dropped instead of overwriting state a newer call already produced, and `isRefreshing` stays `true` until the newest in-flight refresh actually finishes, not whichever one happens to resolve first. You don't need to cancel anything yourself for this to hold.
+
 ### Previewing a screen in a specific state
 
 Driving a store through a real `load(_:)` call just to see what the Empty or Error placeholder looks like is annoying in a `#Preview`. Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and use the `preview`-prefixed factories to pin that store to one state:

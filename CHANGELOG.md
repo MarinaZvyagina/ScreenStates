@@ -3,6 +3,19 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.30.0]
+
+- Fix a race in `ScreenStateStore`: if `load(_:)`/`loadCollection(_:)`/
+  `refresh(_:)`/`refreshCollection(_:)`/`loadWithRetry(_:)` overlap — a
+  second call starting before an earlier one has finished — a slow, now-
+  stale response landing late could previously overwrite state a newer
+  call already produced. Each call now tracks a generation token and
+  drops its own result if a newer call has since started, instead of
+  applying it. `refresh(_:)`/`refreshCollection(_:)`'s `isRefreshing`
+  also now stays `true` until the newest in-flight refresh finishes,
+  rather than being cleared by whichever overlapping refresh happens to
+  resolve first. No API changes — purely a correctness fix.
+
 ## [1.29.0]
 
 - Add `.spi.yml`, telling the [Swift Package Index](https://swiftpackageindex.com/MarinaZvyagina/ScreenStates)
