@@ -86,6 +86,16 @@ await store.loadWithRetry(maxAttempts: 3) {
 
 Nothing extra is needed to handle a screen firing off a second `loadCollection(_:)`/`refresh(_:)`/`loadWithRetry(_:)` call before an earlier one has finished — a fast double-tap on Retry, or a new query arriving before the previous one resolved. ``ScreenStateStore`` only ever applies the most recently started call's result; a slower, now-stale response landing late is dropped instead of overwriting state a newer call already produced.
 
+## Cancelling an in-flight call
+
+Call ``ScreenStateStore/cancel()`` to stop whatever call is currently running, without waiting for it to resolve — useful from `onDisappear`, or right before firing off a newer query:
+
+```swift
+store.cancel()
+```
+
+`state` (and `isRefreshing`/`refreshError`) are left exactly as they were; cancelling never surfaces a `CancellationError` through `state` the way letting `operation` itself fail would. If nothing is in flight, `cancel()` does nothing.
+
 ## Previewing a screen in a specific state
 
 Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and pin that store to one state with a `preview`-prefixed factory instead of driving it through a real `loadCollection(_:)` call:

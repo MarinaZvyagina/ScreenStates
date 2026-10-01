@@ -99,6 +99,35 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data(2))
     }
 
+    @Test("cancel() leaves state untouched by a load(_:) that was in flight")
+    func cancelLeavesStateDuringLoad() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let task = Task {
+            await store.load {
+                await gate.waitForOpen()
+                return 7
+            }
+        }
+        await gate.waitForStart()
+        #expect(store.state.isLoading)
+
+        store.cancel()
+        await gate.open() // let `operation` resolve anyway, as if unaware of the cancellation
+        await task.value
+
+        #expect(store.state.isLoading)
+    }
+
+    @Test("cancel() is a no-op when nothing is in flight")
+    func cancelWithNothingInFlight() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        store.cancel()
+        #expect(store.state == .data(1))
+    }
+
     @Test("loadCollection(_:) maps an empty result to .empty")
     func loadCollectionEmpty() async {
         let store = ScreenStateStore<[Int]>()
@@ -233,6 +262,27 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data(2))
     }
 
+    @Test("cancel() leaves state untouched by a loadWithRetry(_:) that was in flight")
+    func cancelLeavesStateDuringRetry() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let task = Task {
+            await store.loadWithRetry(backoff: { _ in .zero }) {
+                await gate.waitForOpen()
+                return 7
+            }
+        }
+        await gate.waitForStart()
+        #expect(store.state.isLoading)
+
+        store.cancel()
+        await gate.open()
+        await task.value
+
+        #expect(store.state.isLoading)
+    }
+
     @Test("manual setters update state directly")
     func manualSetters() {
         let store = ScreenStateStore<Int>()
@@ -319,6 +369,30 @@ struct ScreenStateStoreTests {
         await freshTask.value
 
         #expect(store.state == .data(3))
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("cancel() leaves state and refreshError untouched by a cancelled refresh(_:), but still clears isRefreshing")
+    func cancelLeavesStateDuringRefresh() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        let gate = Gate()
+
+        let task = Task {
+            await store.refresh {
+                await gate.waitForOpen()
+                return 2
+            }
+        }
+        await gate.waitForStart()
+        #expect(store.isRefreshing)
+
+        store.cancel()
+        await gate.open()
+        await task.value
+
+        #expect(store.state == .data(1))
+        #expect(store.refreshError == nil)
         #expect(!store.isRefreshing)
     }
 

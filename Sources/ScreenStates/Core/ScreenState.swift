@@ -97,7 +97,8 @@ extension ScreenState: Sendable where Value: Sendable {}
 /// If a second `load`/`refresh`/`loadWithRetry` call starts before an
 /// earlier one has finished, only the most recently started call's result is
 /// ever applied — an earlier, now-stale response landing late can't
-/// overwrite state a newer call already produced.
+/// overwrite state a newer call already produced. Call ``cancel()`` to stop
+/// whichever one is currently running without waiting for it to resolve.
 @MainActor
 @Observable
 public final class ScreenStateStore<Value> {
@@ -120,6 +121,11 @@ public final class ScreenStateStore<Value> {
     /// it.
     private var generation = 0
 
+    /// The `Task` currently running a `load`/`loadCollection`/`refresh`/
+    /// `refreshCollection`/`loadWithRetry` call, if any; what ``cancel()``
+    /// cancels.
+    private var currentTask: Task<Void, Never>?
+
     public init(_ initial: ScreenState<Value> = .loading) {
         state = initial
     }
@@ -131,6 +137,15 @@ public final class ScreenStateStore<Value> {
 
     private func isCurrent(_ token: Int) -> Bool {
         token == generation
+    }
+
+    /// Cancels whatever `load`/`loadCollection`/`refresh`/
+    /// `refreshCollection`/`loadWithRetry` call is currently in flight, if
+    /// any. `state` (and `isRefreshing`/`refreshError`) are left exactly as
+    /// they were — cancelling never surfaces a `CancellationError` through
+    /// `state`, unlike letting `operation` itself fail.
+    public func cancel() {
+        currentTask?.cancel()
     }
 
     public func setLoading() {
@@ -151,18 +166,23 @@ public final class ScreenStateStore<Value> {
 
     /// Runs `operation`, showing `.loading` while it's in flight and
     /// mapping its outcome to `.data` or `.error`.
-    public func load(_ operation: @Sendable () async throws -> Value) async {
+    public func load(_ operation: @escaping @Sendable () async throws -> Value) async {
         let token = beginOperation()
         refreshError = nil
         setLoading()
-        do {
-            let value = try await operation()
-            guard isCurrent(token) else { return }
-            setData(value)
-        } catch {
-            guard isCurrent(token) else { return }
-            setError(error)
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let value = try await operation()
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.setData(value)
+            } catch {
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.setError(error)
+            }
         }
+        currentTask = task
+        await task.value
     }
 
     /// Like ``load(_:)``, but keeps any data already in `state` on screen
@@ -173,7 +193,7 @@ public final class ScreenStateStore<Value> {
     /// is left alone and the error is reported via ``refreshError`` instead.
     ///
     /// Falls back to ``load(_:)`` when there's no data yet to preserve.
-    public func refresh(_ operation: @Sendable () async throws -> Value) async {
+    public func refresh(_ operation: @escaping @Sendable () async throws -> Value) async {
         guard state.value != nil else {
             await load(operation)
             return
@@ -182,14 +202,19 @@ public final class ScreenStateStore<Value> {
         refreshError = nil
         isRefreshing = true
         defer { if isCurrent(token) { isRefreshing = false } }
-        do {
-            let value = try await operation()
-            guard isCurrent(token) else { return }
-            setData(value)
-        } catch {
-            guard isCurrent(token) else { return }
-            refreshError = error
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let value = try await operation()
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.setData(value)
+            } catch {
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.refreshError = error
+            }
         }
+        currentTask = task
+        await task.value
     }
 
     /// Like ``load(_:)``, but retries a failing `operation` instead of
@@ -199,64 +224,72 @@ public final class ScreenStateStore<Value> {
     ///
     /// `backoff` is called with the attempt number that just failed (`1` for
     /// the first failure, `2` for the second, …) and returns how long to
-    /// wait before trying again; the default doubles from one second. If
-    /// waiting is cancelled, `state` becomes `.error` with the cancellation
-    /// error instead of retrying further.
+    /// wait before trying again; the default doubles from one second.
+    /// Cancelling via ``cancel()`` stops retrying and leaves `state`
+    /// untouched, the same as every other call.
     public func loadWithRetry(
         maxAttempts: Int = 3,
-        backoff: (Int) -> Duration = { attempt in .seconds(1 << (attempt - 1)) },
-        _ operation: @Sendable () async throws -> Value
+        backoff: @escaping (Int) -> Duration = { attempt in .seconds(1 << (attempt - 1)) },
+        _ operation: @escaping @Sendable () async throws -> Value
     ) async {
         let token = beginOperation()
         refreshError = nil
         setLoading()
-        var attempt = 1
-        while true {
-            do {
-                let value = try await operation()
-                guard isCurrent(token) else { return }
-                setData(value)
-                return
-            } catch {
-                guard isCurrent(token) else { return }
-                guard attempt < maxAttempts else {
-                    setError(error)
-                    return
-                }
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            var attempt = 1
+            while true {
                 do {
-                    try await Task.sleep(for: backoff(attempt))
-                } catch {
-                    guard isCurrent(token) else { return }
-                    setError(error)
+                    let value = try await operation()
+                    guard !Task.isCancelled, self.isCurrent(token) else { return }
+                    self.setData(value)
                     return
+                } catch {
+                    guard !Task.isCancelled, self.isCurrent(token) else { return }
+                    guard attempt < maxAttempts else {
+                        self.setError(error)
+                        return
+                    }
+                    do {
+                        try await Task.sleep(for: backoff(attempt))
+                    } catch {
+                        return // cancelled while waiting -- leave state as-is
+                    }
+                    guard !Task.isCancelled, self.isCurrent(token) else { return }
+                    attempt += 1
                 }
-                guard isCurrent(token) else { return }
-                attempt += 1
             }
         }
+        currentTask = task
+        await task.value
     }
 }
 
 extension ScreenStateStore where Value: Collection {
     /// Like ``load(_:)``, but maps an empty result to `.empty` instead of
     /// `.data` — convenient when `Value` is a list of items to display.
-    public func loadCollection(_ operation: @Sendable () async throws -> Value) async {
+    public func loadCollection(_ operation: @escaping @Sendable () async throws -> Value) async {
         let token = beginOperation()
         refreshError = nil
         setLoading()
-        do {
-            let result = try await operation()
-            guard isCurrent(token) else { return }
-            state = result.isEmpty ? .empty : .data(result)
-        } catch {
-            guard isCurrent(token) else { return }
-            setError(error)
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let result = try await operation()
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.state = result.isEmpty ? .empty : .data(result)
+            } catch {
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.setError(error)
+            }
         }
+        currentTask = task
+        await task.value
     }
 
     /// Like ``refresh(_:)``, but maps an empty result to `.empty` instead of
     /// `.data`, matching ``loadCollection(_:)``.
-    public func refreshCollection(_ operation: @Sendable () async throws -> Value) async {
+    public func refreshCollection(_ operation: @escaping @Sendable () async throws -> Value) async {
         guard state.value != nil else {
             await loadCollection(operation)
             return
@@ -265,13 +298,18 @@ extension ScreenStateStore where Value: Collection {
         refreshError = nil
         isRefreshing = true
         defer { if isCurrent(token) { isRefreshing = false } }
-        do {
-            let result = try await operation()
-            guard isCurrent(token) else { return }
-            state = result.isEmpty ? .empty : .data(result)
-        } catch {
-            guard isCurrent(token) else { return }
-            refreshError = error
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let result = try await operation()
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.state = result.isEmpty ? .empty : .data(result)
+            } catch {
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.refreshError = error
+            }
         }
+        currentTask = task
+        await task.value
     }
 }

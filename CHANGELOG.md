@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.31.0]
+
+- Add `ScreenStateStore.cancel()`, to explicitly stop whatever `load`/
+  `loadCollection`/`refresh`/`refreshCollection`/`loadWithRetry` call is
+  currently in flight — useful from `onDisappear`, or right before
+  firing off a newer query. `state` (and `isRefreshing`/`refreshError`)
+  are left exactly as they were; cancelling never surfaces a
+  `CancellationError` through `state`. As part of this, `operation` is
+  now run in a `ScreenStateStore`-owned `Task` that `cancel()` can
+  target, rather than directly in the caller's own task. Also: a
+  behavior change for `loadWithRetry(_:)` — cancelling it while it's
+  waiting between retries now leaves `state` untouched instead of
+  settling into `.error` with a `CancellationError`, matching every
+  other call's cancellation behavior.
+
 ## [1.30.0]
 
 - Fix a race in `ScreenStateStore`: if `load(_:)`/`loadCollection(_:)`/
