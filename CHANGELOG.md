@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.34.0]
+
+- Add a "Concurrency & Cancellation" DocC article consolidating
+  `ScreenStateStore`'s overlapping-call, `cancel()`, deinit, and
+  `reset(to:)` guarantees in one place. Linked from the module's Topics
+  page and README's Documentation section. No source or API changes.
+
 ## [1.33.0]
 
 - Add `ScreenStateStore.reset(to:)`, to snap a store back to `.loading`

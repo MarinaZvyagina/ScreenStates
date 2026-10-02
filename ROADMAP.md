@@ -40,7 +40,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add `ScreenStateStore.cancel()` to explicitly cancel whatever `load`/`refresh` operation is currently in flight, keeping `state` as-is.
 - [x] Cancel a `ScreenStateStore`'s in-flight operation automatically on `deinit`, so a torn-down screen's stale response can never run after the store it would have mutated is already gone.
 - [x] Add `ScreenStateStore.reset(to:)` to snap a store back to `.loading` (or any given state) outside of a `load` call — useful for a full sign-out/reset flow.
-- [ ] Add a DocC "Concurrency & Cancellation" article documenting the guarantees above.
+- [x] Add a DocC "Concurrency & Cancellation" article documenting the guarantees above.
 
 ## Week 6 — Accessibility depth
 
