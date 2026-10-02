@@ -123,11 +123,25 @@ public final class ScreenStateStore<Value> {
 
     /// The `Task` currently running a `load`/`loadCollection`/`refresh`/
     /// `refreshCollection`/`loadWithRetry` call, if any; what ``cancel()``
-    /// cancels.
-    private var currentTask: Task<Void, Never>?
+    /// cancels. `nonisolated(unsafe)` so `deinit` (always non-isolated) can
+    /// cancel it too — safe since `Task` is `Sendable` and `Task.cancel()`
+    /// can be called from any context. `@ObservationIgnored` since it's
+    /// bookkeeping, not anything a view should re-render on.
+    @ObservationIgnored
+    private nonisolated(unsafe) var currentTask: Task<Void, Never>?
 
     public init(_ initial: ScreenState<Value> = .loading) {
         state = initial
+    }
+
+    /// Cancels `currentTask` as a last-resort safety net, mirroring
+    /// ``cancel()``, in case something is ever still tracked here by the
+    /// time the store itself is deallocated. In practice `load`/`refresh`/
+    /// etc. already await their own task to completion before returning, so
+    /// `currentTask` is normally already finished by the time `deinit` runs
+    /// — this guards against that assumption changing later, for free.
+    deinit {
+        currentTask?.cancel()
     }
 
     private func beginOperation() -> Int {

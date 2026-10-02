@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.32.0]
+
+- `ScreenStateStore` now cancels its own in-flight task from `deinit`,
+  mirroring `cancel()`, as a last-resort safety net in case one is ever
+  still tracked by the time the store is deallocated. In practice
+  `load`/`refresh`/etc. already await their own task to completion
+  before returning, so this normally has nothing left to do by the time
+  `deinit` runs — it guards against that assumption changing later, for
+  free. No API changes.
+
 ## [1.31.0]
 
 - Add `ScreenStateStore.cancel()`, to explicitly stop whatever `load`/

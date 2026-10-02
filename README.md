@@ -145,7 +145,7 @@ Call `store.cancel()` to stop whatever `load`/`loadCollection`/`refresh`/`refres
 store.cancel() // e.g. from onDisappear, or right before firing off a newer query
 ```
 
-Cancelling leaves `state` (and `isRefreshing`/`refreshError`) exactly as they were — it never surfaces a `CancellationError` through `state` the way letting `operation` itself fail would. If nothing is in flight, `cancel()` does nothing.
+Cancelling leaves `state` (and `isRefreshing`/`refreshError`) exactly as they were — it never surfaces a `CancellationError` through `state` the way letting `operation` itself fail would. If nothing is in flight, `cancel()` does nothing. You don't need to call it from `deinit` yourself, either — a deallocated store cancels whatever it was still tracking as a last-resort safety net.
 
 ### Previewing a screen in a specific state
 

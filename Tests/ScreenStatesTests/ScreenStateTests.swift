@@ -128,6 +128,23 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data(1))
     }
 
+    @Test("deinit doesn't crash when no operation was ever started")
+    func deinitWithNoCurrentTask() {
+        _ = ScreenStateStore<Int>()
+    }
+
+    @Test("deinit doesn't crash cancelling an already-finished task")
+    func deinitWithFinishedCurrentTask() async {
+        func makeLoadAndDrop() async {
+            let store = ScreenStateStore<Int>()
+            await store.load { 7 }
+            // `store` goes out of scope here, right after `load(_:)` already
+            // finished -- deinit's `currentTask?.cancel()` runs against a
+            // task that's already complete.
+        }
+        await makeLoadAndDrop()
+    }
+
     @Test("loadCollection(_:) maps an empty result to .empty")
     func loadCollectionEmpty() async {
         let store = ScreenStateStore<[Int]>()
