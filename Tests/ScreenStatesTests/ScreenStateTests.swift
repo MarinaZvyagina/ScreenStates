@@ -317,6 +317,58 @@ struct ScreenStateStoreTests {
         #expect(store.state.isLoading)
     }
 
+    @Test("reset(to:) defaults to .loading")
+    func resetDefaultsToLoading() {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        store.reset()
+        #expect(store.state.isLoading)
+    }
+
+    @Test("reset(to:) snaps the store to the given state")
+    func resetToGivenState() {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        store.reset(to: .empty)
+        #expect(store.state.isEmpty)
+    }
+
+    @Test("reset(to:) clears isRefreshing and refreshError")
+    func resetClearsRefreshingAndError() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        await store.refresh { throw SampleError() }
+        #expect(store.refreshError != nil)
+
+        store.reset()
+
+        #expect(store.state.isLoading)
+        #expect(store.refreshError == nil)
+        #expect(!store.isRefreshing)
+    }
+
+    @Test("reset(to:) drops a stale result from an operation that was already in flight")
+    func resetDropsStaleResult() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let staleTask = Task {
+            await store.load {
+                await gate.waitForOpen()
+                return 1
+            }
+        }
+        await gate.waitForStart()
+
+        store.reset(to: .empty)
+        #expect(store.state.isEmpty)
+
+        await gate.open()
+        await staleTask.value
+
+        #expect(store.state.isEmpty)
+    }
+
     @Test("refresh(_:) falls back to load(_:) when there's no data yet")
     func refreshWithNoExistingData() async {
         let store = ScreenStateStore<Int>()

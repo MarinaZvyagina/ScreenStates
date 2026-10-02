@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.33.0]
+
+- Add `ScreenStateStore.reset(to:)`, to snap a store back to `.loading`
+  (or any given state) outside of a `load`/`refresh` call — useful for a
+  full sign-out/reset flow. Cancels whatever operation is currently in
+  flight (as `cancel()` does) and clears `isRefreshing`/`refreshError`,
+  so nothing stale can land and overwrite `state` after the reset.
+
 ## [1.32.0]
 
 - `ScreenStateStore` now cancels its own in-flight task from `deinit`,

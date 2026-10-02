@@ -162,6 +162,21 @@ public final class ScreenStateStore<Value> {
         currentTask?.cancel()
     }
 
+    /// Snaps the store back to `state` (`.loading` by default), outside of
+    /// a `load`/`refresh` call — useful for a full sign-out/reset flow,
+    /// where whatever the store was showing or fetching no longer applies.
+    ///
+    /// Cancels whatever operation is currently in flight (as ``cancel()``
+    /// does) and clears `isRefreshing`/`refreshError`, so nothing stale can
+    /// land and overwrite `state` after the reset.
+    public func reset(to state: ScreenState<Value> = .loading) {
+        _ = beginOperation()
+        cancel()
+        isRefreshing = false
+        refreshError = nil
+        self.state = state
+    }
+
     public func setLoading() {
         state = .loading
     }

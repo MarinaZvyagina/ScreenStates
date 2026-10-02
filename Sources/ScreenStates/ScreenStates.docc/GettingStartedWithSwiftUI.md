@@ -96,6 +96,17 @@ store.cancel()
 
 `state` (and `isRefreshing`/`refreshError`) are left exactly as they were; cancelling never surfaces a `CancellationError` through `state` the way letting `operation` itself fail would. If nothing is in flight, `cancel()` does nothing.
 
+## Resetting a store
+
+``ScreenStateStore/reset(to:)`` snaps a store back to `.loading` (or any state you give it) outside of a `load`/`refresh` call — useful for a full sign-out/reset flow, where whatever the store was showing or fetching no longer applies:
+
+```swift
+store.reset() // back to .loading, as if freshly created
+store.reset(to: .empty) // or straight to a specific state
+```
+
+It cancels whatever operation is currently in flight, the same as ``ScreenStateStore/cancel()``, and clears `isRefreshing`/`refreshError`, so nothing stale can land and overwrite `state` after the reset.
+
 ## Previewing a screen in a specific state
 
 Give a preview-friendly screen its store via `init` instead of owning it in `@State`, and pin that store to one state with a `preview`-prefixed factory instead of driving it through a real `loadCollection(_:)` call:
