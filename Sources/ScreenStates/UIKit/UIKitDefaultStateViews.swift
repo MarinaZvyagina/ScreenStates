@@ -49,6 +49,12 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
             name: UIAccessibility.reduceMotionStatusDidChangeNotification,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(darkerSystemColorsStatusDidChange),
+            name: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     @available(*, unavailable)
@@ -66,12 +72,6 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         accessibilityLabel = .screenStatesLoading
 
         gradientRing.gradientLayer.type = .conic
-        gradientRing.gradientLayer.colors = [
-            UIColor.systemPink.cgColor,
-            UIColor.systemOrange.cgColor,
-            UIColor.systemYellow.cgColor,
-            UIColor.systemPink.cgColor
-        ]
         gradientRing.translatesAutoresizingMaskIntoConstraints = false
 
         ringMask.fillColor = UIColor.clear.cgColor
@@ -91,6 +91,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         ])
 
         updateRotation()
+        updateGradientColors()
     }
 
     /// Adds the spin animation, unless Reduce Motion is on, in which case
@@ -123,6 +124,33 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         gradientRing.layer.add(rotation, forKey: "rotation")
     }
 
+    /// Swaps the ring's gradient for a solid `.label` tint when Increase
+    /// Contrast is on. Also called when Increase Contrast is toggled live,
+    /// so an already-visible spinner responds immediately instead of only
+    /// on the next appearance.
+    @objc
+    private func darkerSystemColorsStatusDidChange() {
+        updateGradientColors()
+    }
+
+    private func updateGradientColors() {
+        updateGradientColors(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
+    /// system setting that can't be toggled in a test environment.
+    func updateGradientColors(isDarkerSystemColorsEnabled: Bool) {
+        gradientRing.gradientLayer.colors = isDarkerSystemColorsEnabled
+            ? [UIColor.label.cgColor, UIColor.label.cgColor]
+            : [
+                UIColor.systemPink.cgColor,
+                UIColor.systemOrange.cgColor,
+                UIColor.systemYellow.cgColor,
+                UIColor.systemPink.cgColor
+            ]
+    }
+
     public override func layoutSubviews() {
         super.layoutSubviews()
         let bounds = gradientRing.bounds
@@ -150,10 +178,18 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// window/scene to snapshot the whole view hierarchy into.
     let iconView = UIImageView()
     private let titleLabel = UILabel()
+    private let symbol: UIImage?
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
+        symbol = UIImage(systemName: systemImage, withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular))
         super.init(frame: .zero)
-        setUp(title: title, systemImage: systemImage)
+        setUp(title: title)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(darkerSystemColorsStatusDidChange),
+            name: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     @available(*, unavailable)
@@ -161,20 +197,14 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
         fatalError("init(coder:) is unavailable")
     }
 
-    private func setUp(title: String, systemImage: String) {
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    private func setUp(title: String) {
         accessibilityIdentifier = "screenStates.empty"
 
-        if let symbol = UIImage(
-            systemName: systemImage,
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
-        ) {
-            iconView.image = gradientTintedImage(
-                symbol,
-                colors: [UIColor.systemPink, .systemOrange, .systemYellow],
-                startPoint: CGPoint(x: 0, y: 0),
-                endPoint: CGPoint(x: 1, y: 1)
-            )
-        }
+        updateIcon()
         // .scaleAspectFit, not .center: SF Symbols aren't square at a given
         // point size (e.g. "tray.fill" at 56pt renders ~79x54), so .center
         // would clip a wider-than-tall icon against this fixed square box.
@@ -201,6 +231,34 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
         ])
+    }
+
+    /// Swaps the icon's gradient for a solid `.label` tint when Increase
+    /// Contrast is on. Also called when Increase Contrast is toggled live,
+    /// so an already-visible placeholder responds immediately instead of
+    /// only on the next appearance.
+    @objc
+    private func darkerSystemColorsStatusDidChange() {
+        updateIcon()
+    }
+
+    private func updateIcon() {
+        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
+    /// system setting that can't be toggled in a test environment.
+    func updateIcon(isDarkerSystemColorsEnabled: Bool) {
+        guard let symbol else { return }
+        iconView.image = isDarkerSystemColorsEnabled
+            ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
+            : gradientTintedImage(
+                symbol,
+                colors: [UIColor.systemPink, .systemOrange, .systemYellow],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
     }
 
     public override func didMoveToWindow() {
@@ -232,11 +290,22 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     private let messageLabel = UILabel()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
+    private let symbol: UIImage?
 
     public init(error: Error, onRetry: (() -> Void)? = nil) {
         self.onRetry = onRetry
+        symbol = UIImage(
+            systemName: "exclamationmark.triangle.fill",
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
+        )
         super.init(frame: .zero)
         setUp(message: error.localizedDescription, showsRetry: onRetry != nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(darkerSystemColorsStatusDidChange),
+            name: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     @available(*, unavailable)
@@ -244,20 +313,14 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         fatalError("init(coder:) is unavailable")
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     private func setUp(message: String, showsRetry: Bool) {
         accessibilityIdentifier = "screenStates.error"
 
-        if let symbol = UIImage(
-            systemName: "exclamationmark.triangle.fill",
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
-        ) {
-            iconView.image = gradientTintedImage(
-                symbol,
-                colors: [UIColor.systemRed, .systemOrange],
-                startPoint: CGPoint(x: 0, y: 0),
-                endPoint: CGPoint(x: 1, y: 1)
-            )
-        }
+        updateIcon()
         // .scaleAspectFit, not .center: SF Symbols aren't square at a given
         // point size (e.g. "tray.fill" at 56pt renders ~79x54), so .center
         // would clip a wider-than-tall icon against this fixed square box.
@@ -291,6 +354,34 @@ public final class ScreenStateDefaultErrorUIView: UIView {
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
         ])
+    }
+
+    /// Swaps the icon's gradient for a solid `.label` tint when Increase
+    /// Contrast is on. Also called when Increase Contrast is toggled live,
+    /// so an already-visible placeholder responds immediately instead of
+    /// only on the next appearance.
+    @objc
+    private func darkerSystemColorsStatusDidChange() {
+        updateIcon()
+    }
+
+    private func updateIcon() {
+        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
+    /// system setting that can't be toggled in a test environment.
+    func updateIcon(isDarkerSystemColorsEnabled: Bool) {
+        guard let symbol else { return }
+        iconView.image = isDarkerSystemColorsEnabled
+            ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
+            : gradientTintedImage(
+                symbol,
+                colors: [UIColor.systemRed, .systemOrange],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
     }
 
     public override func didMoveToWindow() {

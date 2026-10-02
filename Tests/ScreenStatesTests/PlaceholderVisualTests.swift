@@ -57,16 +57,45 @@ struct PlaceholderVisualTests {
         #expect(view.gradientRing.layer.animation(forKey: "rotation") != nil)
     }
 
+    @Test("ScreenStateDefaultLoadingUIView uses a solid tint for its ring when Increase Contrast is on")
+    func loadingUIViewRespectsIncreaseContrast() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateGradientColors(isDarkerSystemColorsEnabled: true)
+        #expect(!hasSaturatedColor(view.gradientRing))
+    }
+
+    @Test("ScreenStateDefaultLoadingUIView restores its colorful gradient once Increase Contrast turns back off")
+    func loadingUIViewRestoresGradientWhenIncreaseContrastTurnsOff() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateGradientColors(isDarkerSystemColorsEnabled: true)
+        view.updateGradientColors(isDarkerSystemColorsEnabled: false)
+        #expect(hasSaturatedColor(view.gradientRing))
+    }
+
     @Test("ScreenStateDefaultEmptyUIView tints its icon with a colorful gradient, not a plain gray one")
     func emptyUIViewIsColorful() {
         let view = ScreenStateDefaultEmptyUIView()
         #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
+    @Test("ScreenStateDefaultEmptyUIView uses a solid tint for its icon when Increase Contrast is on")
+    func emptyUIViewRespectsIncreaseContrast() {
+        let view = ScreenStateDefaultEmptyUIView()
+        view.updateIcon(isDarkerSystemColorsEnabled: true)
+        #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
     @Test("ScreenStateDefaultErrorUIView tints its icon with a colorful gradient, not a plain gray one")
     func errorUIViewIsColorful() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
         #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultErrorUIView uses a solid tint for its icon when Increase Contrast is on")
+    func errorUIViewRespectsIncreaseContrast() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        view.updateIcon(isDarkerSystemColorsEnabled: true)
+        #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
     #if canImport(SwiftUI)

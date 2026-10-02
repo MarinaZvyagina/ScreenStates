@@ -20,6 +20,7 @@ private enum ScreenStatesMetrics {
 public struct ScreenStateDefaultLoadingView: View {
     @State private var isRotating = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     public init() {}
 
@@ -27,7 +28,9 @@ public struct ScreenStateDefaultLoadingView: View {
         Circle()
             .trim(from: 0, to: 0.75)
             .stroke(
-                AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center),
+                colorSchemeContrast == .increased
+                    ? AnyShapeStyle(Color.primary)
+                    : AnyShapeStyle(AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center)),
                 style: StrokeStyle(lineWidth: ScreenStatesMetrics.spinnerLineWidth, lineCap: .round)
             )
             .frame(width: ScreenStatesMetrics.spinnerSize, height: ScreenStatesMetrics.spinnerSize)
@@ -47,6 +50,7 @@ public struct ScreenStateDefaultLoadingView: View {
 public struct ScreenStateDefaultEmptyView: View {
     private let title: String
     private let systemImage: String
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
         self.title = title
@@ -61,11 +65,13 @@ public struct ScreenStateDefaultEmptyView: View {
                 Image(systemName: systemImage)
                     .font(.system(size: ScreenStatesMetrics.iconSize))
                     .foregroundStyle(
-                        LinearGradient(
-                            colors: [.pink, .orange, .yellow],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        colorSchemeContrast == .increased
+                            ? AnyShapeStyle(Color.primary)
+                            : AnyShapeStyle(LinearGradient(
+                                colors: [.pink, .orange, .yellow],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
                     )
             }
         }
@@ -81,6 +87,7 @@ public struct ScreenStateDefaultEmptyView: View {
 public struct ScreenStateDefaultErrorView: View {
     private let error: Error
     private let onRetry: (() -> Void)?
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     #if os(tvOS)
     @Namespace private var focusNamespace
     #endif
@@ -98,11 +105,13 @@ public struct ScreenStateDefaultErrorView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: ScreenStatesMetrics.iconSize))
                     .foregroundStyle(
-                        LinearGradient(
-                            colors: [.red, .orange],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        colorSchemeContrast == .increased
+                            ? AnyShapeStyle(Color.primary)
+                            : AnyShapeStyle(LinearGradient(
+                                colors: [.red, .orange],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
                     )
             }
         } description: {

@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.36.0]
+
+- The three default placeholders' gradient icons/ring now respect
+  Increase Contrast: `ScreenStateDefaultEmptyView`/`ErrorView`/`LoadingView`
+  read SwiftUI's `colorSchemeContrast` environment value, and
+  `ScreenStateDefaultEmptyUIView`/`ErrorUIView`/`LoadingUIView` read
+  `UIAccessibility.isDarkerSystemColorsEnabled` (and observe it live, so
+  an already-visible placeholder responds immediately if the setting
+  changes while on screen) — they fall back to a solid `.label`/`.primary`
+  tint instead of a gradient. No API changes.
+
 ## [1.35.0]
 
 - The default Loading placeholder now respects Reduce Motion:

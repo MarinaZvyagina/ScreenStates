@@ -16,7 +16,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 Built on the **Observation** framework (`@Observable`) — no Combine, no third-party dependencies
 - 🔹 Works with **SwiftUI** (`ScreenStateView`) and **UIKit** (`ScreenStateContainerView`) from the same store
 - 🔹 Vibrant, ready-made Empty/Loading/Error placeholders (built on `ContentUnavailableView` and custom gradient views) that you can fully replace
-- 🔹 Default placeholders announce every state change to VoiceOver, respect Reduce Motion, and expose stable accessibility identifiers for XCUITest
+- 🔹 Default placeholders announce every state change to VoiceOver, respect Reduce Motion and Increase Contrast, and expose stable accessibility identifiers for XCUITest
 - 🔹 Default placeholder text is localized (English + Russian) via a String Catalog
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
@@ -38,6 +38,8 @@ On tvOS, the default placeholders are tuned for the focus engine: the Error plac
 On watchOS, the default placeholders' icon and loading spinner are sized down (28pt/24pt instead of 56pt/44pt) so they don't dominate a compact watch screen the way an iPhone-sized icon would.
 
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
+
+All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.
 
 ## Installation — Swift Package Manager
 
