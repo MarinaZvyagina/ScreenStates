@@ -43,11 +43,21 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setUp()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reduceMotionStatusDidChange),
+            name: UIAccessibility.reduceMotionStatusDidChangeNotification,
+            object: nil
+        )
     }
 
     @available(*, unavailable)
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) is unavailable")
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 
     private func setUp() {
@@ -80,6 +90,31 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
             gradientRing.heightAnchor.constraint(equalToConstant: 44)
         ])
 
+        updateRotation()
+    }
+
+    /// Adds the spin animation, unless Reduce Motion is on, in which case
+    /// the animation is removed instead and the ring stays static. Also
+    /// called when Reduce Motion is toggled live, so an already-visible
+    /// spinner responds immediately instead of only on the next appearance.
+    @objc
+    private func reduceMotionStatusDidChange() {
+        updateRotation()
+    }
+
+    private func updateRotation() {
+        updateRotation(reduceMotion: UIAccessibility.isReduceMotionEnabled)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// `UIAccessibility.isReduceMotionEnabled` itself is a read-only system
+    /// setting that can't be toggled in a test environment.
+    func updateRotation(reduceMotion: Bool) {
+        guard !reduceMotion else {
+            gradientRing.layer.removeAnimation(forKey: "rotation")
+            return
+        }
+        guard gradientRing.layer.animation(forKey: "rotation") == nil else { return }
         let rotation = CABasicAnimation(keyPath: "transform.rotation.z")
         rotation.fromValue = 0
         rotation.toValue = Double.pi * 2

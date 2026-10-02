@@ -36,6 +36,27 @@ struct PlaceholderVisualTests {
         #expect(hasSaturatedColor(view.gradientRing))
     }
 
+    @Test("ScreenStateDefaultLoadingUIView animates its ring by default")
+    func loadingUIViewAnimatesByDefault() {
+        let view = ScreenStateDefaultLoadingUIView()
+        #expect(view.gradientRing.layer.animation(forKey: "rotation") != nil)
+    }
+
+    @Test("ScreenStateDefaultLoadingUIView removes its spin animation when Reduce Motion is on")
+    func loadingUIViewRespectsReduceMotion() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateRotation(reduceMotion: true)
+        #expect(view.gradientRing.layer.animation(forKey: "rotation") == nil)
+    }
+
+    @Test("ScreenStateDefaultLoadingUIView re-adds its spin animation once Reduce Motion turns back off")
+    func loadingUIViewReAddsAnimationWhenReduceMotionTurnsOff() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateRotation(reduceMotion: true)
+        view.updateRotation(reduceMotion: false)
+        #expect(view.gradientRing.layer.animation(forKey: "rotation") != nil)
+    }
+
     @Test("ScreenStateDefaultEmptyUIView tints its icon with a colorful gradient, not a plain gray one")
     func emptyUIViewIsColorful() {
         let view = ScreenStateDefaultEmptyUIView()

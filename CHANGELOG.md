@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.35.0]
+
+- The default Loading placeholder now respects Reduce Motion:
+  `ScreenStateDefaultLoadingView` reads SwiftUI's `accessibilityReduceMotion`
+  environment value, and `ScreenStateDefaultLoadingUIView` reads
+  `UIAccessibility.isReduceMotionEnabled` (and observes it live, so an
+  already-visible spinner responds immediately if the setting changes
+  while on screen) — the ring stays static instead of spinning. No API
+  changes.
+
 ## [1.34.0]
 
 - Add a "Concurrency & Cancellation" DocC article consolidating

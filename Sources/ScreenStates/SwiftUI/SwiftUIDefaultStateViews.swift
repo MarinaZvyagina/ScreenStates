@@ -19,6 +19,7 @@ private enum ScreenStatesMetrics {
 /// Default placeholder shown while a screen's data is loading.
 public struct ScreenStateDefaultLoadingView: View {
     @State private var isRotating = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init() {}
 
@@ -31,7 +32,7 @@ public struct ScreenStateDefaultLoadingView: View {
             )
             .frame(width: ScreenStatesMetrics.spinnerSize, height: ScreenStatesMetrics.spinnerSize)
             .rotationEffect(.degrees(isRotating ? 360 : 0))
-            .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
+            .animation(reduceMotion ? nil : .linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
             .onAppear {
                 isRotating = true
                 AccessibilityNotification.Announcement(String.screenStatesLoading).post()
