@@ -16,7 +16,7 @@ Every screen that loads data has the same four states: **Empty**, **Loading**, *
 - 🔹 Built on the **Observation** framework (`@Observable`) — no Combine, no third-party dependencies
 - 🔹 Works with **SwiftUI** (`ScreenStateView`) and **UIKit** (`ScreenStateContainerView`) from the same store
 - 🔹 Vibrant, ready-made Empty/Loading/Error placeholders (built on `ContentUnavailableView` and custom gradient views) that you can fully replace
-- 🔹 Default placeholders announce every state change to VoiceOver, respect Reduce Motion and Increase Contrast, and expose stable accessibility identifiers for XCUITest
+- 🔹 Default placeholders announce every state change to VoiceOver, respect Reduce Motion and Increase Contrast, scale with Dynamic Type, and expose stable accessibility identifiers for XCUITest
 - 🔹 Default placeholder text is localized (English + Russian) via a String Catalog
 - 🔹 Tested with **Swift Testing**, built with **Swift 6** strict concurrency
 
@@ -40,6 +40,8 @@ On watchOS, the default placeholders' icon and loading spinner are sized down (2
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.
+
+The default Empty/Error placeholders' text scales with Dynamic Type — SwiftUI's via `ContentUnavailableView`'s own text styles, UIKit's via `UIFont.preferredFont(forTextStyle: .body, compatibleWith:)` — covered up to the largest accessibility size by snapshot tests.
 
 ## Installation — Swift Package Manager
 

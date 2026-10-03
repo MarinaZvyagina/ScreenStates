@@ -72,6 +72,15 @@ struct PlaceholderVisualTests {
         #expect(hasSaturatedColor(view.gradientRing))
     }
 
+    @Test("ScreenStateDefaultLoadingUIView still renders its colorful ring at the largest accessibility Dynamic Type size")
+    func loadingUIViewRendersAtLargestAccessibilitySize() {
+        var view: ScreenStateDefaultLoadingUIView?
+        UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge).performAsCurrent {
+            view = ScreenStateDefaultLoadingUIView()
+        }
+        #expect(hasSaturatedColor(view!.gradientRing))
+    }
+
     @Test("ScreenStateDefaultEmptyUIView tints its icon with a colorful gradient, not a plain gray one")
     func emptyUIViewIsColorful() {
         let view = ScreenStateDefaultEmptyUIView()
@@ -83,6 +92,16 @@ struct PlaceholderVisualTests {
         let view = ScreenStateDefaultEmptyUIView()
         view.updateIcon(isDarkerSystemColorsEnabled: true)
         #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView scales its title label at the largest accessibility Dynamic Type size")
+    func emptyUIViewScalesTitleAtLargestAccessibilitySize() {
+        let view = ScreenStateDefaultEmptyUIView()
+        let standardPointSize = view.titleLabel.font.pointSize
+
+        view.updateFont(contentSizeCategory: .accessibilityExtraExtraExtraLarge)
+
+        #expect(view.titleLabel.font.pointSize > standardPointSize)
     }
 
     @Test("ScreenStateDefaultErrorUIView tints its icon with a colorful gradient, not a plain gray one")
@@ -98,10 +117,29 @@ struct PlaceholderVisualTests {
         #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
+    @Test("ScreenStateDefaultErrorUIView scales its message label at the largest accessibility Dynamic Type size")
+    func errorUIViewScalesMessageAtLargestAccessibilitySize() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        let standardPointSize = view.messageLabel.font.pointSize
+
+        view.updateFont(contentSizeCategory: .accessibilityExtraExtraExtraLarge)
+
+        #expect(view.messageLabel.font.pointSize > standardPointSize)
+    }
+
     #if canImport(SwiftUI)
     @Test("ScreenStateDefaultLoadingView renders a colorful gradient, not a plain gray spinner")
     func loadingViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultLoadingView(), size: CGSize(width: 120, height: 120))
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultLoadingView still renders its colorful ring at the largest accessibility Dynamic Type size")
+    func loadingViewRendersAtLargestDynamicTypeSize() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultLoadingView().dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 120, height: 120)
+        )
         #expect(containsSaturatedColor(image))
     }
 
@@ -111,10 +149,32 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(image))
     }
 
+    @Test("ScreenStateDefaultEmptyView still renders its colorful icon at the largest accessibility Dynamic Type size")
+    func emptyViewRendersAtLargestDynamicTypeSize() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultEmptyView().dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 400, height: 600)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+
     @Test("ScreenStateDefaultErrorView renders a colorful gradient icon, not a plain gray one")
     func errorViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultErrorView(error: SampleError()), size: CGSize(width: 300, height: 300))
         #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon at the largest accessibility Dynamic Type size")
+    func errorViewRendersAtLargestDynamicTypeSize() {
+        // Fixed width only (like a real screen), not a fixed height too:
+        // the description label grows considerably at the largest Dynamic
+        // Type size, and no single fixed height reliably fits it without
+        // either clipping the icon or guessing too generously.
+        let renderer = ImageRenderer(content: ScreenStateDefaultErrorView(error: SampleError())
+            .dynamicTypeSize(.accessibility5)
+            .frame(width: 400))
+        renderer.scale = 2
+        #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
     #endif
 }

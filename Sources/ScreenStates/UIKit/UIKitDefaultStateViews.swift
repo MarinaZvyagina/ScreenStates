@@ -177,7 +177,10 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// rendered icon's colors — this module's test target has no live
     /// window/scene to snapshot the whole view hierarchy into.
     let iconView = UIImageView()
-    private let titleLabel = UILabel()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// label scales with Dynamic Type — this module's test target has no
+    /// live window/scene to snapshot the whole view hierarchy into.
+    let titleLabel = UILabel()
     private let symbol: UIImage?
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
@@ -213,7 +216,7 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
 
         titleLabel.text = title
         titleLabel.textColor = .secondaryLabel
-        titleLabel.font = .preferredFont(forTextStyle: .body)
+        updateFont()
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -261,6 +264,20 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
             )
     }
 
+    private func updateFont() {
+        updateFont(contentSizeCategory: traitCollection.preferredContentSizeCategory)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// the system's actual Dynamic Type setting can't be changed in a test
+    /// environment.
+    func updateFont(contentSizeCategory: UIContentSizeCategory) {
+        titleLabel.font = .preferredFont(
+            forTextStyle: .body,
+            compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory)
+        )
+    }
+
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
@@ -287,7 +304,10 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     /// rendered icon's colors — this module's test target has no live
     /// window/scene to snapshot the whole view hierarchy into.
     let iconView = UIImageView()
-    private let messageLabel = UILabel()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// label scales with Dynamic Type — this module's test target has no
+    /// live window/scene to snapshot the whole view hierarchy into.
+    let messageLabel = UILabel()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
     private let symbol: UIImage?
@@ -329,7 +349,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
 
         messageLabel.text = message
         messageLabel.textColor = .secondaryLabel
-        messageLabel.font = .preferredFont(forTextStyle: .body)
+        updateFont()
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 0
 
@@ -382,6 +402,20 @@ public final class ScreenStateDefaultErrorUIView: UIView {
                 startPoint: CGPoint(x: 0, y: 0),
                 endPoint: CGPoint(x: 1, y: 1)
             )
+    }
+
+    private func updateFont() {
+        updateFont(contentSizeCategory: traitCollection.preferredContentSizeCategory)
+    }
+
+    /// Internal (not `private`) so tests can drive this directly --
+    /// the system's actual Dynamic Type setting can't be changed in a test
+    /// environment.
+    func updateFont(contentSizeCategory: UIContentSizeCategory) {
+        messageLabel.font = .preferredFont(
+            forTextStyle: .body,
+            compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory)
+        )
     }
 
     public override func didMoveToWindow() {

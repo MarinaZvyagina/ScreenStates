@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.37.0]
+
+- Add Dynamic Type snapshot tests at the largest accessibility text size
+  for all six default placeholders. Along the way,
+  `ScreenStateDefaultEmptyUIView`/`ErrorUIView` now compute their label's
+  font via the explicit `UIFont.preferredFont(forTextStyle:compatibleWith:)`
+  overload instead of the no-argument one, so it's driven by the view's
+  own trait collection rather than only the ambient app-wide setting —
+  the no-argument overload doesn't vary with a view-specific trait
+  collection, which is what made this untestable in isolation to begin
+  with. No public API changes.
+
 ## [1.36.0]
 
 - The three default placeholders' gradient icons/ring now respect
