@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.38.0]
+
+- Add `ScreenState.accessibilityAnnouncement`, exposing the same text the
+  default placeholders announce to VoiceOver per case — `nil` for
+  `.data`, the default "Nothing Here" title for `.empty`, `"Loading"`
+  for `.loading`, and the error's localized description (prefixed with
+  "Something Went Wrong") for `.error` — so a fully custom placeholder
+  can announce transitions with the same wording instead of inventing
+  its own. The default Error placeholders (SwiftUI and UIKit) now
+  compute their own announcement through this property instead of
+  duplicating the format string.
+
 ## [1.37.0]
 
 - Add Dynamic Type snapshot tests at the largest accessibility text size

@@ -311,8 +311,10 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
     private let symbol: UIImage?
+    private let error: Error
 
     public init(error: Error, onRetry: (() -> Void)? = nil) {
+        self.error = error
         self.onRetry = onRetry
         symbol = UIImage(
             systemName: "exclamationmark.triangle.fill",
@@ -421,7 +423,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
-        UIAccessibility.post(notification: .announcement, argument: "\(String.screenStatesSomethingWentWrong). \(messageLabel.text ?? "")")
+        UIAccessibility.post(notification: .announcement, argument: ScreenState<Never>.error(error).accessibilityAnnouncement)
     }
 
     #if os(tvOS)

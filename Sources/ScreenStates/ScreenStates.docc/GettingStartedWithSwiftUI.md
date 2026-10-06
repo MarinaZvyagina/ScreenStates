@@ -55,6 +55,18 @@ ScreenStateView(store.state) { articles in
 }
 ```
 
+A fully custom placeholder like `MyErrorBanner` can still announce transitions to VoiceOver with the same wording the default placeholders use, via ``ScreenState/accessibilityAnnouncement``:
+
+```swift
+.onAppear {
+    if let announcement = state.accessibilityAnnouncement {
+        AccessibilityNotification.Announcement(announcement).post()
+    }
+}
+```
+
+It's `nil` for `.data` — your own content is what VoiceOver should read at that point — and, for `.empty`, it's the default "Nothing Here" text; announce your own custom title directly instead if your placeholder shows one, so VoiceOver matches what's on screen.
+
 ## Refreshing without losing data
 
 `loadCollection(_:)` always shows `.loading` first, which is right for the initial fetch but wrong for pull-to-refresh — the list shouldn't disappear behind a spinner while it's being refetched. Use `refreshCollection(_:)` instead: it keeps the current `.data` on screen while the operation runs, and leaves it there if the operation fails instead of switching to `.error`:

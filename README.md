@@ -114,6 +114,21 @@ let unread: ScreenState<[Article]> = state.flatMap { articles in
 
 Use `map(_:)` when the transform always succeeds and never changes the "shape" of the result; reach for `flatMap(_:)` when it might, like filtering a collection down to nothing.
 
+### Announcing transitions from a custom placeholder
+
+The default placeholders announce every state transition to VoiceOver. `accessibilityAnnouncement` exposes that same wording per case, so a fully custom placeholder (passed to `ScreenStateView`'s `empty`/`loading`/`error` builders, for example) can announce transitions consistently with the rest of the app instead of inventing its own text:
+
+```swift
+.onAppear {
+    if let announcement = state.accessibilityAnnouncement {
+        AccessibilityNotification.Announcement(announcement).post() // SwiftUI
+        // or: UIAccessibility.post(notification: .announcement, argument: announcement) // UIKit
+    }
+}
+```
+
+It's `nil` for `.data` (your own content is what VoiceOver should read at that point) and, for `.empty`, it's the default "Nothing Here" text — if your placeholder shows its own custom title instead, announce that title directly rather than this property, so VoiceOver matches what's actually on screen.
+
 ### Refreshing without losing data
 
 `load(_:)`/`loadCollection(_:)` always show `.loading` first, which is right for an initial fetch but wrong for pull-to-refresh — the existing list shouldn't vanish behind a spinner just because it's being refetched. Use `refresh(_:)`/`refreshCollection(_:)` instead: they keep whatever is currently in `state` on screen while `operation` runs, and leave it there if `operation` fails instead of switching to `.error`:
@@ -293,6 +308,8 @@ ScreenStateView(store.state) { articles in
 }
 ```
 
+A fully custom placeholder like `MyErrorBanner` can still announce transitions to VoiceOver with the exact same wording the default placeholders use, via `ScreenState.accessibilityAnnouncement` — see [Announcing transitions from a custom placeholder](#announcing-transitions-from-a-custom-placeholder) below.
+
 ## Quick start — UIKit
 
 ```swift
@@ -385,7 +402,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 
 | Type | Purpose |
 |---|---|
-| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `map(_:)`, `flatMap(_:)` helpers |
+| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)` helpers |
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |

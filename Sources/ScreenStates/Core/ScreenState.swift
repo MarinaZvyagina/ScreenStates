@@ -31,6 +31,27 @@ extension ScreenState {
         if case .empty = self { true } else { false }
     }
 
+    /// The same text the default placeholders announce to VoiceOver for
+    /// this case, reusable by a fully custom placeholder that wants to
+    /// announce transitions with the same wording instead of inventing its
+    /// own. `nil` for `.data`, since at that point a custom placeholder's
+    /// own content is what VoiceOver should read, not a transition
+    /// announcement.
+    ///
+    /// For `.empty`, this is the default "Nothing Here" title — if your
+    /// placeholder shows its own custom title instead (as
+    /// ``ScreenStateDefaultEmptyView``'s `title` parameter allows), announce
+    /// that title directly rather than this property, so VoiceOver matches
+    /// what's actually on screen.
+    public var accessibilityAnnouncement: String? {
+        switch self {
+        case .empty: .screenStatesNothingHere
+        case .loading: .screenStatesLoading
+        case .data: nil
+        case .error(let error): "\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)"
+        }
+    }
+
     /// Transforms the wrapped value with `transform` if the state is
     /// `.data`, leaving every other case untouched — the `.data` case of
     /// `Optional.map`.

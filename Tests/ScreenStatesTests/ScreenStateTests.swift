@@ -30,6 +30,27 @@ struct ScreenStateTests {
         #expect(!ScreenState<Int>.loading.isEmpty)
     }
 
+    @Test("accessibilityAnnouncement is nil for .data")
+    func accessibilityAnnouncementForData() {
+        #expect(ScreenState<Int>.data(42).accessibilityAnnouncement == nil)
+    }
+
+    @Test("accessibilityAnnouncement matches the default Loading placeholder's text")
+    func accessibilityAnnouncementForLoading() {
+        #expect(ScreenState<Int>.loading.accessibilityAnnouncement == .screenStatesLoading)
+    }
+
+    @Test("accessibilityAnnouncement matches the default Empty placeholder's default title")
+    func accessibilityAnnouncementForEmpty() {
+        #expect(ScreenState<Int>.empty.accessibilityAnnouncement == .screenStatesNothingHere)
+    }
+
+    @Test("accessibilityAnnouncement combines the default Error placeholder's title and the error's description")
+    func accessibilityAnnouncementForError() {
+        let error = SampleError()
+        #expect(ScreenState<Int>.error(error).accessibilityAnnouncement == "\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)")
+    }
+
     @Test("Equatable compares by case and payload")
     func equatable() {
         #expect(ScreenState<Int>.data(1) == ScreenState<Int>.data(1))

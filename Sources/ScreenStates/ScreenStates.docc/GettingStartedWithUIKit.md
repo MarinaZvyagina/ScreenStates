@@ -80,6 +80,18 @@ ScreenStateContainerView<[Article]>(
 )
 ```
 
+A fully custom placeholder like `MyErrorView` can still announce transitions to VoiceOver with the same wording the default placeholders use, via ``ScreenState/accessibilityAnnouncement``:
+
+```swift
+override func didMoveToWindow() {
+    super.didMoveToWindow()
+    guard window != nil, let announcement = state.accessibilityAnnouncement else { return }
+    UIAccessibility.post(notification: .announcement, argument: announcement)
+}
+```
+
+It's `nil` for `.data` — your own content is what VoiceOver should read at that point — and, for `.empty`, it's the default "Nothing Here" text; announce your own custom title directly instead if your placeholder shows one, so VoiceOver matches what's on screen.
+
 ## See Also
 
 - ``ScreenStateStore``

@@ -127,7 +127,7 @@ public struct ScreenStateDefaultErrorView: View {
         }
         .accessibilityIdentifier("screenStates.error")
         .onAppear {
-            AccessibilityNotification.Announcement("\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)").post()
+            AccessibilityNotification.Announcement(ScreenState<Never>.error(error).accessibilityAnnouncement ?? "").post()
         }
         #if os(tvOS)
         .focusScope(focusNamespace)

@@ -47,7 +47,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Respect Reduce Motion for the default Loading spinner's animation (`accessibilityReduceMotion` in SwiftUI, `UIAccessibility.isReduceMotionEnabled` in UIKit).
 - [x] Respect Increase Contrast for the gradient Empty/Loading/Error icons, falling back to a solid high-contrast tint.
 - [x] Add Dynamic Type snapshot tests at the largest accessibility text sizes for all six default placeholders.
-- [ ] Expose a stable, reusable VoiceOver announcement string per `ScreenState` case (not just baked into the default placeholders), so fully custom placeholders can announce transitions with the same wording.
+- [x] Expose a stable, reusable VoiceOver announcement string per `ScreenState` case (not just baked into the default placeholders), so fully custom placeholders can announce transitions with the same wording.
 - [ ] Add a DocC "Accessibility" article rounding up VoiceOver, Reduce Motion, Increase Contrast, Dynamic Type, and identifiers in one place.
 
 ## Week 7 — Platform & environment polish
