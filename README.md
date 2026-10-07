@@ -394,7 +394,7 @@ and run it.
 
 ## Documentation
 
-Full API reference and getting-started guides for both paradigms — plus a Recipes article covering common multi-screen patterns (list + detail, one store per tab, master-detail) and a Concurrency & Cancellation article covering overlapping calls, `cancel()`, and `reset(to:)` — are published at
+Full API reference and getting-started guides for both paradigms — plus a Recipes article covering common multi-screen patterns (list + detail, one store per tab, master-detail), a Concurrency & Cancellation article covering overlapping calls, `cancel()`, and `reset(to:)`, and an Accessibility article rounding up VoiceOver, Reduce Motion, Increase Contrast, Dynamic Type, and identifiers — are published at
 **[marinazvyagina.github.io/ScreenStates](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)**,
 generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/generate-docs.sh).
 

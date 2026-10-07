@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.39.0]
+
+- Add an "Accessibility" DocC article rounding up VoiceOver, Reduce
+  Motion, Increase Contrast, Dynamic Type, and the default placeholders'
+  stable identifiers in one place. Linked from the module's Topics page
+  and README's Documentation section. No source or API changes.
+
 ## [1.38.0]
 
 - Add `ScreenState.accessibilityAnnouncement`, exposing the same text the
