@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.40.0]
+
+- Tune the default placeholders for Mac Catalyst: the icon and loading
+  spinner are sized down a bit (48pt/36pt instead of 56pt/44pt), since a
+  Mac window is driven by a precise pointer rather than a touch target
+  that needs to stay comfortably tappable, and the SwiftUI Retry button
+  now shows a deliberate `.hoverEffect(.highlight)` instead of leaving
+  it to whatever `.automatic` resolves to (UIKit's `UIButton` already
+  gets pointer hover for free). No API changes.
+
 ## [1.39.0]
 
 - Add an "Accessibility" DocC article rounding up VoiceOver, Reduce

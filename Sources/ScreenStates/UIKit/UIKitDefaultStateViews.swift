@@ -1,6 +1,21 @@
 #if canImport(UIKit) && !os(watchOS)
 import UIKit
 
+/// Default placeholder sizing — a bit smaller on Mac Catalyst, where a
+/// window is driven by a precise pointer rather than a touch target that
+/// needs to stay comfortably tappable.
+private enum ScreenStatesMetrics {
+    #if targetEnvironment(macCatalyst)
+    static let iconSize: CGFloat = 48
+    static let spinnerSize: CGFloat = 36
+    static let spinnerLineWidth: CGFloat = 3
+    #else
+    static let iconSize: CGFloat = 56
+    static let spinnerSize: CGFloat = 44
+    static let spinnerLineWidth: CGFloat = 4
+    #endif
+}
+
 /// Bakes `image` (expected to be a template-rendered SF Symbol) tinted with
 /// a linear gradient into a single bitmap, so it can be shown with a plain
 /// `UIImageView` — no `CALayer` mask involved. A `CAGradientLayer` masked by
@@ -76,7 +91,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
 
         ringMask.fillColor = UIColor.clear.cgColor
         ringMask.strokeColor = UIColor.black.cgColor
-        ringMask.lineWidth = 4
+        ringMask.lineWidth = ScreenStatesMetrics.spinnerLineWidth
         ringMask.lineCap = .round
         ringMask.strokeStart = 0
         ringMask.strokeEnd = 0.75
@@ -86,8 +101,8 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         NSLayoutConstraint.activate([
             gradientRing.centerXAnchor.constraint(equalTo: centerXAnchor),
             gradientRing.centerYAnchor.constraint(equalTo: centerYAnchor),
-            gradientRing.widthAnchor.constraint(equalToConstant: 44),
-            gradientRing.heightAnchor.constraint(equalToConstant: 44)
+            gradientRing.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.spinnerSize),
+            gradientRing.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.spinnerSize)
         ])
 
         updateRotation()
@@ -184,7 +199,10 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     private let symbol: UIImage?
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
-        symbol = UIImage(systemName: systemImage, withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular))
+        symbol = UIImage(
+            systemName: systemImage,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize, weight: .regular)
+        )
         super.init(frame: .zero)
         setUp(title: title)
         NotificationCenter.default.addObserver(
@@ -227,8 +245,8 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
-            iconView.widthAnchor.constraint(equalToConstant: 56),
-            iconView.heightAnchor.constraint(equalToConstant: 56),
+            iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
+            iconView.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
@@ -318,7 +336,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         self.onRetry = onRetry
         symbol = UIImage(
             systemName: "exclamationmark.triangle.fill",
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: 56, weight: .regular)
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize, weight: .regular)
         )
         super.init(frame: .zero)
         setUp(message: error.localizedDescription, showsRetry: onRetry != nil)
@@ -369,8 +387,8 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
-            iconView.widthAnchor.constraint(equalToConstant: 56),
-            iconView.heightAnchor.constraint(equalToConstant: 56),
+            iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
+            iconView.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),

@@ -37,6 +37,8 @@ On tvOS, the default placeholders are tuned for the focus engine: the Error plac
 
 On watchOS, the default placeholders' icon and loading spinner are sized down (28pt/24pt instead of 56pt/44pt) so they don't dominate a compact watch screen the way an iPhone-sized icon would.
 
+On Mac Catalyst, the default placeholders' icon and loading spinner are sized down a bit too (48pt/36pt), since a Mac window is driven by a precise pointer rather than a touch target that needs to stay comfortably tappable, and the Retry button shows a deliberate pointer hover highlight (`.hoverEffect(.highlight)` in SwiftUI; UIKit's `UIButton` gets this automatically).
+
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.

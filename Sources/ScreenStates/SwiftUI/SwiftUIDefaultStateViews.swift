@@ -3,11 +3,17 @@ import SwiftUI
 
 /// Default placeholder sizing — smaller on watchOS's compact screens,
 /// where a 56pt icon (sized right for iOS/macOS/tvOS/visionOS) would
-/// dominate the whole display.
+/// dominate the whole display, and a bit smaller still on Mac Catalyst,
+/// where a window is driven by a precise pointer rather than a touch
+/// target that needs to stay comfortably tappable.
 private enum ScreenStatesMetrics {
     #if os(watchOS)
     static let iconSize: CGFloat = 28
     static let spinnerSize: CGFloat = 24
+    static let spinnerLineWidth: CGFloat = 3
+    #elseif targetEnvironment(macCatalyst)
+    static let iconSize: CGFloat = 48
+    static let spinnerSize: CGFloat = 36
     static let spinnerLineWidth: CGFloat = 3
     #else
     static let iconSize: CGFloat = 56
@@ -120,6 +126,14 @@ public struct ScreenStateDefaultErrorView: View {
             if let onRetry {
                 Button(String.screenStatesRetry, action: onRetry)
                     .accessibilityIdentifier("screenStates.error.retryButton")
+                    #if os(iOS) || os(visionOS)
+                    // A no-op without a pointer (plain touch on iPhone/iPad);
+                    // shows a deliberate hover highlight under Mac Catalyst
+                    // or a trackpad-equipped iPad instead of leaving it to
+                    // whatever `.automatic` happens to resolve to. Not
+                    // available on macOS or watchOS.
+                    .hoverEffect(.highlight)
+                    #endif
                     #if os(tvOS)
                     .prefersDefaultFocus(true, in: focusNamespace)
                     #endif
