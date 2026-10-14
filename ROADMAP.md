@@ -81,3 +81,35 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [ ] Add a GitHub Discussions Q&A category/template, linked from README, as a lighter-weight alternative to opening an issue.
 - [ ] Add a "Used By" section to README inviting adopters to add themselves via PR.
 - [ ] Add `.github/RELEASING.md` documenting the tag/publish process, matching the version-bump convention already used in `CHANGELOG.md`.
+
+## Week 11 — Store ergonomics & analytics completeness
+
+- [ ] Add a `ScreenStateStore.refreshError`-clearing path so a successful `refresh(_:)` after a failed one doesn't leave the stale error dangling once `isRefreshing` flips back to `false`.
+- [ ] Add a `ScreenAnalyticsEvent` for retry taps specifically (distinct from a generic load event), so analytics can distinguish "user hit retry" from the initial load.
+- [ ] Add `ScreenStateStore.loadCollection(_:)`/`refreshCollection(_:)` analytics events mirroring the ones already tracked for `load(_:)`/`refresh(_:)`.
+- [ ] Add a `ScreenOpenSource`-aware convenience initializer on `ScreenStateStore` so call sites that already know their open source don't need a separate `track(openSource:)` call.
+- [ ] Add a DocC code snippet (via `@Snippet`) for the retry-with-backoff recipe, replacing the current prose-only `loadWithRetry` example in the Recipes article.
+
+## Week 12 — SwiftUI & UIKit parity
+
+- [ ] Audit `ScreenStateView`/`ScreenStateContainerView` for a parity gap: add whichever of `.screenState(_:onRetry:content:)`'s SwiftUI conveniences (e.g. a no-retry overload) is still missing from the UIKit `ScreenStateViewController` side.
+- [ ] Add a `ScreenStateView` initializer overload that takes an `EquatableValue` fast-path check (mirroring the `Equatable`-payload redundant-invalidation guard planned for `ScreenStateStore` in Week 9) to skip re-rendering identical `.data` content.
+- [ ] Add a UIKit `ScreenStateContainerView` snapshot test suite covering programmatic `bind(to:)` rebinding to a different store mid-lifecycle, which only has SwiftUI coverage today.
+- [ ] Expose `ScreenStateStore`'s `isRefreshing`/`refreshError` to UIKit consumers via a small delegate callback, mirroring how SwiftUI observes them through `@Observable`.
+- [ ] Add a DocC article cross-referencing equivalent SwiftUI/UIKit API pairs in a single table, so a reader working in one framework can find the other's equivalent at a glance.
+
+## Week 13 — Error presentation depth
+
+- [ ] Add a `ScreenStateDefaultErrorView`/`ErrorUIView` variant that distinguishes a `URLError` (offline/timeout) from a generic error with a tailored icon and message, falling back to today's generic treatment for other error types.
+- [ ] Add an optional secondary action slot (e.g. "Go Back" alongside "Retry") to the default Error placeholders, defaulting to hidden so existing call sites are unaffected.
+- [ ] Add a `ScreenState.Error`-side helper to surface a user-facing message distinct from `localizedDescription` when the wrapped error conforms to a new `ScreenStateDisplayableError` protocol.
+- [ ] Add snapshot tests for the new offline/timeout error variant across both SwiftUI and UIKit, at both standard and largest Dynamic Type sizes.
+- [ ] Add a DocC "Error Presentation" article documenting the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`.
+
+## Week 14 — Performance & footprint
+
+- [ ] Add a CI job that tracks `ScreenStates`' compiled binary size per release, failing if it regresses past a threshold, to keep the "dependency-free, lightweight" promise measurable rather than assumed.
+- [ ] Audit `ScreenStateStore`'s `Task` lifecycle for an avoidable retain cycle between the stored in-flight `Task` and `self`, adding a regression test if one is found.
+- [ ] Add a benchmark test (via `XCTest`'s `measure`) for `ScreenState.map`/`flatMap` under a large collection payload, to catch an accidental O(n²) regression in future changes.
+- [ ] Audit the default placeholder views for unnecessary SwiftUI body re-evaluations on unrelated `ScreenStateStore` property changes (e.g. `isRefreshing` toggling shouldn't re-render an unrelated Error placeholder).
+- [ ] Add a DocC "Performance" article documenting the binary-size budget, the `Task` lifecycle guarantee, and the re-render characteristics of the default placeholders.

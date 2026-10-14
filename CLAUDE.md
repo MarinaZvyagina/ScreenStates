@@ -26,12 +26,14 @@ The tvOS/watchOS/visionOS platform SDKs are **not installed** on this machine an
 
 ## The daily roadmap
 
-`ROADMAP.md` at the repo root tracks a month of small, incremental improvements, one per day, being worked through automatically. When asked to "continue the roadmap" or similar:
+`ROADMAP.md` at the repo root tracks a month of small, incremental improvements, being worked through automatically by a daily cron job. When asked to "continue the roadmap" or similar (including the automated daily run):
 
-1. Open `ROADMAP.md`, find the first unchecked (`- [ ]`) item.
-2. Implement *only* that item, following the commit conventions above (small, tested, documented).
-3. Check its box (`- [x]`) in `ROADMAP.md` as part of the same commit.
-4. Commit, then push directly to `origin/main` — this has been explicitly pre-authorized for this recurring workflow (see `.claude/settings.json`), so no need to ask for confirmation before pushing.
-5. Stop after one item — don't cascade into the next one in the same run.
+1. Pick a random count N between 1 and 5 for this run.
+2. Repeat N times, or until unchecked items run out:
+   a. Open `ROADMAP.md`, find the first unchecked (`- [ ]`) item.
+   b. Implement *only* that item, following the commit conventions above (small, tested, documented).
+   c. Check its box (`- [x]`) in `ROADMAP.md` as part of the same commit.
+   d. Commit, then push directly to `origin/main` — this has been explicitly pre-authorized for this recurring workflow (see `.claude/settings.json`), so no need to ask for confirmation before pushing.
+3. Each item is still its own separate commit + push — never bundle multiple roadmap items into one commit.
 
-If the next unchecked item turns out to be already done, ambiguous, or blocked by a decision only the user can make, skip the autonomous push, leave the item unchecked, and explain why instead of guessing.
+If the next unchecked item turns out to be already done, ambiguous, or blocked by a decision only the user can make, skip it for this run (leave it unchecked, explain why), and move on to the item after it rather than stopping the whole run — unless *every* remaining unchecked item is blocked, in which case stop with no commits.
