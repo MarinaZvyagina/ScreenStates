@@ -57,6 +57,9 @@ public struct ScreenStateDefaultEmptyView: View {
     private let title: String
     private let systemImage: String
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    #if os(iOS)
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #endif
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
         self.title = title
@@ -64,27 +67,67 @@ public struct ScreenStateDefaultEmptyView: View {
     }
 
     public var body: some View {
-        ContentUnavailableView {
-            Label {
-                Text(title)
-            } icon: {
-                Image(systemName: systemImage)
-                    .font(.system(size: ScreenStatesMetrics.iconSize))
-                    .foregroundStyle(
-                        colorSchemeContrast == .increased
-                            ? AnyShapeStyle(Color.primary)
-                            : AnyShapeStyle(LinearGradient(
-                                colors: [.pink, .orange, .yellow],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                    )
+        // `ContentUnavailableView` has no configuration point for a
+        // horizontal arrangement, so a compact-height (landscape iPhone)
+        // layout — where stacking the icon above the title the way the
+        // portrait-sized column always assumed leaves too little height to
+        // fit both without clipping at large Dynamic Type sizes — builds
+        // its own layout directly instead of going through it, mirroring
+        // ``ScreenStateDefaultEmptyUIView``'s `UIStackView` axis switch.
+        Group {
+            if isCompactHeight {
+                compactContent
+            } else {
+                content
             }
         }
         .accessibilityIdentifier("screenStates.empty")
         .onAppear {
             AccessibilityNotification.Announcement(title).post()
         }
+    }
+
+    private var isCompactHeight: Bool {
+        #if os(iOS)
+        verticalSizeClass == .compact
+        #else
+        false
+        #endif
+    }
+
+    private var icon: some View {
+        Image(systemName: systemImage)
+            .font(.system(size: ScreenStatesMetrics.iconSize))
+            .foregroundStyle(
+                colorSchemeContrast == .increased
+                    ? AnyShapeStyle(Color.primary)
+                    : AnyShapeStyle(LinearGradient(
+                        colors: [.pink, .orange, .yellow],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+            )
+    }
+
+    private var content: some View {
+        ContentUnavailableView {
+            Label {
+                Text(title)
+            } icon: {
+                icon
+            }
+        }
+    }
+
+    private var compactContent: some View {
+        HStack(spacing: 16) {
+            icon
+            Text(title)
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -94,6 +137,9 @@ public struct ScreenStateDefaultErrorView: View {
     private let error: Error
     private let onRetry: (() -> Void)?
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    #if os(iOS)
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #endif
     #if os(tvOS)
     @Namespace private var focusNamespace
     #endif
@@ -104,39 +150,20 @@ public struct ScreenStateDefaultErrorView: View {
     }
 
     public var body: some View {
-        ContentUnavailableView {
-            Label {
-                Text(String.screenStatesSomethingWentWrong)
-            } icon: {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: ScreenStatesMetrics.iconSize))
-                    .foregroundStyle(
-                        colorSchemeContrast == .increased
-                            ? AnyShapeStyle(Color.primary)
-                            : AnyShapeStyle(LinearGradient(
-                                colors: [.red, .orange],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ))
-                    )
-            }
-        } description: {
-            Text(error.localizedDescription)
-        } actions: {
-            if let onRetry {
-                Button(String.screenStatesRetry, action: onRetry)
-                    .accessibilityIdentifier("screenStates.error.retryButton")
-                    #if os(iOS) || os(visionOS)
-                    // A no-op without a pointer (plain touch on iPhone/iPad);
-                    // shows a deliberate hover highlight under Mac Catalyst
-                    // or a trackpad-equipped iPad instead of leaving it to
-                    // whatever `.automatic` happens to resolve to. Not
-                    // available on macOS or watchOS.
-                    .hoverEffect(.highlight)
-                    #endif
-                    #if os(tvOS)
-                    .prefersDefaultFocus(true, in: focusNamespace)
-                    #endif
+        // `ContentUnavailableView` has no configuration point for a
+        // horizontal arrangement, so a compact-height (landscape iPhone)
+        // layout — where stacking the icon above the message/Retry column
+        // the way the portrait-sized column always assumed leaves too
+        // little height to fit both without clipping at large Dynamic Type
+        // sizes — builds its own layout directly instead of going through
+        // it, mirroring ``ScreenStateDefaultErrorUIView``'s `UIStackView`
+        // axis switch. tvOS is always `.regular`, so this never affects
+        // the focus-engine path below.
+        Group {
+            if isCompactHeight {
+                compactContent
+            } else {
+                content
             }
         }
         .accessibilityIdentifier("screenStates.error")
@@ -146,6 +173,77 @@ public struct ScreenStateDefaultErrorView: View {
         #if os(tvOS)
         .focusScope(focusNamespace)
         #endif
+    }
+
+    private var isCompactHeight: Bool {
+        #if os(iOS)
+        verticalSizeClass == .compact
+        #else
+        false
+        #endif
+    }
+
+    private var icon: some View {
+        Image(systemName: "exclamationmark.triangle.fill")
+            .font(.system(size: ScreenStatesMetrics.iconSize))
+            .foregroundStyle(
+                colorSchemeContrast == .increased
+                    ? AnyShapeStyle(Color.primary)
+                    : AnyShapeStyle(LinearGradient(
+                        colors: [.red, .orange],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+            )
+    }
+
+    private func retryButton(onRetry: @escaping () -> Void) -> some View {
+        Button(String.screenStatesRetry, action: onRetry)
+            .accessibilityIdentifier("screenStates.error.retryButton")
+            #if os(iOS) || os(visionOS)
+            // A no-op without a pointer (plain touch on iPhone/iPad); shows
+            // a deliberate hover highlight under Mac Catalyst or a
+            // trackpad-equipped iPad instead of leaving it to whatever
+            // `.automatic` happens to resolve to. Not available on macOS
+            // or watchOS.
+            .hoverEffect(.highlight)
+            #endif
+    }
+
+    private var content: some View {
+        ContentUnavailableView {
+            Label {
+                Text(String.screenStatesSomethingWentWrong)
+            } icon: {
+                icon
+            }
+        } description: {
+            Text(error.localizedDescription)
+        } actions: {
+            if let onRetry {
+                retryButton(onRetry: onRetry)
+                    #if os(tvOS)
+                    .prefersDefaultFocus(true, in: focusNamespace)
+                    #endif
+            }
+        }
+    }
+
+    private var compactContent: some View {
+        HStack(alignment: .center, spacing: 16) {
+            icon
+            VStack(alignment: .leading, spacing: 12) {
+                Text(error.localizedDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                if let onRetry {
+                    retryButton(onRetry: onRetry)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 #endif

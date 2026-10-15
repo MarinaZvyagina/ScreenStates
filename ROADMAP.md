@@ -53,7 +53,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 7 — Platform & environment polish
 
 - [x] Tune the default placeholders for Mac Catalyst (pointer/hover states, typography sized for a mouse-driven window rather than touch).
-- [ ] Tune the default placeholders for landscape / compact-height iPhone layouts, which currently assume a portrait-sized column.
+- [x] Tune the default placeholders for landscape / compact-height iPhone layouts, which currently assume a portrait-sized column.
 - [ ] Tune the default placeholders for visionOS (ornaments/depth), which currently just inherit the iOS layout as-is.
 - [ ] Add a CI job that builds against the latest Xcode beta with `continue-on-error`, to catch upcoming toolchain breakage before it ships.
 - [ ] Fix the default placeholders' inset handling inside a `NavigationSplitView` detail column so they don't visually collide with the sidebar divider on iPad.

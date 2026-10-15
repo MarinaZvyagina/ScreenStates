@@ -3,6 +3,20 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.41.0]
+
+- Tune the default Empty/Error placeholders for a compact-height
+  (landscape iPhone) layout: the icon now lays out beside the
+  title/message/Retry column instead of above it, so large Dynamic Type
+  sizes no longer risk clipping content that used to assume a
+  portrait-sized column. UIKit's `UIStackView` switches `axis` between
+  `.vertical` and `.horizontal` based on `traitCollection.verticalSizeClass`
+  (including live updates via `traitCollectionDidChange(_:)`); SwiftUI
+  builds an analogous horizontal layout directly, since
+  `ContentUnavailableView` has no configuration point for this, driven by
+  the `verticalSizeClass` environment value (iOS/iPadOS/Mac Catalyst
+  only). No API changes.
+
 ## [1.40.0]
 
 - Tune the default placeholders for Mac Catalyst: the icon and loading

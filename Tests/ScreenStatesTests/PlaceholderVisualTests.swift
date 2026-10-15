@@ -104,6 +104,21 @@ struct PlaceholderVisualTests {
         #expect(view.titleLabel.font.pointSize > standardPointSize)
     }
 
+    @Test("ScreenStateDefaultEmptyUIView lays its icon beside the title in a compact-height (landscape iPhone) layout")
+    func emptyUIViewUsesHorizontalAxisForCompactHeight() {
+        let view = ScreenStateDefaultEmptyUIView()
+        view.updateAxis(verticalSizeClass: .compact)
+        #expect(view.stack.axis == .horizontal)
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView stacks its icon above the title in a regular-height layout")
+    func emptyUIViewUsesVerticalAxisForRegularHeight() {
+        let view = ScreenStateDefaultEmptyUIView()
+        view.updateAxis(verticalSizeClass: .compact)
+        view.updateAxis(verticalSizeClass: .regular)
+        #expect(view.stack.axis == .vertical)
+    }
+
     @Test("ScreenStateDefaultErrorUIView tints its icon with a colorful gradient, not a plain gray one")
     func errorUIViewIsColorful() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
@@ -125,6 +140,21 @@ struct PlaceholderVisualTests {
         view.updateFont(contentSizeCategory: .accessibilityExtraExtraExtraLarge)
 
         #expect(view.messageLabel.font.pointSize > standardPointSize)
+    }
+
+    @Test("ScreenStateDefaultErrorUIView lays its icon beside the message/Retry column in a compact-height (landscape iPhone) layout")
+    func errorUIViewUsesHorizontalAxisForCompactHeight() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        view.updateAxis(verticalSizeClass: .compact)
+        #expect(view.stack.axis == .horizontal)
+    }
+
+    @Test("ScreenStateDefaultErrorUIView stacks its icon above the message/Retry column in a regular-height layout")
+    func errorUIViewUsesVerticalAxisForRegularHeight() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        view.updateAxis(verticalSizeClass: .compact)
+        view.updateAxis(verticalSizeClass: .regular)
+        #expect(view.stack.axis == .vertical)
     }
 
     #if canImport(SwiftUI)
@@ -176,6 +206,48 @@ struct PlaceholderVisualTests {
         renderer.scale = 2
         #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
+
+    #if os(iOS)
+    @Test("ScreenStateDefaultEmptyView still renders its colorful icon in a compact-height (landscape iPhone) layout")
+    func emptyViewRendersInCompactHeightLayout() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultEmptyView().environment(\.verticalSizeClass, .compact),
+            size: CGSize(width: 480, height: 180)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon in a compact-height (landscape iPhone) layout")
+    func errorViewRendersInCompactHeightLayout() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError()).environment(\.verticalSizeClass, .compact),
+            size: CGSize(width: 480, height: 180)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultEmptyView still renders its colorful icon in a compact-height layout at the largest accessibility Dynamic Type size")
+    func emptyViewRendersInCompactHeightAtLargestDynamicTypeSize() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultEmptyView()
+                .environment(\.verticalSizeClass, .compact)
+                .dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 480, height: 180)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon in a compact-height layout at the largest accessibility Dynamic Type size")
+    func errorViewRendersInCompactHeightAtLargestDynamicTypeSize() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError())
+                .environment(\.verticalSizeClass, .compact)
+                .dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 480, height: 180)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+    #endif
     #endif
 }
 

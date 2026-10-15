@@ -39,6 +39,8 @@ On watchOS, the default placeholders' icon and loading spinner are sized down (2
 
 On Mac Catalyst, the default placeholders' icon and loading spinner are sized down a bit too (48pt/36pt), since a Mac window is driven by a precise pointer rather than a touch target that needs to stay comfortably tappable, and the Retry button shows a deliberate pointer hover highlight (`.hoverEffect(.highlight)` in SwiftUI; UIKit's `UIButton` gets this automatically).
 
+In a compact-height (landscape iPhone) layout, the default Empty/Error placeholders lay their icon beside the title/message/Retry column instead of above it, so the content doesn't need to compete for height with a full-size icon stacked on top — driven by SwiftUI's `verticalSizeClass` environment value (UIKit's `traitCollection.verticalSizeClass`), available on iOS/iPadOS/Mac Catalyst only, so it's a no-op everywhere else.
+
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.

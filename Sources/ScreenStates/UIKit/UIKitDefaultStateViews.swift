@@ -196,6 +196,11 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// label scales with Dynamic Type — this module's test target has no
     /// live window/scene to snapshot the whole view hierarchy into.
     let titleLabel = UILabel()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// axis switches for compact-height (landscape iPhone) layouts — this
+    /// module's test target has no live window/scene to drive a real trait
+    /// collection change through.
+    let stack = UIStackView()
     private let symbol: UIImage?
 
     public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
@@ -238,11 +243,12 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let stack = UIStackView(arrangedSubviews: [iconView, titleLabel])
-        stack.axis = .vertical
+        stack.addArrangedSubview(iconView)
+        stack.addArrangedSubview(titleLabel)
         stack.spacing = 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
+        updateAxis()
         addSubview(stack)
         NSLayoutConstraint.activate([
             iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
@@ -261,6 +267,27 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     @objc
     private func darkerSystemColorsStatusDidChange() {
         updateIcon()
+    }
+
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass else { return }
+        updateAxis()
+    }
+
+    private func updateAxis() {
+        updateAxis(verticalSizeClass: traitCollection.verticalSizeClass)
+    }
+
+    /// Lays the icon beside the title, instead of above it, in a
+    /// compact-height (landscape iPhone) layout — stacking them vertically
+    /// there, as in the portrait-sized column this always used to assume,
+    /// leaves too little height for both to fit without clipping. Internal
+    /// (not `private`) so tests can drive this directly — a compact-height
+    /// trait collection can't be simulated without a live window/scene in
+    /// this module's test target.
+    func updateAxis(verticalSizeClass: UIUserInterfaceSizeClass) {
+        stack.axis = verticalSizeClass == .compact ? .horizontal : .vertical
     }
 
     private func updateIcon() {
@@ -326,6 +353,12 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     /// label scales with Dynamic Type — this module's test target has no
     /// live window/scene to snapshot the whole view hierarchy into.
     let messageLabel = UILabel()
+    /// Internal (not `private`) so `@testable import` tests can verify the
+    /// axis switches for compact-height (landscape iPhone) layouts — this
+    /// module's test target has no live window/scene to drive a real trait
+    /// collection change through.
+    let stack = UIStackView()
+    private let textStack = UIStackView()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
     private let symbol: UIImage?
@@ -380,11 +413,18 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         retryButton.isHidden = !showsRetry
         retryButton.accessibilityIdentifier = "screenStates.error.retryButton"
 
-        let stack = UIStackView(arrangedSubviews: [iconView, messageLabel, retryButton])
-        stack.axis = .vertical
+        textStack.addArrangedSubview(messageLabel)
+        textStack.addArrangedSubview(retryButton)
+        textStack.axis = .vertical
+        textStack.spacing = 12
+        textStack.alignment = .center
+
+        stack.addArrangedSubview(iconView)
+        stack.addArrangedSubview(textStack)
         stack.spacing = 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
+        updateAxis()
         addSubview(stack)
         NSLayoutConstraint.activate([
             iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
@@ -403,6 +443,27 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     @objc
     private func darkerSystemColorsStatusDidChange() {
         updateIcon()
+    }
+
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass else { return }
+        updateAxis()
+    }
+
+    private func updateAxis() {
+        updateAxis(verticalSizeClass: traitCollection.verticalSizeClass)
+    }
+
+    /// Lays the icon beside the message/Retry column, instead of above it,
+    /// in a compact-height (landscape iPhone) layout — stacking everything
+    /// vertically there, as in the portrait-sized column this always used
+    /// to assume, leaves too little height to fit without clipping.
+    /// Internal (not `private`) so tests can drive this directly — a
+    /// compact-height trait collection can't be simulated without a live
+    /// window/scene in this module's test target.
+    func updateAxis(verticalSizeClass: UIUserInterfaceSizeClass) {
+        stack.axis = verticalSizeClass == .compact ? .horizontal : .vertical
     }
 
     private func updateIcon() {
