@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.42.0]
+
+- Add a `continue-on-error` CI job that runs the test suite against the
+  newest Xcode already on the runner image — the beta, once one ships
+  ahead of the next GA release — as an early warning for upcoming
+  toolchain breakage. Never blocks a PR; see `CONTRIBUTING.md`. No source
+  or API changes.
+
 ## [1.41.0]
 
 - Tune the default Empty/Error placeholders for a compact-height

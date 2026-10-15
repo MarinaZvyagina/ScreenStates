@@ -15,6 +15,8 @@ xcodebuild test -scheme ScreenStates -destination "platform=iOS Simulator,id=$UD
 
 Run this before opening a PR. If your change touches a `#if canImport(UIKit)`/`#if canImport(SwiftUI)` guard, run `swift build`/`swift test` too — that's usually where a missing guard shows up first.
 
+CI also runs the same suite against whatever Xcode beta happens to be newest on the runner image, as a canary for upcoming toolchain breakage — that job is `continue-on-error`, so it never blocks a PR, but a red run there is worth a look before the next Xcode GA ships.
+
 The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKit-only file is guarded with `#if canImport(UIKit) && !os(watchOS)`, so a code review plus the two builds above is enough to verify platform correctness without installing every additional simulator runtime.
 
 ## Making a change

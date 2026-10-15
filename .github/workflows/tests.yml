@@ -68,3 +68,33 @@ jobs:
           git add .github/badges/coverage.json
           git commit -m "ci: update coverage badge to ${PERCENT}% [skip ci]"
           git push
+
+  # A canary for upcoming toolchain breakage: builds and tests against
+  # whatever's the newest Xcode already installed on the runner image,
+  # which is the beta once one ships ahead of the next GA release.
+  # continue-on-error so a beta-only regression never blocks `test` above.
+  test-xcode-beta:
+    name: Test on iOS Simulator (latest Xcode beta)
+    runs-on: macos-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Select the newest installed Xcode
+        run: |
+          set -euo pipefail
+          LATEST=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Selecting $LATEST"
+          sudo xcode-select -s "$LATEST/Contents/Developer"
+          xcodebuild -version
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | test("iPhone"))][0].udid')
+          echo "Using simulator $UDID"
+          xcodebuild test \
+            -scheme ScreenStates \
+            -destination "platform=iOS Simulator,id=$UDID"
