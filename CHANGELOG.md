@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.44.0]
+
+- Add `ScreenStateShimmerLoadingView`/`ScreenStateShimmerLoadingUIView`,
+  an opt-in alternative Loading placeholder: a pulsing skeleton of a
+  circular avatar plus two text-line placeholders, instead of the
+  default spinner. Respects Reduce Motion (the pulse stops instead of
+  animating) and Increase Contrast (a more visible gray fill), the same
+  way the default placeholders do.
+  `ScreenStateDefaultLoadingView`/`ScreenStateDefaultLoadingUIView`
+  remain the default shown by every default-wired container; this is
+  additive, opt-in API only.
+
 ## [1.43.0]
 
 - Add `ScreenStatePlaceholderStyle` (`.standard`/`.compact`) and a

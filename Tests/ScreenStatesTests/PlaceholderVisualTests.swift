@@ -206,6 +206,42 @@ struct PlaceholderVisualTests {
         #expect(view.stack.axis == .vertical)
     }
 
+    @Test("ScreenStateShimmerLoadingUIView pulses by default")
+    func shimmerLoadingUIViewPulsesByDefault() {
+        let view = ScreenStateShimmerLoadingUIView()
+        #expect(view.skeletonStack.layer.animation(forKey: "shimmerPulse") != nil)
+    }
+
+    @Test("ScreenStateShimmerLoadingUIView removes its pulse animation when Reduce Motion is on")
+    func shimmerLoadingUIViewRespectsReduceMotion() {
+        let view = ScreenStateShimmerLoadingUIView()
+        view.updatePulse(reduceMotion: true)
+        #expect(view.skeletonStack.layer.animation(forKey: "shimmerPulse") == nil)
+    }
+
+    @Test("ScreenStateShimmerLoadingUIView re-adds its pulse animation once Reduce Motion turns back off")
+    func shimmerLoadingUIViewReAddsAnimationWhenReduceMotionTurnsOff() {
+        let view = ScreenStateShimmerLoadingUIView()
+        view.updatePulse(reduceMotion: true)
+        view.updatePulse(reduceMotion: false)
+        #expect(view.skeletonStack.layer.animation(forKey: "shimmerPulse") != nil)
+    }
+
+    @Test("ScreenStateShimmerLoadingUIView uses a more visible gray fill when Increase Contrast is on")
+    func shimmerLoadingUIViewRespectsIncreaseContrast() {
+        let view = ScreenStateShimmerLoadingUIView()
+        view.updateFillColor(isDarkerSystemColorsEnabled: true)
+        #expect(view.avatar.backgroundColor == .systemGray)
+    }
+
+    @Test("ScreenStateShimmerLoadingUIView restores its low-contrast fill once Increase Contrast turns back off")
+    func shimmerLoadingUIViewRestoresFillWhenIncreaseContrastTurnsOff() {
+        let view = ScreenStateShimmerLoadingUIView()
+        view.updateFillColor(isDarkerSystemColorsEnabled: true)
+        view.updateFillColor(isDarkerSystemColorsEnabled: false)
+        #expect(view.avatar.backgroundColor == .tertiarySystemFill)
+    }
+
     #if canImport(SwiftUI)
     @Test("ScreenStateDefaultLoadingView renders a colorful gradient, not a plain gray spinner")
     func loadingViewIsColorful() {
@@ -275,6 +311,21 @@ struct PlaceholderVisualTests {
             .frame(width: 400))
         renderer.scale = 2
         #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
+    }
+
+    @Test("ScreenStateShimmerLoadingView renders its skeleton shapes, not a blank view")
+    func shimmerLoadingViewRendersContent() {
+        let image = snapshotImage(of: ScreenStateShimmerLoadingView(), size: CGSize(width: 240, height: 80))
+        #expect(containsNonTransparentPixel(image))
+    }
+
+    @Test("ScreenStateShimmerLoadingView still renders its skeleton shapes at the largest accessibility Dynamic Type size")
+    func shimmerLoadingViewRendersAtLargestDynamicTypeSize() {
+        let image = snapshotImage(
+            of: ScreenStateShimmerLoadingView().dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 240, height: 80)
+        )
+        #expect(containsNonTransparentPixel(image))
     }
 
     #if os(iOS)
@@ -376,6 +427,35 @@ private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -
         if max(r, g, b) - min(r, g, b) > threshold {
             return true
         }
+    }
+    return false
+}
+
+/// `true` if any pixel in `image` is more than barely transparent — a
+/// cheap regression guard against a totally blank render, for placeholders
+/// (like the shimmer skeleton) whose fill is intentionally grayscale and
+/// semi-transparent, so `containsSaturatedColor`'s colorfulness/opacity
+/// thresholds don't apply.
+private func containsNonTransparentPixel(_ image: UIImage, alphaThreshold: CGFloat = 10) -> Bool {
+    guard let cgImage = image.cgImage else { return false }
+    let width = cgImage.width
+    let height = cgImage.height
+    guard width > 0, height > 0 else { return false }
+
+    var pixels = [UInt8](repeating: 0, count: width * height * 4)
+    guard let context = CGContext(
+        data: &pixels,
+        width: width,
+        height: height,
+        bitsPerComponent: 8,
+        bytesPerRow: width * 4,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    ) else { return false }
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+    for pixelIndex in stride(from: 0, to: pixels.count, by: 4) where CGFloat(pixels[pixelIndex + 3]) > alphaThreshold {
+        return true
     }
     return false
 }

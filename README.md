@@ -48,9 +48,16 @@ ScreenStateDefaultEmptyView(style: .compact)
 ScreenStateDefaultLoadingUIView(style: .compact)
 ```
 
-The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
+For an alternative to the spinner, `ScreenStateShimmerLoadingView`/`ScreenStateShimmerLoadingUIView` render a pulsing skeleton (a circular avatar plus two text-line placeholders) instead — opt-in, since `ScreenStateDefaultLoadingView`/`UIView` are still what every default-wired container shows:
 
-All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.
+```swift
+ScreenStateShimmerLoadingView()
+ScreenStateShimmerLoadingUIView()
+```
+
+The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen. The shimmer Loading placeholder respects it the same way — its pulse stops instead of animating.
+
+All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen. The shimmer Loading placeholder swaps its low-contrast skeleton fill for a more visible gray the same way.
 
 The default Empty/Error placeholders' text scales with Dynamic Type — SwiftUI's via `ContentUnavailableView`'s own text styles, UIKit's via `UIFont.preferredFont(forTextStyle: .body, compatibleWith:)` — covered up to the largest accessibility size by snapshot tests.
 
@@ -423,6 +430,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle` |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle` |
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
+| `ScreenStateShimmerLoadingView` / `ScreenStateShimmerLoadingUIView` | Opt-in pulsing-skeleton alternative to the default spinner Loading placeholder |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
 | `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
