@@ -81,6 +81,13 @@ struct PlaceholderVisualTests {
         #expect(hasSaturatedColor(view!.gradientRing))
     }
 
+    @Test("ScreenStateDefaultLoadingUIView sizes its ring down for the .compact style")
+    func loadingUIViewCompactStyleShrinksRing() {
+        let standard = ScreenStateDefaultLoadingUIView(style: .standard)
+        let compact = ScreenStateDefaultLoadingUIView(style: .compact)
+        #expect(widthConstraintConstant(of: standard.gradientRing)! > widthConstraintConstant(of: compact.gradientRing)!)
+    }
+
     @Test("ScreenStateDefaultEmptyUIView tints its icon with a colorful gradient, not a plain gray one")
     func emptyUIViewIsColorful() {
         let view = ScreenStateDefaultEmptyUIView()
@@ -116,6 +123,27 @@ struct PlaceholderVisualTests {
         let view = ScreenStateDefaultEmptyUIView()
         view.updateAxis(verticalSizeClass: .compact)
         view.updateAxis(verticalSizeClass: .regular)
+        #expect(view.stack.axis == .vertical)
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView sizes its icon down for the .compact style")
+    func emptyUIViewCompactStyleShrinksIcon() {
+        let standard = ScreenStateDefaultEmptyUIView(style: .standard)
+        let compact = ScreenStateDefaultEmptyUIView(style: .compact)
+        #expect(widthConstraintConstant(of: standard.iconView)! > widthConstraintConstant(of: compact.iconView)!)
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView uses a smaller font for the .compact style")
+    func emptyUIViewCompactStyleShrinksFont() {
+        let standard = ScreenStateDefaultEmptyUIView(style: .standard)
+        let compact = ScreenStateDefaultEmptyUIView(style: .compact)
+        #expect(compact.titleLabel.font.pointSize < standard.titleLabel.font.pointSize)
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView keeps a vertical axis for the .compact style even in a compact-height layout")
+    func emptyUIViewCompactStyleStaysVerticalInCompactHeight() {
+        let view = ScreenStateDefaultEmptyUIView(style: .compact)
+        view.updateAxis(verticalSizeClass: .compact)
         #expect(view.stack.axis == .vertical)
     }
 
@@ -157,6 +185,27 @@ struct PlaceholderVisualTests {
         #expect(view.stack.axis == .vertical)
     }
 
+    @Test("ScreenStateDefaultErrorUIView sizes its icon down for the .compact style")
+    func errorUIViewCompactStyleShrinksIcon() {
+        let standard = ScreenStateDefaultErrorUIView(error: SampleError(), style: .standard)
+        let compact = ScreenStateDefaultErrorUIView(error: SampleError(), style: .compact)
+        #expect(widthConstraintConstant(of: standard.iconView)! > widthConstraintConstant(of: compact.iconView)!)
+    }
+
+    @Test("ScreenStateDefaultErrorUIView uses a smaller font for the .compact style")
+    func errorUIViewCompactStyleShrinksFont() {
+        let standard = ScreenStateDefaultErrorUIView(error: SampleError(), style: .standard)
+        let compact = ScreenStateDefaultErrorUIView(error: SampleError(), style: .compact)
+        #expect(compact.messageLabel.font.pointSize < standard.messageLabel.font.pointSize)
+    }
+
+    @Test("ScreenStateDefaultErrorUIView keeps a vertical axis for the .compact style even in a compact-height layout")
+    func errorUIViewCompactStyleStaysVerticalInCompactHeight() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError(), style: .compact)
+        view.updateAxis(verticalSizeClass: .compact)
+        #expect(view.stack.axis == .vertical)
+    }
+
     #if canImport(SwiftUI)
     @Test("ScreenStateDefaultLoadingView renders a colorful gradient, not a plain gray spinner")
     func loadingViewIsColorful() {
@@ -170,6 +219,12 @@ struct PlaceholderVisualTests {
             of: ScreenStateDefaultLoadingView().dynamicTypeSize(.accessibility5),
             size: CGSize(width: 120, height: 120)
         )
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultLoadingView still renders its colorful ring in the .compact style, sized for a card rather than a whole screen")
+    func loadingViewRendersInCompactStyle() {
+        let image = snapshotImage(of: ScreenStateDefaultLoadingView(style: .compact), size: CGSize(width: 80, height: 80))
         #expect(containsSaturatedColor(image))
     }
 
@@ -191,6 +246,21 @@ struct PlaceholderVisualTests {
     @Test("ScreenStateDefaultErrorView renders a colorful gradient icon, not a plain gray one")
     func errorViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultErrorView(error: SampleError()), size: CGSize(width: 300, height: 300))
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultEmptyView still renders its colorful icon in the .compact style, sized for a card rather than a whole screen")
+    func emptyViewRendersInCompactStyle() {
+        let image = snapshotImage(of: ScreenStateDefaultEmptyView(style: .compact), size: CGSize(width: 200, height: 80))
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon in the .compact style, sized for a card rather than a whole screen")
+    func errorViewRendersInCompactStyle() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError(), style: .compact),
+            size: CGSize(width: 280, height: 80)
+        )
         #expect(containsSaturatedColor(image))
     }
 
@@ -249,6 +319,16 @@ struct PlaceholderVisualTests {
     }
     #endif
     #endif
+}
+
+// MARK: - UIKit layout inspection
+
+/// The `.constant` of `view`'s own fixed-width constraint (as activated via
+/// `view.widthAnchor.constraint(equalToConstant:)`), or `nil` if it has
+/// none — used to verify `.compact`-style views size their icon/ring down
+/// without needing a live window to lay out and measure.
+private func widthConstraintConstant(of view: UIView) -> CGFloat? {
+    view.constraints.first { $0.firstAttribute == .width }?.constant
 }
 
 // MARK: - UIKit gradient inspection

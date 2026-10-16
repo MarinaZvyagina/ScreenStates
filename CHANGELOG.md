@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.43.0]
+
+- Add `ScreenStatePlaceholderStyle` (`.standard`/`.compact`) and a
+  `style:` parameter to every default placeholder (SwiftUI and UIKit).
+  `.compact` sizes the icon and text down and — for the Loading
+  spinner — stops forcing itself to fill all available space, so the
+  same placeholder fits inside a card or section instead of taking over
+  the whole screen. `.compact` always keeps a vertical icon-above-text
+  layout regardless of device orientation. Additive API: every existing
+  initializer keeps its old default (`style: .standard`), so no source
+  changes needed.
+
 ## [1.42.0]
 
 - Add a `continue-on-error` CI job that runs the test suite against the

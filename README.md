@@ -41,6 +41,13 @@ On Mac Catalyst, the default placeholders' icon and loading spinner are sized do
 
 In a compact-height (landscape iPhone) layout, the default Empty/Error placeholders lay their icon beside the title/message/Retry column instead of above it, so the content doesn't need to compete for height with a full-size icon stacked on top — driven by SwiftUI's `verticalSizeClass` environment value (UIKit's `traitCollection.verticalSizeClass`), available on iOS/iPadOS/Mac Catalyst only, so it's a no-op everywhere else.
 
+Every default placeholder also takes a `style: ScreenStatePlaceholderStyle`, defaulting to `.standard` (the full-screen treatment described above). Pass `.compact` to embed the same placeholder in a card or section instead of a whole screen: a smaller icon, smaller text, and — for the Loading spinner — no more forcing itself to fill all available space. `.compact` always keeps a vertical icon-above-text layout, since a card's size is dictated by the card, not the device's orientation.
+
+```swift
+ScreenStateDefaultEmptyView(style: .compact)
+ScreenStateDefaultLoadingUIView(style: .compact)
+```
+
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen.
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen.
@@ -413,8 +420,9 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
 | `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate |
-| `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders |
-| `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders |
+| `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle` |
+| `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle` |
+| `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
 | `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |

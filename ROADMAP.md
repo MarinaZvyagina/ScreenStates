@@ -60,7 +60,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 8 — Visual variety & theming
 
-- [ ] Add a "compact" style variant of the default placeholders (smaller icon/text) for embedding in a card or section rather than a whole screen.
+- [x] Add a "compact" style variant of the default placeholders (smaller icon/text) for embedding in a card or section rather than a whole screen.
 - [ ] Add a skeleton/shimmer-style Loading placeholder as an alternative opt-in built-in style.
 - [ ] Add an environment-based configuration point (tint/typography) so an app can theme the built-in placeholders globally instead of passing custom views at every call site.
 - [ ] Add a `redacted(reason: .placeholder)`-based Loading content option as an alternative to the spinner, mirroring the shape of the real content.

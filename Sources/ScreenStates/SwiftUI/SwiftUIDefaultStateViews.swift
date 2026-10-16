@@ -9,26 +9,43 @@ import SwiftUI
 private enum ScreenStatesMetrics {
     #if os(watchOS)
     static let iconSize: CGFloat = 28
+    static let compactIconSize: CGFloat = 16
     static let spinnerSize: CGFloat = 24
+    static let compactSpinnerSize: CGFloat = 14
     static let spinnerLineWidth: CGFloat = 3
     #elseif targetEnvironment(macCatalyst)
     static let iconSize: CGFloat = 48
+    static let compactIconSize: CGFloat = 24
     static let spinnerSize: CGFloat = 36
+    static let compactSpinnerSize: CGFloat = 20
     static let spinnerLineWidth: CGFloat = 3
     #else
     static let iconSize: CGFloat = 56
+    static let compactIconSize: CGFloat = 28
     static let spinnerSize: CGFloat = 44
+    static let compactSpinnerSize: CGFloat = 24
     static let spinnerLineWidth: CGFloat = 4
     #endif
+
+    static func iconSize(for style: ScreenStatePlaceholderStyle) -> CGFloat {
+        style == .compact ? compactIconSize : iconSize
+    }
+
+    static func spinnerSize(for style: ScreenStatePlaceholderStyle) -> CGFloat {
+        style == .compact ? compactSpinnerSize : spinnerSize
+    }
 }
 
 /// Default placeholder shown while a screen's data is loading.
 public struct ScreenStateDefaultLoadingView: View {
+    private let style: ScreenStatePlaceholderStyle
     @State private var isRotating = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
-    public init() {}
+    public init(style: ScreenStatePlaceholderStyle = .standard) {
+        self.style = style
+    }
 
     public var body: some View {
         Circle()
@@ -39,14 +56,20 @@ public struct ScreenStateDefaultLoadingView: View {
                     : AnyShapeStyle(AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center)),
                 style: StrokeStyle(lineWidth: ScreenStatesMetrics.spinnerLineWidth, lineCap: .round)
             )
-            .frame(width: ScreenStatesMetrics.spinnerSize, height: ScreenStatesMetrics.spinnerSize)
+            .frame(width: ScreenStatesMetrics.spinnerSize(for: style), height: ScreenStatesMetrics.spinnerSize(for: style))
             .rotationEffect(.degrees(isRotating ? 360 : 0))
             .animation(reduceMotion ? nil : .linear(duration: 1).repeatForever(autoreverses: false), value: isRotating)
             .onAppear {
                 isRotating = true
                 AccessibilityNotification.Announcement(String.screenStatesLoading).post()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // `.standard` fills the screen it's presumed to own; `.compact`
+            // sizes to the ring alone, so it doesn't force a card/section
+            // open to the full available space just to host a spinner.
+            .frame(
+                maxWidth: style == .standard ? .infinity : nil,
+                maxHeight: style == .standard ? .infinity : nil
+            )
             .accessibilityLabel(String.screenStatesLoading)
             .accessibilityIdentifier("screenStates.loading")
     }
@@ -56,26 +79,37 @@ public struct ScreenStateDefaultLoadingView: View {
 public struct ScreenStateDefaultEmptyView: View {
     private let title: String
     private let systemImage: String
+    private let style: ScreenStatePlaceholderStyle
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     #endif
 
-    public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
+    public init(
+        title: String = .screenStatesNothingHere,
+        systemImage: String = "tray.fill",
+        style: ScreenStatePlaceholderStyle = .standard
+    ) {
         self.title = title
         self.systemImage = systemImage
+        self.style = style
     }
 
     public var body: some View {
-        // `ContentUnavailableView` has no configuration point for a
-        // horizontal arrangement, so a compact-height (landscape iPhone)
-        // layout — where stacking the icon above the title the way the
-        // portrait-sized column always assumed leaves too little height to
-        // fit both without clipping at large Dynamic Type sizes — builds
-        // its own layout directly instead of going through it, mirroring
-        // ``ScreenStateDefaultEmptyUIView``'s `UIStackView` axis switch.
+        // `ContentUnavailableView` has no configuration point for either a
+        // horizontal arrangement or a card-sized footprint, so both the
+        // compact-height (landscape iPhone) layout and the `.compact` style
+        // build their own layout directly instead of going through it. A
+        // compact-height layout — where stacking the icon above the title
+        // the way the portrait-sized column always assumed leaves too
+        // little height to fit both without clipping at large Dynamic Type
+        // sizes — mirrors ``ScreenStateDefaultEmptyUIView``'s `UIStackView`
+        // axis switch. `.compact` style takes priority: a card/section's
+        // size is dictated by the card, not the device's orientation.
         Group {
-            if isCompactHeight {
+            if style == .compact {
+                compactStyleContent
+            } else if isCompactHeight {
                 compactContent
             } else {
                 content
@@ -95,9 +129,9 @@ public struct ScreenStateDefaultEmptyView: View {
         #endif
     }
 
-    private var icon: some View {
+    private func icon(size: CGFloat) -> some View {
         Image(systemName: systemImage)
-            .font(.system(size: ScreenStatesMetrics.iconSize))
+            .font(.system(size: size))
             .foregroundStyle(
                 colorSchemeContrast == .increased
                     ? AnyShapeStyle(Color.primary)
@@ -114,20 +148,33 @@ public struct ScreenStateDefaultEmptyView: View {
             Label {
                 Text(title)
             } icon: {
-                icon
+                icon(size: ScreenStatesMetrics.iconSize)
             }
         }
     }
 
     private var compactContent: some View {
         HStack(spacing: 16) {
-            icon
+            icon(size: ScreenStatesMetrics.iconSize)
             Text(title)
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Sized to fit inside a card or section instead of a whole screen —
+    /// no `.frame(maxWidth:maxHeight:)` forcing it to expand, and a smaller
+    /// icon/font throughout.
+    private var compactStyleContent: some View {
+        VStack(spacing: 8) {
+            icon(size: ScreenStatesMetrics.iconSize(for: .compact))
+            Text(title)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
     }
 }
 
@@ -136,6 +183,7 @@ public struct ScreenStateDefaultEmptyView: View {
 public struct ScreenStateDefaultErrorView: View {
     private let error: Error
     private let onRetry: (() -> Void)?
+    private let style: ScreenStatePlaceholderStyle
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -144,23 +192,30 @@ public struct ScreenStateDefaultErrorView: View {
     @Namespace private var focusNamespace
     #endif
 
-    public init(error: Error, onRetry: (() -> Void)? = nil) {
+    public init(error: Error, onRetry: (() -> Void)? = nil, style: ScreenStatePlaceholderStyle = .standard) {
         self.error = error
         self.onRetry = onRetry
+        self.style = style
     }
 
     public var body: some View {
-        // `ContentUnavailableView` has no configuration point for a
-        // horizontal arrangement, so a compact-height (landscape iPhone)
-        // layout — where stacking the icon above the message/Retry column
-        // the way the portrait-sized column always assumed leaves too
-        // little height to fit both without clipping at large Dynamic Type
-        // sizes — builds its own layout directly instead of going through
-        // it, mirroring ``ScreenStateDefaultErrorUIView``'s `UIStackView`
-        // axis switch. tvOS is always `.regular`, so this never affects
-        // the focus-engine path below.
+        // `ContentUnavailableView` has no configuration point for either a
+        // horizontal arrangement or a card-sized footprint, so both the
+        // compact-height (landscape iPhone) layout and the `.compact` style
+        // build their own layout directly instead of going through it. A
+        // compact-height layout — where stacking the icon above the
+        // message/Retry column the way the portrait-sized column always
+        // assumed leaves too little height to fit both without clipping at
+        // large Dynamic Type sizes — mirrors
+        // ``ScreenStateDefaultErrorUIView``'s `UIStackView` axis switch.
+        // `.compact` style takes priority: a card/section's size is
+        // dictated by the card, not the device's orientation. tvOS is
+        // always `.regular`, so neither branch affects the focus-engine
+        // path below.
         Group {
-            if isCompactHeight {
+            if style == .compact {
+                compactStyleContent
+            } else if isCompactHeight {
                 compactContent
             } else {
                 content
@@ -183,9 +238,9 @@ public struct ScreenStateDefaultErrorView: View {
         #endif
     }
 
-    private var icon: some View {
+    private func icon(size: CGFloat) -> some View {
         Image(systemName: "exclamationmark.triangle.fill")
-            .font(.system(size: ScreenStatesMetrics.iconSize))
+            .font(.system(size: size))
             .foregroundStyle(
                 colorSchemeContrast == .increased
                     ? AnyShapeStyle(Color.primary)
@@ -215,7 +270,7 @@ public struct ScreenStateDefaultErrorView: View {
             Label {
                 Text(String.screenStatesSomethingWentWrong)
             } icon: {
-                icon
+                icon(size: ScreenStatesMetrics.iconSize)
             }
         } description: {
             Text(error.localizedDescription)
@@ -231,7 +286,7 @@ public struct ScreenStateDefaultErrorView: View {
 
     private var compactContent: some View {
         HStack(alignment: .center, spacing: 16) {
-            icon
+            icon(size: ScreenStatesMetrics.iconSize)
             VStack(alignment: .leading, spacing: 12) {
                 Text(error.localizedDescription)
                     .font(.subheadline)
@@ -244,6 +299,26 @@ public struct ScreenStateDefaultErrorView: View {
         }
         .padding(.horizontal, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Sized to fit inside a card or section instead of a whole screen —
+    /// no `.frame(maxWidth:maxHeight:)` forcing it to expand, and a smaller
+    /// icon/font throughout.
+    private var compactStyleContent: some View {
+        HStack(alignment: .center, spacing: 12) {
+            icon(size: ScreenStatesMetrics.iconSize(for: .compact))
+            VStack(alignment: .leading, spacing: 6) {
+                Text(error.localizedDescription)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                if let onRetry {
+                    retryButton(onRetry: onRetry)
+                        .font(.footnote)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(12)
     }
 }
 #endif

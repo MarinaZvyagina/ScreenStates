@@ -7,13 +7,25 @@ import UIKit
 private enum ScreenStatesMetrics {
     #if targetEnvironment(macCatalyst)
     static let iconSize: CGFloat = 48
+    static let compactIconSize: CGFloat = 24
     static let spinnerSize: CGFloat = 36
+    static let compactSpinnerSize: CGFloat = 20
     static let spinnerLineWidth: CGFloat = 3
     #else
     static let iconSize: CGFloat = 56
+    static let compactIconSize: CGFloat = 28
     static let spinnerSize: CGFloat = 44
+    static let compactSpinnerSize: CGFloat = 24
     static let spinnerLineWidth: CGFloat = 4
     #endif
+
+    static func iconSize(for style: ScreenStatePlaceholderStyle) -> CGFloat {
+        style == .compact ? compactIconSize : iconSize
+    }
+
+    static func spinnerSize(for style: ScreenStatePlaceholderStyle) -> CGFloat {
+        style == .compact ? compactSpinnerSize : spinnerSize
+    }
 }
 
 /// Bakes `image` (expected to be a template-rendered SF Symbol) tinted with
@@ -54,9 +66,11 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     /// has no live window/scene to snapshot a real render into.
     let gradientRing = GradientUIView()
     private let ringMask = CAShapeLayer()
+    private let style: ScreenStatePlaceholderStyle
 
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
+    public init(style: ScreenStatePlaceholderStyle = .standard) {
+        self.style = style
+        super.init(frame: .zero)
         setUp()
         NotificationCenter.default.addObserver(
             self,
@@ -98,11 +112,12 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         gradientRing.layer.mask = ringMask
 
         addSubview(gradientRing)
+        let spinnerSize = ScreenStatesMetrics.spinnerSize(for: style)
         NSLayoutConstraint.activate([
             gradientRing.centerXAnchor.constraint(equalTo: centerXAnchor),
             gradientRing.centerYAnchor.constraint(equalTo: centerYAnchor),
-            gradientRing.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.spinnerSize),
-            gradientRing.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.spinnerSize)
+            gradientRing.widthAnchor.constraint(equalToConstant: spinnerSize),
+            gradientRing.heightAnchor.constraint(equalToConstant: spinnerSize)
         ])
 
         updateRotation()
@@ -201,12 +216,18 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// module's test target has no live window/scene to drive a real trait
     /// collection change through.
     let stack = UIStackView()
+    private let style: ScreenStatePlaceholderStyle
     private let symbol: UIImage?
 
-    public init(title: String = .screenStatesNothingHere, systemImage: String = "tray.fill") {
+    public init(
+        title: String = .screenStatesNothingHere,
+        systemImage: String = "tray.fill",
+        style: ScreenStatePlaceholderStyle = .standard
+    ) {
+        self.style = style
         symbol = UIImage(
             systemName: systemImage,
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize, weight: .regular)
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize(for: style), weight: .regular)
         )
         super.init(frame: .zero)
         setUp(title: title)
@@ -245,18 +266,20 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
 
         stack.addArrangedSubview(iconView)
         stack.addArrangedSubview(titleLabel)
-        stack.spacing = 12
+        stack.spacing = style == .compact ? 8 : 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         updateAxis()
         addSubview(stack)
+        let iconSize = ScreenStatesMetrics.iconSize(for: style)
+        let margin: CGFloat = style == .compact ? 12 : 24
         NSLayoutConstraint.activate([
-            iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
-            iconView.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
+            iconView.widthAnchor.constraint(equalToConstant: iconSize),
+            iconView.heightAnchor.constraint(equalToConstant: iconSize),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: margin),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin)
         ])
     }
 
@@ -282,12 +305,14 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// Lays the icon beside the title, instead of above it, in a
     /// compact-height (landscape iPhone) layout — stacking them vertically
     /// there, as in the portrait-sized column this always used to assume,
-    /// leaves too little height for both to fit without clipping. Internal
+    /// leaves too little height for both to fit without clipping. The
+    /// `.compact` style always stays vertical regardless: a card/section's
+    /// size is dictated by the card, not the device's orientation. Internal
     /// (not `private`) so tests can drive this directly — a compact-height
     /// trait collection can't be simulated without a live window/scene in
     /// this module's test target.
     func updateAxis(verticalSizeClass: UIUserInterfaceSizeClass) {
-        stack.axis = verticalSizeClass == .compact ? .horizontal : .vertical
+        stack.axis = (style == .standard && verticalSizeClass == .compact) ? .horizontal : .vertical
     }
 
     private func updateIcon() {
@@ -318,7 +343,7 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// environment.
     func updateFont(contentSizeCategory: UIContentSizeCategory) {
         titleLabel.font = .preferredFont(
-            forTextStyle: .body,
+            forTextStyle: style == .compact ? .footnote : .body,
             compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory)
         )
     }
@@ -361,15 +386,17 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     private let textStack = UIStackView()
     private let retryButton = UIButton(configuration: .borderedTinted())
     private let onRetry: (() -> Void)?
+    private let style: ScreenStatePlaceholderStyle
     private let symbol: UIImage?
     private let error: Error
 
-    public init(error: Error, onRetry: (() -> Void)? = nil) {
+    public init(error: Error, onRetry: (() -> Void)? = nil, style: ScreenStatePlaceholderStyle = .standard) {
         self.error = error
         self.onRetry = onRetry
+        self.style = style
         symbol = UIImage(
             systemName: "exclamationmark.triangle.fill",
-            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize, weight: .regular)
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize(for: style), weight: .regular)
         )
         super.init(frame: .zero)
         setUp(message: error.localizedDescription, showsRetry: onRetry != nil)
@@ -416,23 +443,25 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         textStack.addArrangedSubview(messageLabel)
         textStack.addArrangedSubview(retryButton)
         textStack.axis = .vertical
-        textStack.spacing = 12
+        textStack.spacing = style == .compact ? 8 : 12
         textStack.alignment = .center
 
         stack.addArrangedSubview(iconView)
         stack.addArrangedSubview(textStack)
-        stack.spacing = 12
+        stack.spacing = style == .compact ? 8 : 12
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         updateAxis()
         addSubview(stack)
+        let iconSize = ScreenStatesMetrics.iconSize(for: style)
+        let margin: CGFloat = style == .compact ? 12 : 24
         NSLayoutConstraint.activate([
-            iconView.widthAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
-            iconView.heightAnchor.constraint(equalToConstant: ScreenStatesMetrics.iconSize),
+            iconView.widthAnchor.constraint(equalToConstant: iconSize),
+            iconView.heightAnchor.constraint(equalToConstant: iconSize),
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: margin),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin)
         ])
     }
 
@@ -458,12 +487,14 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     /// Lays the icon beside the message/Retry column, instead of above it,
     /// in a compact-height (landscape iPhone) layout — stacking everything
     /// vertically there, as in the portrait-sized column this always used
-    /// to assume, leaves too little height to fit without clipping.
+    /// to assume, leaves too little height to fit without clipping. The
+    /// `.compact` style always stays vertical regardless: a card/section's
+    /// size is dictated by the card, not the device's orientation.
     /// Internal (not `private`) so tests can drive this directly — a
     /// compact-height trait collection can't be simulated without a live
     /// window/scene in this module's test target.
     func updateAxis(verticalSizeClass: UIUserInterfaceSizeClass) {
-        stack.axis = verticalSizeClass == .compact ? .horizontal : .vertical
+        stack.axis = (style == .standard && verticalSizeClass == .compact) ? .horizontal : .vertical
     }
 
     private func updateIcon() {
@@ -494,7 +525,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     /// environment.
     func updateFont(contentSizeCategory: UIContentSizeCategory) {
         messageLabel.font = .preferredFont(
-            forTextStyle: .body,
+            forTextStyle: style == .compact ? .footnote : .body,
             compatibleWith: UITraitCollection(preferredContentSizeCategory: contentSizeCategory)
         )
     }

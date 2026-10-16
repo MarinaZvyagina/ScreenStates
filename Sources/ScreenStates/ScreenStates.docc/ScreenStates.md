@@ -51,6 +51,10 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 - ``PrintScreenAnalyticsTracker``
 - ``NoOpScreenAnalyticsTracker``
 
+### Placeholder styling
+
+- ``ScreenStatePlaceholderStyle``
+
 ### SwiftUI
 
 - ``ScreenStateView``
