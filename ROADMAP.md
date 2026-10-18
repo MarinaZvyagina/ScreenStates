@@ -64,7 +64,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add a skeleton/shimmer-style Loading placeholder as an alternative opt-in built-in style.
 - [x] Add an environment-based configuration point (tint/typography) so an app can theme the built-in placeholders globally instead of passing custom views at every call site.
 - [x] Add a `redacted(reason: .placeholder)`-based Loading content option as an alternative to the spinner, mirroring the shape of the real content.
-- [ ] Add a DocC "Styling" article documenting the built-in style variants and the theming configuration point.
+- [x] Add a DocC "Styling" article documenting the built-in style variants and the theming configuration point.
 
 ## Week 9 — Testing & tooling maturity
 
