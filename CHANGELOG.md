@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.48.0]
+
+- Add a CI job matrix testing against the last two GA Xcode versions
+  installed on the runner, alongside the existing default-Xcode `test`
+  job — a real, blocking check, unlike the `continue-on-error` Xcode
+  beta canary. Catches a regression that only shows up on an older
+  still-supported Xcode before a new major Xcode ships. See
+  `CONTRIBUTING.md`. No source or API changes.
+
 ## [1.47.0]
 
 - Add a "Styling" DocC article covering the `.compact` placeholder

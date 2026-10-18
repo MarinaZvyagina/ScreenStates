@@ -98,3 +98,42 @@ jobs:
           xcodebuild test \
             -scheme ScreenStates \
             -destination "platform=iOS Simulator,id=$UDID"
+
+  # Guards against a regression that only shows up on an older (but still
+  # supported) Xcode — the runner image's default `xcode-select` is
+  # whatever's newest, same as `test` above, so this exists specifically
+  # to also cover the one before it. Unlike test-xcode-beta, this blocks
+  # merging: these are both still-supported GA releases, not a preview.
+  test-xcode-matrix:
+    name: Test on iOS Simulator (last two Xcode versions)
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [0, 1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Select Xcode version
+        run: |
+          set -euo pipefail
+          VERSIONS=($(ls -d /Applications/Xcode*.app | grep -v beta | sort -Vr))
+          if [ "${{ matrix.index }}" -ge "${#VERSIONS[@]}" ]; then
+            echo "Only ${#VERSIONS[@]} GA Xcode version(s) installed on this runner; skipping index ${{ matrix.index }}."
+            exit 0
+          fi
+          SELECTED="${VERSIONS[${{ matrix.index }}]}"
+          echo "Selecting $SELECTED"
+          sudo xcode-select -s "$SELECTED/Contents/Developer"
+          xcodebuild -version
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | test("iPhone"))][0].udid')
+          echo "Using simulator $UDID"
+          xcodebuild test \
+            -scheme ScreenStates \
+            -destination "platform=iOS Simulator,id=$UDID"
