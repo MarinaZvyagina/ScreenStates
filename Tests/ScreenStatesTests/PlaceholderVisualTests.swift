@@ -264,6 +264,23 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(image))
     }
 
+    @Test("ScreenStatesTheme.standard has no overrides")
+    func themeStandardHasNoOverrides() {
+        #expect(ScreenStatesTheme.standard == ScreenStatesTheme())
+        #expect(ScreenStatesTheme.standard.tint == nil)
+        #expect(ScreenStatesTheme.standard.titleFont == nil)
+        #expect(ScreenStatesTheme.standard.messageFont == nil)
+    }
+
+    @Test("ScreenStateDefaultLoadingView uses the theme's tint instead of its gradient, when set")
+    func loadingViewUsesThemeTint() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultLoadingView().screenStatesTheme(ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0))),
+            size: CGSize(width: 120, height: 120)
+        )
+        #expect(containsPixelMatching(image, target: (0, 255, 0)))
+    }
+
     @Test("ScreenStateDefaultEmptyView renders a colorful gradient icon, not a plain gray one")
     func emptyViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultEmptyView(), size: CGSize(width: 300, height: 300))
@@ -279,10 +296,50 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(image))
     }
 
+    @Test("ScreenStateDefaultEmptyView uses the theme's tint instead of its gradient, when set")
+    func emptyViewUsesThemeTint() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultEmptyView().screenStatesTheme(ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0))),
+            size: CGSize(width: 300, height: 300)
+        )
+        #expect(containsPixelMatching(image, target: (0, 255, 0)))
+    }
+
+    @Test("ScreenStateDefaultEmptyView still renders when a theme titleFont is set")
+    func emptyViewRendersWithThemeFont() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultEmptyView().screenStatesTheme(ScreenStatesTheme(titleFont: .largeTitle)),
+            size: CGSize(width: 300, height: 300)
+        )
+        #expect(containsSaturatedColor(image))
+    }
+
     @Test("ScreenStateDefaultErrorView renders a colorful gradient icon, not a plain gray one")
     func errorViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultErrorView(error: SampleError()), size: CGSize(width: 300, height: 300))
         #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView uses the theme's tint instead of its gradient, when set")
+    func errorViewUsesThemeTint() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError())
+                .screenStatesTheme(ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0))),
+            size: CGSize(width: 300, height: 300)
+        )
+        #expect(containsPixelMatching(image, target: (0, 255, 0)))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders when a theme messageFont is set")
+    func errorViewRendersWithThemeFont() {
+        // Fixed width only (as in the largest-Dynamic-Type-size test
+        // above): a `.largeTitle` description can grow tall enough that a
+        // fixed height would clip the icon out of the captured frame.
+        let renderer = ImageRenderer(content: ScreenStateDefaultErrorView(error: SampleError())
+            .screenStatesTheme(ScreenStatesTheme(messageFont: .largeTitle))
+            .frame(width: 400))
+        renderer.scale = 2
+        #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
 
     @Test("ScreenStateDefaultEmptyView still renders its colorful icon in the .compact style, sized for a card rather than a whole screen")
@@ -323,6 +380,19 @@ struct PlaceholderVisualTests {
     func shimmerLoadingViewRendersAtLargestDynamicTypeSize() {
         let image = snapshotImage(
             of: ScreenStateShimmerLoadingView().dynamicTypeSize(.accessibility5),
+            size: CGSize(width: 240, height: 80)
+        )
+        #expect(containsNonTransparentPixel(image))
+    }
+
+    @Test("ScreenStateShimmerLoadingView still renders its skeleton shapes when a theme tint is set")
+    func shimmerLoadingViewRendersWithThemeTint() {
+        // The skeleton fill is intentionally translucent (`tint.opacity(_:)`),
+        // so this checks the tinted code path doesn't crash or blank the
+        // render rather than color-matching a premultiplied, partially
+        // transparent pixel.
+        let image = snapshotImage(
+            of: ScreenStateShimmerLoadingView().screenStatesTheme(ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0))),
             size: CGSize(width: 240, height: 80)
         )
         #expect(containsNonTransparentPixel(image))
@@ -425,6 +495,41 @@ private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -
         let g = CGFloat(pixels[pixelIndex + 1])
         let b = CGFloat(pixels[pixelIndex + 2])
         if max(r, g, b) - min(r, g, b) > threshold {
+            return true
+        }
+    }
+    return false
+}
+
+/// `true` if any sufficiently opaque pixel in `image` is close to `target`
+/// (each channel within `tolerance`) — used to verify a theme's solid
+/// `tint` actually replaces the default gradient, rather than just
+/// checking for "some colorful pixel" the way `containsSaturatedColor`
+/// does (which a still-gradient render would also satisfy).
+private func containsPixelMatching(_ image: UIImage, target: (r: CGFloat, g: CGFloat, b: CGFloat), tolerance: CGFloat = 30) -> Bool {
+    guard let cgImage = image.cgImage else { return false }
+    let width = cgImage.width
+    let height = cgImage.height
+    guard width > 0, height > 0 else { return false }
+
+    var pixels = [UInt8](repeating: 0, count: width * height * 4)
+    guard let context = CGContext(
+        data: &pixels,
+        width: width,
+        height: height,
+        bitsPerComponent: 8,
+        bytesPerRow: width * 4,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    ) else { return false }
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+    for pixelIndex in stride(from: 0, to: pixels.count, by: 4) {
+        guard pixels[pixelIndex + 3] > 200 else { continue }
+        let r = CGFloat(pixels[pixelIndex])
+        let g = CGFloat(pixels[pixelIndex + 1])
+        let b = CGFloat(pixels[pixelIndex + 2])
+        if abs(r - target.r) < tolerance, abs(g - target.g) < tolerance, abs(b - target.b) < tolerance {
             return true
         }
     }

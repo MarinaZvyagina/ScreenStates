@@ -11,6 +11,7 @@ public struct ScreenStateShimmerLoadingView: View {
     @State private var isPulsing = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.screenStatesTheme) private var theme
 
     public init() {}
 
@@ -41,7 +42,13 @@ public struct ScreenStateShimmerLoadingView: View {
     }
 
     private var fillStyle: Color {
-        colorSchemeContrast == .increased ? .secondary.opacity(0.6) : .secondary.opacity(0.3)
+        if colorSchemeContrast == .increased {
+            return .secondary.opacity(0.6)
+        }
+        if let tint = theme.tint {
+            return tint.opacity(0.35)
+        }
+        return .secondary.opacity(0.3)
     }
 }
 #endif

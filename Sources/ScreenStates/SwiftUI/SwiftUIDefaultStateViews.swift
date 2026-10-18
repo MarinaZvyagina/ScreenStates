@@ -42,18 +42,27 @@ public struct ScreenStateDefaultLoadingView: View {
     @State private var isRotating = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.screenStatesTheme) private var theme
 
     public init(style: ScreenStatePlaceholderStyle = .standard) {
         self.style = style
+    }
+
+    private var strokeStyle: AnyShapeStyle {
+        if colorSchemeContrast == .increased {
+            return AnyShapeStyle(Color.primary)
+        }
+        if let tint = theme.tint {
+            return AnyShapeStyle(tint)
+        }
+        return AnyShapeStyle(AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center))
     }
 
     public var body: some View {
         Circle()
             .trim(from: 0, to: 0.75)
             .stroke(
-                colorSchemeContrast == .increased
-                    ? AnyShapeStyle(Color.primary)
-                    : AnyShapeStyle(AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center)),
+                strokeStyle,
                 style: StrokeStyle(lineWidth: ScreenStatesMetrics.spinnerLineWidth, lineCap: .round)
             )
             .frame(width: ScreenStatesMetrics.spinnerSize(for: style), height: ScreenStatesMetrics.spinnerSize(for: style))
@@ -81,6 +90,7 @@ public struct ScreenStateDefaultEmptyView: View {
     private let systemImage: String
     private let style: ScreenStatePlaceholderStyle
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.screenStatesTheme) private var theme
     #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     #endif
@@ -132,21 +142,23 @@ public struct ScreenStateDefaultEmptyView: View {
     private func icon(size: CGFloat) -> some View {
         Image(systemName: systemImage)
             .font(.system(size: size))
-            .foregroundStyle(
-                colorSchemeContrast == .increased
-                    ? AnyShapeStyle(Color.primary)
-                    : AnyShapeStyle(LinearGradient(
-                        colors: [.pink, .orange, .yellow],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-            )
+            .foregroundStyle(fillStyle)
+    }
+
+    private var fillStyle: AnyShapeStyle {
+        if colorSchemeContrast == .increased {
+            return AnyShapeStyle(Color.primary)
+        }
+        if let tint = theme.tint {
+            return AnyShapeStyle(tint)
+        }
+        return AnyShapeStyle(LinearGradient(colors: [.pink, .orange, .yellow], startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 
     private var content: some View {
         ContentUnavailableView {
             Label {
-                Text(title)
+                Text(title).font(theme.titleFont)
             } icon: {
                 icon(size: ScreenStatesMetrics.iconSize)
             }
@@ -157,7 +169,7 @@ public struct ScreenStateDefaultEmptyView: View {
         HStack(spacing: 16) {
             icon(size: ScreenStatesMetrics.iconSize)
             Text(title)
-                .font(.headline)
+                .font(theme.titleFont ?? .headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 24)
@@ -171,7 +183,7 @@ public struct ScreenStateDefaultEmptyView: View {
         VStack(spacing: 8) {
             icon(size: ScreenStatesMetrics.iconSize(for: .compact))
             Text(title)
-                .font(.footnote)
+                .font(theme.titleFont ?? .footnote)
                 .foregroundStyle(.secondary)
         }
         .padding(12)
@@ -185,6 +197,7 @@ public struct ScreenStateDefaultErrorView: View {
     private let onRetry: (() -> Void)?
     private let style: ScreenStatePlaceholderStyle
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.screenStatesTheme) private var theme
     #if os(iOS)
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     #endif
@@ -241,15 +254,17 @@ public struct ScreenStateDefaultErrorView: View {
     private func icon(size: CGFloat) -> some View {
         Image(systemName: "exclamationmark.triangle.fill")
             .font(.system(size: size))
-            .foregroundStyle(
-                colorSchemeContrast == .increased
-                    ? AnyShapeStyle(Color.primary)
-                    : AnyShapeStyle(LinearGradient(
-                        colors: [.red, .orange],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-            )
+            .foregroundStyle(fillStyle)
+    }
+
+    private var fillStyle: AnyShapeStyle {
+        if colorSchemeContrast == .increased {
+            return AnyShapeStyle(Color.primary)
+        }
+        if let tint = theme.tint {
+            return AnyShapeStyle(tint)
+        }
+        return AnyShapeStyle(LinearGradient(colors: [.red, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 
     private func retryButton(onRetry: @escaping () -> Void) -> some View {
@@ -268,12 +283,12 @@ public struct ScreenStateDefaultErrorView: View {
     private var content: some View {
         ContentUnavailableView {
             Label {
-                Text(String.screenStatesSomethingWentWrong)
+                Text(String.screenStatesSomethingWentWrong).font(theme.titleFont)
             } icon: {
                 icon(size: ScreenStatesMetrics.iconSize)
             }
         } description: {
-            Text(error.localizedDescription)
+            Text(error.localizedDescription).font(theme.messageFont)
         } actions: {
             if let onRetry {
                 retryButton(onRetry: onRetry)
@@ -289,7 +304,7 @@ public struct ScreenStateDefaultErrorView: View {
             icon(size: ScreenStatesMetrics.iconSize)
             VStack(alignment: .leading, spacing: 12) {
                 Text(error.localizedDescription)
-                    .font(.subheadline)
+                    .font(theme.messageFont ?? .subheadline)
                     .foregroundStyle(.secondary)
                 if let onRetry {
                     retryButton(onRetry: onRetry)
@@ -309,11 +324,11 @@ public struct ScreenStateDefaultErrorView: View {
             icon(size: ScreenStatesMetrics.iconSize(for: .compact))
             VStack(alignment: .leading, spacing: 6) {
                 Text(error.localizedDescription)
-                    .font(.footnote)
+                    .font(theme.messageFont ?? .footnote)
                     .foregroundStyle(.secondary)
                 if let onRetry {
                     retryButton(onRetry: onRetry)
-                        .font(.footnote)
+                        .font(theme.messageFont ?? .footnote)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

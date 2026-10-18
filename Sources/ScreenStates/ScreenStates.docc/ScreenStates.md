@@ -54,6 +54,7 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 ### Placeholder styling
 
 - ``ScreenStatePlaceholderStyle``
+- ``ScreenStatesTheme``
 
 ### SwiftUI
 

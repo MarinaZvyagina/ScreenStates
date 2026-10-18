@@ -3,6 +3,20 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.45.0]
+
+- Add `ScreenStatesTheme` and `View.screenStatesTheme(_:)`, an
+  environment-based configuration point for the default SwiftUI
+  placeholders (including `ScreenStateShimmerLoadingView`): `tint`
+  replaces the built-in gradient with a solid color, and
+  `titleFont`/`messageFont` replace the title and message/description
+  text's font, so an app can theme every default placeholder at once
+  instead of passing a custom view at every call site. Increase
+  Contrast still wins over `tint`. No UIKit equivalent — UIKit has no
+  inherited environment, so the UIKit default placeholders keep taking
+  configuration directly through their initializers. Additive API; no
+  source changes needed at existing call sites.
+
 ## [1.44.0]
 
 - Add `ScreenStateShimmerLoadingView`/`ScreenStateShimmerLoadingUIView`,

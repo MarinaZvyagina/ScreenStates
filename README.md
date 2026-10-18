@@ -59,6 +59,15 @@ The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen. The shimmer Loading placeholder swaps its low-contrast skeleton fill for a more visible gray the same way.
 
+To theme every default SwiftUI placeholder at once instead of passing a custom view at every call site, set a `ScreenStatesTheme` via `.screenStatesTheme(_:)` on a container view — every default placeholder beneath it in the hierarchy (including the shimmer Loading placeholder) picks it up:
+
+```swift
+MyScreenView()
+    .screenStatesTheme(ScreenStatesTheme(tint: .indigo, titleFont: .title2, messageFont: .callout))
+```
+
+`tint` replaces the built-in gradient with a solid color; `titleFont`/`messageFont` replace the title and message/description text's font. Any property left `nil` (the default) keeps the built-in look. Increase Contrast still wins over `tint` — it's an accessibility need, not a branding preference. There's no UIKit equivalent: UIKit has no concept of an inherited environment, so the UIKit default placeholders keep taking configuration directly through their initializers.
+
 The default Empty/Error placeholders' text scales with Dynamic Type — SwiftUI's via `ContentUnavailableView`'s own text styles, UIKit's via `UIFont.preferredFont(forTextStyle: .body, compatibleWith:)` — covered up to the largest accessibility size by snapshot tests.
 
 ## Installation — Swift Package Manager
@@ -431,6 +440,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle` |
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
 | `ScreenStateShimmerLoadingView` / `ScreenStateShimmerLoadingUIView` | Opt-in pulsing-skeleton alternative to the default spinner Loading placeholder |
+| `ScreenStatesTheme` | `tint`/`titleFont`/`messageFont` overrides for every default SwiftUI placeholder; set via `View.screenStatesTheme(_:)` |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
 | `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
