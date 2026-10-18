@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.47.0]
+
+- Add a "Styling" DocC article covering the `.compact` placeholder
+  style, the shimmer and redacted alternative Loading placeholders,
+  and `ScreenStatesTheme` in one place. Linked from the module's
+  Topics page and README's Documentation section. No source or API
+  changes.
+
 ## [1.46.0]
 
 - Add `ScreenStateRedactedLoadingView`, an opt-in Loading placeholder
