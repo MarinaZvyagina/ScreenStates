@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.46.0]
+
+- Add `ScreenStateRedactedLoadingView`, an opt-in Loading placeholder
+  that renders your real content view through SwiftUI's
+  `.redacted(reason: .placeholder)` instead of a generic spinner or
+  skeleton — so the placeholder mirrors the exact shape of the content
+  it's standing in for. No UIKit equivalent: `redacted(reason:)` is a
+  SwiftUI-only modifier. Additive, opt-in API.
+
 ## [1.45.0]
 
 - Add `ScreenStatesTheme` and `View.screenStatesTheme(_:)`, an

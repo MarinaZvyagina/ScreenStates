@@ -398,6 +398,41 @@ struct PlaceholderVisualTests {
         #expect(containsNonTransparentPixel(image))
     }
 
+    @Test("ScreenStateRedactedLoadingView renders its redacted content, not a blank view")
+    func redactedLoadingViewRendersContent() {
+        let image = snapshotImage(
+            of: ScreenStateRedactedLoadingView {
+                Text("Sample Title")
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 1, green: 0, blue: 0))
+            },
+            size: CGSize(width: 240, height: 40)
+        )
+        #expect(containsNonTransparentPixel(image))
+    }
+
+    @Test("ScreenStateRedactedLoadingView redacts its content instead of showing it as-is")
+    func redactedLoadingViewRedactsContent() {
+        // `.redacted(reason: .placeholder)` replaces text glyphs with a
+        // solid shape and desaturates custom colors, so a vivid red
+        // "loaded" rendering of the same content should not survive
+        // through the placeholder.
+        let plain = snapshotImage(
+            of: Text("Sample Title").font(.headline).foregroundStyle(Color(red: 1, green: 0, blue: 0)),
+            size: CGSize(width: 240, height: 40)
+        )
+        let redacted = snapshotImage(
+            of: ScreenStateRedactedLoadingView {
+                Text("Sample Title")
+                    .font(.headline)
+                    .foregroundStyle(Color(red: 1, green: 0, blue: 0))
+            },
+            size: CGSize(width: 240, height: 40)
+        )
+        #expect(containsPixelMatching(plain, target: (255, 0, 0), tolerance: 40))
+        #expect(!containsPixelMatching(redacted, target: (255, 0, 0), tolerance: 40))
+    }
+
     #if os(iOS)
     @Test("ScreenStateDefaultEmptyView still renders its colorful icon in a compact-height (landscape iPhone) layout")
     func emptyViewRendersInCompactHeightLayout() {

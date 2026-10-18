@@ -55,6 +55,16 @@ ScreenStateShimmerLoadingView()
 ScreenStateShimmerLoadingUIView()
 ```
 
+For a Loading placeholder that mirrors the exact shape of the real content instead of a generic spinner or skeleton, `ScreenStateRedactedLoadingView` renders whatever view you give it through SwiftUI's `.redacted(reason: .placeholder)`:
+
+```swift
+ScreenStateRedactedLoadingView {
+    ArticleRow(article: .placeholder)
+}
+```
+
+No UIKit equivalent — `redacted(reason:)` is a SwiftUI-only modifier.
+
 The default Loading placeholder's spin animation respects Reduce Motion (SwiftUI's `accessibilityReduceMotion` environment value, UIKit's `UIAccessibility.isReduceMotionEnabled`) — the ring stays static instead of spinning, and the UIKit version responds immediately if Reduce Motion is toggled while it's already on screen. The shimmer Loading placeholder respects it the same way — its pulse stops instead of animating.
 
 All three default placeholders' gradient icons/ring also respect Increase Contrast (SwiftUI's `colorSchemeContrast` environment value, UIKit's `UIAccessibility.isDarkerSystemColorsEnabled`) — they fall back to a solid `.label`/`.primary` tint instead of a gradient, and the UIKit versions respond immediately if Increase Contrast is toggled while already on screen. The shimmer Loading placeholder swaps its low-contrast skeleton fill for a more visible gray the same way.
@@ -441,6 +451,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
 | `ScreenStateShimmerLoadingView` / `ScreenStateShimmerLoadingUIView` | Opt-in pulsing-skeleton alternative to the default spinner Loading placeholder |
 | `ScreenStatesTheme` | `tint`/`titleFont`/`messageFont` overrides for every default SwiftUI placeholder; set via `View.screenStatesTheme(_:)` |
+| `ScreenStateRedactedLoadingView` | Opt-in Loading placeholder that redacts your real content view (`.redacted(reason: .placeholder)`) instead of showing a generic spinner/skeleton |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
 | `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |

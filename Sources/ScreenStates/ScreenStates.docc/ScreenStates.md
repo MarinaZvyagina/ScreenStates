@@ -63,6 +63,7 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 - ``ScreenStateDefaultLoadingView``
 - ``ScreenStateDefaultErrorView``
 - ``ScreenStateShimmerLoadingView``
+- ``ScreenStateRedactedLoadingView``
 
 ### UIKit
 
