@@ -1,4 +1,5 @@
 import Foundation
+import Observation
 import Testing
 @testable import ScreenStates
 
@@ -339,6 +340,46 @@ struct ScreenStateStoreTests {
 
         store.setLoading()
         #expect(store.state.isLoading)
+    }
+
+    @Test("setData(_:) with an unchanged Equatable payload doesn't trigger a redundant @Observable invalidation")
+    func setDataSkipsRedundantInvalidation() {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+
+        // `onChange` is `@Sendable`; this test drives it synchronously on
+        // the same task that reads `didChange` below, so there's no real
+        // concurrent access for `nonisolated(unsafe)` to paper over.
+        nonisolated(unsafe) var didChange = false
+        withObservationTracking {
+            _ = store.state
+        } onChange: {
+            didChange = true
+        }
+
+        store.setData(1)
+        #expect(!didChange)
+        #expect(store.state.value == 1)
+    }
+
+    @Test("setData(_:) with a changed Equatable payload still invalidates")
+    func setDataInvalidatesOnRealChange() {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+
+        // `onChange` is `@Sendable`; this test drives it synchronously on
+        // the same task that reads `didChange` below, so there's no real
+        // concurrent access for `nonisolated(unsafe)` to paper over.
+        nonisolated(unsafe) var didChange = false
+        withObservationTracking {
+            _ = store.state
+        } onChange: {
+            didChange = true
+        }
+
+        store.setData(2)
+        #expect(didChange)
+        #expect(store.state.value == 2)
     }
 
     @Test("reset(to:) defaults to .loading")

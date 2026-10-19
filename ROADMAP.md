@@ -70,7 +70,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 - [x] Add a CI matrix running the test suite against the last two Xcode versions, to catch regressions before a new major Xcode ships.
 - [x] Add a `swift-format` (or SwiftLint) config plus a CI lint step, to keep style consistent across contributions.
-- [ ] Add a regression test asserting `ScreenStateStore.setData(_:)` with an unchanged, `Equatable` payload doesn't trigger a redundant `@Observable` invalidation.
+- [x] Add a regression test asserting `ScreenStateStore.setData(_:)` with an unchanged, `Equatable` payload doesn't trigger a redundant `@Observable` invalidation.
 - [ ] Add an XCUITest that drives the Demo app through all four states end-to-end, catching integration regressions the unit suite can't.
 - [ ] Add tests locking in `ScreenState.map`/`flatMap`'s composition laws (identity, associativity) so future changes can't quietly break their semantics.
 

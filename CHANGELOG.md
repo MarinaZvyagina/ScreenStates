@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.50.0]
+
+- `ScreenStateStore.setData(_:)` now skips reassigning `state` when
+  `Value: Equatable` and the new value equals the current `.data`
+  payload, avoiding a redundant `@Observable` invalidation (and the
+  unnecessary re-render that comes with it). Additive, conditional
+  overload — existing `setData(_:)` call sites where `Value` isn't
+  `Equatable` are unaffected.
+
 ## [1.49.0]
 
 - Add a `.swift-format` config and a blocking CI lint step

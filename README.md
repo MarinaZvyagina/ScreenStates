@@ -134,7 +134,7 @@ await store.loadCollection {
 }
 ```
 
-You can also drive the state manually with `setLoading()`, `setEmpty()`, `setData(_:)`, and `setError(_:)`.
+You can also drive the state manually with `setLoading()`, `setEmpty()`, `setData(_:)`, and `setError(_:)`. When `Value: Equatable`, `setData(_:)` skips reassigning `state` entirely if the new value equals the current `.data` payload — `@Observable` invalidates observers on every write to a tracked property regardless of whether anything actually changed, so this avoids an unnecessary re-render when, say, a duplicate notification hands you data you already have.
 
 ### Transforming the wrapped value
 
@@ -440,7 +440,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | Type | Purpose |
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)` helpers |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)`, `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |

@@ -206,6 +206,9 @@ public final class ScreenStateStore<Value> {
         state = .empty
     }
 
+    /// When `Value: Equatable`, a conditional overload below skips this
+    /// assignment entirely if `value` equals the current `.data` payload,
+    /// avoiding a redundant `@Observable` invalidation.
     public func setData(_ value: Value) {
         state = .data(value)
     }
@@ -361,5 +364,18 @@ extension ScreenStateStore where Value: Collection {
         }
         currentTask = task
         await task.value
+    }
+}
+
+extension ScreenStateStore where Value: Equatable {
+    /// Skips reassigning `state` entirely when `value` equals the current
+    /// `.data` payload — `@Observable` invalidates observers on every
+    /// write to a tracked property regardless of whether the new value is
+    /// actually different, so an app that calls `setData(_:)` with data
+    /// it already has (e.g. from a duplicate notification) would
+    /// otherwise trigger an unnecessary re-render for no visible change.
+    public func setData(_ value: Value) {
+        if case .data(let current) = state, current == value { return }
+        state = .data(value)
     }
 }
