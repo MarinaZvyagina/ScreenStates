@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.51.0]
+
+- Add tests locking in `ScreenState.map`/`flatMap`'s functor/monad
+  composition laws (identity, associativity) across all four cases,
+  so a future change can't quietly break their semantics. No source
+  or API changes — `map`/`flatMap` already satisfied these laws.
+
 ## [1.50.0]
 
 - `ScreenStateStore.setData(_:)` now skips reassigning `state` when

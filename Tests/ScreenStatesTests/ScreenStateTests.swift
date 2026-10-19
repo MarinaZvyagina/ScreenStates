@@ -78,6 +78,50 @@ struct ScreenStateTests {
         let error = SampleError()
         #expect(ScreenState<[Int]>.error(error).flatMap { .data($0.count) }.error is SampleError)
     }
+
+    private static let representativeStates: [ScreenState<Int>] = [.data(2), .empty, .loading, .error(SampleError())]
+
+    @Test(
+        "map(_:) obeys the functor identity law: mapping with the identity function changes nothing",
+        arguments: representativeStates
+    )
+    func mapIdentityLaw(state: ScreenState<Int>) {
+        #expect(state.map { $0 } == state)
+    }
+
+    @Test(
+        "map(_:) obeys the functor composition law: mapping with f then g equals mapping with g after f, in one step",
+        arguments: representativeStates
+    )
+    func mapCompositionLaw(state: ScreenState<Int>) {
+        let f = { (value: Int) in value * 2 }
+        let g = { (value: Int) in value + 1 }
+        #expect(state.map(f).map(g) == state.map { g(f($0)) })
+    }
+
+    @Test(
+        "flatMap(_:) obeys the monad right-identity law: flatMapping into .data($0) changes nothing",
+        arguments: representativeStates
+    )
+    func flatMapRightIdentityLaw(state: ScreenState<Int>) {
+        #expect(state.flatMap { .data($0) } == state)
+    }
+
+    @Test("flatMap(_:) obeys the monad left-identity law: .data(value).flatMap(f) equals f(value)")
+    func flatMapLeftIdentityLaw() {
+        let f = { (value: Int) in ScreenState<Int>.data(value * 2) }
+        #expect(ScreenState.data(5).flatMap(f) == f(5))
+    }
+
+    @Test(
+        "flatMap(_:) obeys the monad associativity law: flatMapping with f then g equals flatMapping with a combined transform, in one step",
+        arguments: representativeStates
+    )
+    func flatMapAssociativityLaw(state: ScreenState<Int>) {
+        let f = { (value: Int) in ScreenState<Int>.data(value * 2) }
+        let g = { (value: Int) in value.isMultiple(of: 4) ? ScreenState<Int>.data(value + 1) : .empty }
+        #expect(state.flatMap(f).flatMap(g) == state.flatMap { f($0).flatMap(g) })
+    }
 }
 
 @Suite("ScreenStateStore")
