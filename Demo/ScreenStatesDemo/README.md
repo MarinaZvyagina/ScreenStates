@@ -30,6 +30,27 @@ scheme on any iOS 17+ simulator or device. It depends on the `ScreenStates`
 package one directory up via a local Swift Package reference — no external
 dependencies to fetch.
 
+## UI tests
+
+`ScreenStatesDemoUITests` drives the real, built app through all four
+`ScreenState` cases — an integration-level check the package's own unit
+suite can't give you, since that suite never assembles `ScreenStateStore`
+and the default placeholders into a real screen inside a real app. It
+rides the Rey tab's real auto-cycle rather than forcing a state, polling
+for all four to occur at least once within one generous window instead of
+assuming a strict order (launch/warm-up time before the test starts
+polling is real but unpredictable). Run it as part of the `ScreenStatesDemo`
+scheme's test action:
+
+```sh
+UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | test("iPhone"))][0].udid')
+xcodebuild test -project ScreenStatesDemo.xcodeproj -scheme ScreenStatesDemo -destination "platform=iOS Simulator,id=$UDID"
+```
+
+Launching with the `-UITesting` argument (which the test does for you)
+disables the app's own hands-off auto-tab-switching, so the test isn't
+carried away from the tab it's watching mid-cycle.
+
 ## Regenerating the project
 
 The `.xcodeproj` is checked in for convenience, but it's generated from

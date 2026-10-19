@@ -3,6 +3,18 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.52.0]
+
+- Add `ScreenStatesDemoUITests`, an XCUITest driving the Demo app's
+  Rey tab through its real auto-cycle, asserting all four `ScreenState`
+  cases occur — an integration-level check the package's own unit
+  suite can't give, since it never assembles `ScreenStateStore` and
+  the default placeholders into a real screen inside a real app.
+  `ScreenStatesDemoApp` gained a `-UITesting` launch-argument check
+  that disables its own hands-off auto-tab-switching, so the test
+  isn't carried away from the tab it's watching. Demo-only; no
+  package source or API changes. See `Demo/ScreenStatesDemo/README.md`.
+
 ## [1.51.0]
 
 - Add tests locking in `ScreenState.map`/`flatMap`'s functor/monad

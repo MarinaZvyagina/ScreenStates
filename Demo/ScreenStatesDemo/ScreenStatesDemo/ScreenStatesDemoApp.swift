@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 /// Two screens, two paradigms: "Rey Skywalker" is built with SwiftUI's
@@ -27,6 +28,11 @@ struct ScreenStatesDemoApp: App {
     }
 
     private func autoSwitchTabs() async {
+        // Off under ScreenStatesDemoUITests (`-UITesting` launch argument):
+        // it would otherwise switch away from whichever tab the test is
+        // watching every 6 seconds, fighting the test rather than the
+        // state cycle it's actually trying to observe.
+        guard !ProcessInfo.processInfo.arguments.contains("UITesting") else { return }
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(6))
             selection = selection == 0 ? 1 : 0

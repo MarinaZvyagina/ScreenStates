@@ -29,3 +29,25 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
+
+  ScreenStatesDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: ScreenStatesDemoUITests
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: ScreenStatesDemo
+
+schemes:
+  ScreenStatesDemo:
+    build:
+      targets:
+        ScreenStatesDemo: all
+        ScreenStatesDemoUITests: [test]
+    test:
+      targets:
+        - ScreenStatesDemoUITests
