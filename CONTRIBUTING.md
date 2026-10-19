@@ -19,6 +19,16 @@ CI also runs the same suite against the last two GA Xcode versions installed on 
 
 The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKit-only file is guarded with `#if canImport(UIKit) && !os(watchOS)`, so a code review plus the two builds above is enough to verify platform correctness without installing every additional simulator runtime.
 
+## Style
+
+CI runs `swift format lint` (bundled with the Swift 6 toolchain — nothing extra to install) against `.swift-format`'s project config, as a blocking check. Run it yourself before opening a PR:
+
+```bash
+swift format lint --configuration .swift-format --recursive --strict Sources Tests
+```
+
+`swift format format --configuration .swift-format -i --recursive Sources Tests` auto-fixes most findings. A couple of spots wrap a single `.modifier()` mid-chain in `#if`/`#endif` (not a whole statement) — the formatter misindents those, so they're marked `// swift-format-ignore` and keep their hand-written indentation; leave that comment in place if you touch one.
+
 ## Making a change
 
 - Keep commits small and scoped to one change. Follow the existing `feat:`/`fix:`/`docs:`/`ci:`/`test:` prefix style — see `git log` for examples.

@@ -267,6 +267,12 @@ public struct ScreenStateDefaultErrorView: View {
         return AnyShapeStyle(LinearGradient(colors: [.red, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
     }
 
+    // swift-format-ignore
+    // The #if/#endif here wrap a single modifier mid-chain, not a whole
+    // statement — swift-format's indentConditionalCompilationBlocks: false
+    // (set repo-wide so file-scope `#if canImport(...)` wrappers don't get
+    // needlessly indented) misapplies to this case too and would de-indent
+    // `.hoverEffect` out of alignment with the rest of the chain.
     private func retryButton(onRetry: @escaping () -> Void) -> some View {
         Button(String.screenStatesRetry, action: onRetry)
             .accessibilityIdentifier("screenStates.error.retryButton")
@@ -280,6 +286,9 @@ public struct ScreenStateDefaultErrorView: View {
             #endif
     }
 
+    // swift-format-ignore
+    // Same reason as retryButton(onRetry:) above: the #if/#endif inside
+    // `actions:` wrap a single modifier mid-chain.
     private var content: some View {
         ContentUnavailableView {
             Label {

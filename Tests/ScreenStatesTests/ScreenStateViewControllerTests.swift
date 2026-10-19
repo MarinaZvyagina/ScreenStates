@@ -20,7 +20,7 @@ struct ScreenStateViewControllerTests {
             return UIView()
         }
 
-        _ = viewController.view // triggers viewDidLoad()
+        _ = viewController.view  // triggers viewDidLoad()
 
         #expect(viewController.view.subviews.count == 1)
         #expect(receivedValue == 42)

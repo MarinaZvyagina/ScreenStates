@@ -18,11 +18,12 @@ struct ScreenAnalyticsEventTests {
     func screenStateChanged() {
         let withoutError = ScreenAnalyticsEvent.screenStateChanged(screen: "Articles", from: "loading", to: "data")
         #expect(withoutError.name == "screen_state_changed")
-        #expect(withoutError.parameters == [
-            "screen": .string("Articles"),
-            "from": .string("loading"),
-            "to": .string("data")
-        ])
+        #expect(
+            withoutError.parameters == [
+                "screen": .string("Articles"),
+                "from": .string("loading"),
+                "to": .string("data"),
+            ])
 
         let withError = ScreenAnalyticsEvent.screenStateChanged(
             screen: "Articles",
@@ -147,7 +148,7 @@ struct ScreenLoadDurationTests {
         for (transition, outcome) in [
             ({ (store: ScreenStateStore<Int>) in store.setData(1) }, "data"),
             ({ (store: ScreenStateStore<Int>) in store.setEmpty() }, "empty"),
-            ({ (store: ScreenStateStore<Int>) in store.setError(SampleError()) }, "error")
+            ({ (store: ScreenStateStore<Int>) in store.setError(SampleError()) }, "error"),
         ] {
             let store = ScreenStateStore<Int>(.empty)
             let spy = SpyTracker()
@@ -190,7 +191,7 @@ struct ScreenLoadDurationTests {
 
     @Test("observing a store that's already .loading tracks the duration of its first resolution")
     func loadDurationWhenAlreadyLoadingBeforeObserving() async {
-        let store = ScreenStateStore<Int>() // defaults to .loading
+        let store = ScreenStateStore<Int>()  // defaults to .loading
         let spy = SpyTracker()
         let service = ScreenAnalyticsService(trackers: [spy])
         service.observeStateChanges(of: store, screen: "Test")

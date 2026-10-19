@@ -75,7 +75,7 @@ public final class ScreenStateShimmerLoadingUIView: UIView {
             skeletonStack.centerXAnchor.constraint(equalTo: centerXAnchor),
             skeletonStack.centerYAnchor.constraint(equalTo: centerYAnchor),
             skeletonStack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 24),
-            skeletonStack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24)
+            skeletonStack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -24),
         ])
 
         updateFillColor()

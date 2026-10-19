@@ -1,0 +1,13 @@
+{
+  "version" : 1,
+  "indentConditionalCompilationBlocks" : false,
+  "indentation" : {
+    "spaces" : 4
+  },
+  "lineLength" : 160,
+  "rules" : {
+    "AllPublicDeclarationsHaveDocumentation" : false,
+    "DontRepeatTypeInStaticProperties" : false,
+    "NoBlockComments" : false
+  }
+}

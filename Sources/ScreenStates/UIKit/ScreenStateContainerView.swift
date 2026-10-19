@@ -103,7 +103,7 @@ public final class ScreenStateContainerView<Value>: UIView {
             viewToShow.topAnchor.constraint(equalTo: topAnchor),
             viewToShow.bottomAnchor.constraint(equalTo: bottomAnchor),
             viewToShow.leadingAnchor.constraint(equalTo: leadingAnchor),
-            viewToShow.trailingAnchor.constraint(equalTo: trailingAnchor)
+            viewToShow.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
 
         #if os(tvOS)

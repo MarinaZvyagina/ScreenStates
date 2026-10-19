@@ -45,11 +45,13 @@ private func gradientTintedImage(_ image: UIImage, colors: [UIColor], startPoint
     return renderer.image { context in
         image.draw(at: .zero)
         context.cgContext.setBlendMode(.sourceIn)
-        guard let gradient = CGGradient(
-            colorsSpace: CGColorSpaceCreateDeviceRGB(),
-            colors: colors.map(\.cgColor) as CFArray,
-            locations: nil
-        ) else { return }
+        guard
+            let gradient = CGGradient(
+                colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                colors: colors.map(\.cgColor) as CFArray,
+                locations: nil
+            )
+        else { return }
         context.cgContext.drawLinearGradient(
             gradient,
             start: CGPoint(x: startPoint.x * image.size.width, y: startPoint.y * image.size.height),
@@ -117,7 +119,7 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
             gradientRing.centerXAnchor.constraint(equalTo: centerXAnchor),
             gradientRing.centerYAnchor.constraint(equalTo: centerYAnchor),
             gradientRing.widthAnchor.constraint(equalToConstant: spinnerSize),
-            gradientRing.heightAnchor.constraint(equalToConstant: spinnerSize)
+            gradientRing.heightAnchor.constraint(equalToConstant: spinnerSize),
         ])
 
         updateRotation()
@@ -171,13 +173,14 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
     /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
     /// system setting that can't be toggled in a test environment.
     func updateGradientColors(isDarkerSystemColorsEnabled: Bool) {
-        gradientRing.gradientLayer.colors = isDarkerSystemColorsEnabled
+        gradientRing.gradientLayer.colors =
+            isDarkerSystemColorsEnabled
             ? [UIColor.label.cgColor, UIColor.label.cgColor]
             : [
                 UIColor.systemPink.cgColor,
                 UIColor.systemOrange.cgColor,
                 UIColor.systemYellow.cgColor,
-                UIColor.systemPink.cgColor
+                UIColor.systemPink.cgColor,
             ]
     }
 
@@ -185,13 +188,14 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         super.layoutSubviews()
         let bounds = gradientRing.bounds
         ringMask.frame = bounds
-        ringMask.path = UIBezierPath(
-            arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
-            radius: min(bounds.width, bounds.height) / 2 - ringMask.lineWidth / 2,
-            startAngle: -.pi / 2,
-            endAngle: 1.5 * .pi,
-            clockwise: true
-        ).cgPath
+        ringMask.path =
+            UIBezierPath(
+                arcCenter: CGPoint(x: bounds.midX, y: bounds.midY),
+                radius: min(bounds.width, bounds.height) / 2 - ringMask.lineWidth / 2,
+                startAngle: -.pi / 2,
+                endAngle: 1.5 * .pi,
+                clockwise: true
+            ).cgPath
     }
 
     public override func didMoveToWindow() {
@@ -279,7 +283,7 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: margin),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin)
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin),
         ])
     }
 
@@ -324,7 +328,8 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     /// system setting that can't be toggled in a test environment.
     func updateIcon(isDarkerSystemColorsEnabled: Bool) {
         guard let symbol else { return }
-        iconView.image = isDarkerSystemColorsEnabled
+        iconView.image =
+            isDarkerSystemColorsEnabled
             ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
             : gradientTintedImage(
                 symbol,
@@ -461,7 +466,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
             stack.centerXAnchor.constraint(equalTo: centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: centerYAnchor),
             stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: margin),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin)
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -margin),
         ])
     }
 
@@ -506,7 +511,8 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     /// system setting that can't be toggled in a test environment.
     func updateIcon(isDarkerSystemColorsEnabled: Bool) {
         guard let symbol else { return }
-        iconView.image = isDarkerSystemColorsEnabled
+        iconView.image =
+            isDarkerSystemColorsEnabled
             ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
             : gradientTintedImage(
                 symbol,

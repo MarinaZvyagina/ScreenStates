@@ -135,7 +135,7 @@ struct ScreenStateStoreTests {
         #expect(store.state.isLoading)
 
         store.cancel()
-        await gate.open() // let `operation` resolve anyway, as if unaware of the cancellation
+        await gate.open()  // let `operation` resolve anyway, as if unaware of the cancellation
         await task.value
 
         #expect(store.state.isLoading)
@@ -266,10 +266,13 @@ struct ScreenStateStoreTests {
         var backoffAttempts: [Int] = []
         let counter = AttemptCounter()
 
-        await store.loadWithRetry(maxAttempts: 3, backoff: { attempt in
-            backoffAttempts.append(attempt)
-            return .zero
-        }) {
+        await store.loadWithRetry(
+            maxAttempts: 3,
+            backoff: { attempt in
+                backoffAttempts.append(attempt)
+                return .zero
+            }
+        ) {
             if await counter.next() < 3 { throw SampleError() }
             return 1
         }
@@ -620,7 +623,7 @@ struct ScreenOpenSourceTests {
             .push(from: .home),
             .push(from: .home),
             .pop(from: .home),
-            .tabSelection
+            .tabSelection,
         ]
         #expect(sources.count == 3)
     }

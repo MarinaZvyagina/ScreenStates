@@ -303,7 +303,7 @@ public final class ScreenStateStore<Value> {
                     do {
                         try await Task.sleep(for: backoff(attempt))
                     } catch {
-                        return // cancelled while waiting -- leave state as-is
+                        return  // cancelled while waiting -- leave state as-is
                     }
                     guard !Task.isCancelled, self.isCurrent(token) else { return }
                     attempt += 1

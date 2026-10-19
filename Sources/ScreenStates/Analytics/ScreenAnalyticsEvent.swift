@@ -38,7 +38,7 @@ extension ScreenAnalyticsEvent {
         var parameters: [String: AnalyticsValue] = [
             "screen": .string(screen),
             "from": .string(from),
-            "to": .string(to)
+            "to": .string(to),
         ]
         if let errorDescription {
             parameters["error"] = .string(errorDescription)
@@ -54,11 +54,13 @@ extension ScreenAnalyticsEvent {
         outcome: String,
         milliseconds: Int
     ) -> ScreenAnalyticsEvent {
-        ScreenAnalyticsEvent(name: "screen_load_duration", parameters: [
-            "screen": .string(screen),
-            "outcome": .string(outcome),
-            "duration_ms": .int(milliseconds)
-        ])
+        ScreenAnalyticsEvent(
+            name: "screen_load_duration",
+            parameters: [
+                "screen": .string(screen),
+                "outcome": .string(outcome),
+                "duration_ms": .int(milliseconds),
+            ])
     }
 }
 

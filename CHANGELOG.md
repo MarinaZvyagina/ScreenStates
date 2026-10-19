@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.49.0]
+
+- Add a `.swift-format` config and a blocking CI lint step
+  (`swift format lint`, bundled with the Swift 6 toolchain — no new
+  dependency) to keep style consistent across contributions. Reformat
+  the existing source/tests to match (trailing commas, line-break
+  placement, spacing — no semantic changes). See `CONTRIBUTING.md`. No
+  API changes.
+
 ## [1.48.0]
 
 - Add a CI job matrix testing against the last two GA Xcode versions

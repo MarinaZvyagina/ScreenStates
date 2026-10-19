@@ -335,9 +335,10 @@ struct PlaceholderVisualTests {
         // Fixed width only (as in the largest-Dynamic-Type-size test
         // above): a `.largeTitle` description can grow tall enough that a
         // fixed height would clip the icon out of the captured frame.
-        let renderer = ImageRenderer(content: ScreenStateDefaultErrorView(error: SampleError())
-            .screenStatesTheme(ScreenStatesTheme(messageFont: .largeTitle))
-            .frame(width: 400))
+        let renderer = ImageRenderer(
+            content: ScreenStateDefaultErrorView(error: SampleError())
+                .screenStatesTheme(ScreenStatesTheme(messageFont: .largeTitle))
+                .frame(width: 400))
         renderer.scale = 2
         #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
@@ -363,9 +364,10 @@ struct PlaceholderVisualTests {
         // the description label grows considerably at the largest Dynamic
         // Type size, and no single fixed height reliably fits it without
         // either clipping the icon or guessing too generously.
-        let renderer = ImageRenderer(content: ScreenStateDefaultErrorView(error: SampleError())
-            .dynamicTypeSize(.accessibility5)
-            .frame(width: 400))
+        let renderer = ImageRenderer(
+            content: ScreenStateDefaultErrorView(error: SampleError())
+                .dynamicTypeSize(.accessibility5)
+                .frame(width: 400))
         renderer.scale = 2
         #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
@@ -513,15 +515,17 @@ private func containsSaturatedColor(_ image: UIImage, threshold: CGFloat = 40) -
     guard width > 0, height > 0 else { return false }
 
     var pixels = [UInt8](repeating: 0, count: width * height * 4)
-    guard let context = CGContext(
-        data: &pixels,
-        width: width,
-        height: height,
-        bitsPerComponent: 8,
-        bytesPerRow: width * 4,
-        space: CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ) else { return false }
+    guard
+        let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+    else { return false }
     context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
     for pixelIndex in stride(from: 0, to: pixels.count, by: 4) {
@@ -548,15 +552,17 @@ private func containsPixelMatching(_ image: UIImage, target: (r: CGFloat, g: CGF
     guard width > 0, height > 0 else { return false }
 
     var pixels = [UInt8](repeating: 0, count: width * height * 4)
-    guard let context = CGContext(
-        data: &pixels,
-        width: width,
-        height: height,
-        bitsPerComponent: 8,
-        bytesPerRow: width * 4,
-        space: CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ) else { return false }
+    guard
+        let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+    else { return false }
     context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
     for pixelIndex in stride(from: 0, to: pixels.count, by: 4) {
@@ -583,15 +589,17 @@ private func containsNonTransparentPixel(_ image: UIImage, alphaThreshold: CGFlo
     guard width > 0, height > 0 else { return false }
 
     var pixels = [UInt8](repeating: 0, count: width * height * 4)
-    guard let context = CGContext(
-        data: &pixels,
-        width: width,
-        height: height,
-        bitsPerComponent: 8,
-        bytesPerRow: width * 4,
-        space: CGColorSpaceCreateDeviceRGB(),
-        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-    ) else { return false }
+    guard
+        let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+    else { return false }
     context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
     for pixelIndex in stride(from: 0, to: pixels.count, by: 4) where CGFloat(pixels[pixelIndex + 3]) > alphaThreshold {

@@ -56,20 +56,22 @@ public final class ScreenAnalyticsService {
                 guard let self else { return }
                 let newKind = store.state.analyticsKind
                 if newKind != tracking.kind {
-                    self.track(.screenStateChanged(
-                        screen: screen,
-                        from: tracking.kind,
-                        to: newKind,
-                        errorDescription: store.state.error?.localizedDescription
-                    ))
+                    self.track(
+                        .screenStateChanged(
+                            screen: screen,
+                            from: tracking.kind,
+                            to: newKind,
+                            errorDescription: store.state.error?.localizedDescription
+                        ))
                     if newKind == "loading" {
                         tracking.loadingStartedAt = .now
                     } else if let startedAt = tracking.loadingStartedAt, tracking.kind == "loading" {
-                        self.track(.screenLoadDuration(
-                            screen: screen,
-                            outcome: newKind,
-                            milliseconds: startedAt.duration(to: .now).milliseconds
-                        ))
+                        self.track(
+                            .screenLoadDuration(
+                                screen: screen,
+                                outcome: newKind,
+                                milliseconds: startedAt.duration(to: .now).milliseconds
+                            ))
                         tracking.loadingStartedAt = nil
                     }
                     tracking.kind = newKind

@@ -76,7 +76,7 @@ open class ScreenStateViewController<Value>: UIViewController {
             container.topAnchor.constraint(equalTo: view.topAnchor),
             container.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            container.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
         container.bind(to: store)
     }
