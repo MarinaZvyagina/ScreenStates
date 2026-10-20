@@ -1,6 +1,6 @@
 # Contributing to ScreenStates
 
-Thanks for considering a contribution. ScreenStates is a small, dependency-free package, and it's meant to stay that way — the bar for new API is "does every screen need this," not "could a screen use this."
+Thanks for considering a contribution. ScreenStates is a small, dependency-free package, and it's meant to stay that way — the bar for new API is "does every screen need this," not "could a screen use this." Everyone participating is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Build & test
 

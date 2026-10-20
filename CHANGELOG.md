@@ -3,6 +3,11 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.53.0]
+
+- Add `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1), linked from
+  `CONTRIBUTING.md`. No source or API changes.
+
 ## [1.52.0]
 
 - Add `ScreenStatesDemoUITests`, an XCUITest driving the Demo app's
