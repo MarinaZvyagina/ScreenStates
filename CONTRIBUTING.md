@@ -38,7 +38,7 @@ swift format lint --configuration .swift-format --recursive --strict Sources Tes
 
 ## Reporting bugs and requesting features
 
-Please use the issue templates — they ask for just enough context (platform, Swift/Xcode version, repro steps for bugs) to act on the report without a round trip.
+Please use the issue templates — they ask for just enough context (platform, Swift/Xcode version, repro steps for bugs) to act on the report without a round trip. For a suspected security vulnerability, see [`SECURITY.md`](SECURITY.md) instead — please don't open a public issue for those.
 
 ## Pull requests
 

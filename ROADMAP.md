@@ -77,7 +77,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 10 — Ecosystem & community growth
 
 - [x] Add `CODE_OF_CONDUCT.md`.
-- [ ] Add `SECURITY.md` with a responsible-disclosure contact.
+- [x] Add `SECURITY.md` with a responsible-disclosure contact.
 - [ ] Add a GitHub Discussions Q&A category/template, linked from README, as a lighter-weight alternative to opening an issue.
 - [ ] Add a "Used By" section to README inviting adopters to add themselves via PR.
 - [ ] Add `.github/RELEASING.md` documenting the tag/publish process, matching the version-bump convention already used in `CHANGELOG.md`.
