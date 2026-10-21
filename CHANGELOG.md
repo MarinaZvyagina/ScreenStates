@@ -3,6 +3,11 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.55.0]
+
+- Add a "Used By" section to README inviting adopters to add
+  themselves via PR. No source or API changes.
+
 ## [1.54.0]
 
 - Add `SECURITY.md` with a responsible-disclosure contact (GitHub

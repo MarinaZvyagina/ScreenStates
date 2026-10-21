@@ -460,6 +460,12 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `PrintScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that logs every event to the console |
 | `NoOpScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that silently discards every event |
 
+## Used By
+
+Using ScreenStates in your app? Add yourself here via PR — just your app/company name, optionally linked to your App Store page or website.
+
+- *(be the first!)*
+
 ## Contributing
 
 Bug reports, feature requests, and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for build/test commands and conventions.
