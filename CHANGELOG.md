@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.56.0]
+
+- Add `.github/RELEASING.md` documenting the tag/publish process —
+  matches the existing tag history's style (annotated `vX.Y.Z` tags
+  with a `Highlights:` summary), and clarifies that a `CHANGELOG.md`
+  version bump doesn't itself cut a release. Linked from
+  `CONTRIBUTING.md`. No source or API changes.
+
 ## [1.55.0]
 
 - Add a "Used By" section to README inviting adopters to add

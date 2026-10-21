@@ -35,6 +35,7 @@ swift format lint --configuration .swift-format --recursive --strict Sources Tes
 - A feature-level change (new public API, new behavior) should update, in the same PR: the source file(s), tests under `Tests/ScreenStatesTests/`, the relevant `README.md` usage section and API reference table, a `CHANGELOG.md` entry (bump the minor version), and — for new public API — the DocC catalog under `Sources/ScreenStates/ScreenStates.docc/`.
 - A fix, refactor, or infra change doesn't need all of the above, but should still get a `CHANGELOG.md` entry if it's user-visible.
 - Run the full test suite (see above) before pushing. Don't open a PR with a failing build.
+- A `CHANGELOG.md` bump doesn't itself cut a release — see [`.github/RELEASING.md`](.github/RELEASING.md) for the (maintainer-only) tag/publish process.
 
 ## Reporting bugs and requesting features
 
