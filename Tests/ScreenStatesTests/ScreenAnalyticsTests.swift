@@ -153,6 +153,33 @@ struct ScreenAnalyticsServiceTests {
         #expect(spy.events[2].name == "screen_load_duration")
         #expect(spy.events[3] == .screenStateChanged(screen: "Test", from: "data", to: "error", errorDescription: "sample failure"))
     }
+
+    @Test("observeStateChanges(of:screen:) tracks loadCollection(_:)/refreshCollection(_:) transitions the same way as load(_:)/refresh(_:)")
+    func observeStateChangesTracksCollectionTransitions() async {
+        // loadCollection(_:)/refreshCollection(_:) only differ from
+        // load(_:)/refresh(_:) in how they map an empty result to .empty
+        // instead of .data — they still just assign ScreenStateStore.state
+        // under the hood, so observeStateChanges(of:screen:) (which watches
+        // state generically, not which method changed it) already tracks
+        // them identically. This locks that in.
+        let store = ScreenStateStore<[Int]>(.empty)
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+        service.observeStateChanges(of: store, screen: "Test")
+
+        await store.loadCollection { [1, 2, 3] }
+        await spy.waitUntil(count: 3)
+
+        await store.refreshCollection { [] }
+        await spy.waitUntil(count: 4)
+
+        #expect(spy.events[0] == .screenStateChanged(screen: "Test", from: "empty", to: "loading"))
+        #expect(spy.events[1] == .screenStateChanged(screen: "Test", from: "loading", to: "data"))
+        #expect(spy.events[2].name == "screen_load_duration")
+        // refreshCollection(_:) keeps old data on screen while in flight,
+        // so this never passes through .loading again.
+        #expect(spy.events[3] == .screenStateChanged(screen: "Test", from: "data", to: "empty"))
+    }
 }
 
 @Suite("ScreenAnalyticsService load duration tracking")

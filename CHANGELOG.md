@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.59.0]
+
+- Add a regression test locking in that `observeStateChanges(of:screen:)`
+  already tracks `loadCollection(_:)`/`refreshCollection(_:)` transitions
+  the same way as `load(_:)`/`refresh(_:)`. No source or API changes —
+  it watches `state` generically, not which method changed it.
+
 ## [1.58.0]
 
 - Add `ScreenAnalyticsEvent.screenRetryTapped(screen:)` and
