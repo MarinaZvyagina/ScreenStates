@@ -40,6 +40,17 @@ func onAppear(source: ScreenOpenSource<AppScreen>) {
 
 It also times how long the screen spends in `.loading`: the moment the state leaves `.loading` for `.data`, `.empty`, or `.error`, it sends a `screen_load_duration` event (``ScreenAnalyticsEvent/screenLoadDuration(screen:outcome:milliseconds:)``) with that outcome and the elapsed time in `duration_ms` — useful for a "how long do loads actually take, and how often do they end in an error" dashboard without hand-rolling a stopwatch around every `load(_:)` call.
 
+A `screen_state_changed` event landing on `.error` tells you a screen failed to load; it doesn't tell you whether the user gave up or hit Retry. Call `trackRetryTapped(_:)` (``ScreenAnalyticsEvent/screenRetryTapped(screen:)``) from the same `onRetry` closure you pass to the Error placeholder, so that's a distinct, countable event instead of indistinguishable from the screen's initial `.loading`:
+
+```swift
+ScreenStateView(store.state, onRetry: {
+    analytics.trackRetryTapped("Articles")
+    Task { await store.load { try await api.fetchArticles() } }
+}) { articles in
+    ArticleList(articles)
+}
+```
+
 Both ``ScreenState`` and ``ScreenOpenSource`` expose an `analyticsKind` helper — a short, stable, payload-free name for the current case (`"loading"`, `"error"`, `"push"`, `"deep_link"`, ...) — so you can build custom ``ScreenAnalyticsEvent``s yourself for anything the built-in factories don't cover.
 
 ## See Also

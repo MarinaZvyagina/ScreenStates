@@ -3,6 +3,15 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.58.0]
+
+- Add `ScreenAnalyticsEvent.screenRetryTapped(screen:)` and
+  `ScreenAnalyticsService.trackRetryTapped(_:)`, so analytics can
+  distinguish a user tapping Retry from a screen's initial open —
+  call it from the same `onRetry` closure passed to the Error
+  placeholder. Additive API; no source changes needed at existing
+  call sites.
+
 ## [1.57.0]
 
 - Add a regression test locking in that `refresh(_:)`'s success path

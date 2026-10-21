@@ -34,6 +34,13 @@ struct ScreenAnalyticsEventTests {
         #expect(withError.parameters["error"] == .string("offline"))
     }
 
+    @Test("screenRetryTapped(screen:) sets the screen")
+    func screenRetryTapped() {
+        let event = ScreenAnalyticsEvent.screenRetryTapped(screen: "Articles")
+        #expect(event.name == "screen_retry_tapped")
+        #expect(event.parameters == ["screen": .string("Articles")])
+    }
+
     @Test("ScreenState.analyticsKind names every case")
     func screenStateAnalyticsKind() {
         #expect(ScreenState<Int>.empty.analyticsKind == "empty")
@@ -109,6 +116,16 @@ struct ScreenAnalyticsServiceTests {
         service.trackScreenOpened("Articles", source: ScreenOpenSource.push(from: "Home").analyticsKind)
 
         #expect(spy.events == [.screenOpened(screen: "Articles", source: "push")])
+    }
+
+    @Test("trackRetryTapped(_:) tracks a screen_retry_tapped event")
+    func trackRetryTapped() {
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+
+        service.trackRetryTapped("Articles")
+
+        #expect(spy.events == [.screenRetryTapped(screen: "Articles")])
     }
 
     @Test("observeStateChanges(of:screen:) tracks each ScreenState transition")

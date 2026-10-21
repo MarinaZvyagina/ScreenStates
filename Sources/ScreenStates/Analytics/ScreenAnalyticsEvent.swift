@@ -46,6 +46,16 @@ extension ScreenAnalyticsEvent {
         return ScreenAnalyticsEvent(name: "screen_state_changed", parameters: parameters)
     }
 
+    /// The default event for a user tapping Retry on an Error placeholder
+    /// — distinct from ``screenOpened(screen:source:)``, so analytics can
+    /// tell "user hit retry" apart from the screen's initial open. Call it
+    /// from the same `onRetry` closure passed to the Error placeholder;
+    /// ScreenStates has no way to detect a retry tap on its own, since the
+    /// default placeholders know nothing about analytics.
+    public static func screenRetryTapped(screen: String) -> ScreenAnalyticsEvent {
+        ScreenAnalyticsEvent(name: "screen_retry_tapped", parameters: ["screen": .string(screen)])
+    }
+
     /// The default event for how long a screen spent in `.loading` before
     /// settling on `outcome` — a terminal state's ``ScreenState/analyticsKind``
     /// (`"data"`, `"empty"`, or `"error"`).

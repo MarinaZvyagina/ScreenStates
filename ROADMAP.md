@@ -85,7 +85,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 11 — Store ergonomics & analytics completeness
 
 - [x] Add a `ScreenStateStore.refreshError`-clearing path so a successful `refresh(_:)` after a failed one doesn't leave the stale error dangling once `isRefreshing` flips back to `false`.
-- [ ] Add a `ScreenAnalyticsEvent` for retry taps specifically (distinct from a generic load event), so analytics can distinguish "user hit retry" from the initial load.
+- [x] Add a `ScreenAnalyticsEvent` for retry taps specifically (distinct from a generic load event), so analytics can distinguish "user hit retry" from the initial load.
 - [ ] Add `ScreenStateStore.loadCollection(_:)`/`refreshCollection(_:)` analytics events mirroring the ones already tracked for `load(_:)`/`refresh(_:)`.
 - [ ] Add a `ScreenOpenSource`-aware convenience initializer on `ScreenStateStore` so call sites that already know their open source don't need a separate `track(openSource:)` call.
 - [ ] Add a DocC code snippet (via `@Snippet`) for the retry-with-backoff recipe, replacing the current prose-only `loadWithRetry` example in the Recipes article.

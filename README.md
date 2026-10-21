@@ -453,10 +453,10 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStatesTheme` | `tint`/`titleFont`/`messageFont` overrides for every default SwiftUI placeholder; set via `View.screenStatesTheme(_:)` |
 | `ScreenStateRedactedLoadingView` | Opt-in Loading placeholder that redacts your real content view (`.redacted(reason: .placeholder)`) instead of showing a generic spinner/skeleton |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
-| `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, and `.screenLoadDuration(screen:outcome:milliseconds:)` factories |
+| `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, `.screenLoadDuration(screen:outcome:milliseconds:)`, and `.screenRetryTapped(screen:)` factories |
 | `AnalyticsValue` | `.string`/`.int`/`.double`/`.bool` — the primitive parameter values every analytics SDK accepts |
 | `ScreenAnalyticsTracker` | Protocol you implement per analytics backend: `track(_ event: ScreenAnalyticsEvent)` |
-| `ScreenAnalyticsService` | Fans events out to every registered `ScreenAnalyticsTracker`: `track(_:)`, `trackScreenOpened(_:source:)`, `observeStateChanges(of:screen:)` |
+| `ScreenAnalyticsService` | Fans events out to every registered `ScreenAnalyticsTracker`: `track(_:)`, `trackScreenOpened(_:source:)`, `trackRetryTapped(_:)`, `observeStateChanges(of:screen:)` |
 | `PrintScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that logs every event to the console |
 | `NoOpScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that silently discards every event |
 

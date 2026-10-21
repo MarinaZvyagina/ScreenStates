@@ -33,6 +33,13 @@ public final class ScreenAnalyticsService {
         track(.screenOpened(screen: screen, source: source))
     }
 
+    /// Tracks a user tapping Retry on an Error placeholder. Call it from
+    /// the same `onRetry` closure passed to the Error placeholder — see
+    /// ``ScreenAnalyticsEvent/screenRetryTapped(screen:)``.
+    public func trackRetryTapped(_ screen: String) {
+        track(.screenRetryTapped(screen: screen))
+    }
+
     /// Tracks every ``ScreenState`` transition on `store` from now on as a
     /// `screen_state_changed` event named `screen`, plus a
     /// `screen_load_duration` event (see ``ScreenAnalyticsEvent/screenLoadDuration(screen:outcome:milliseconds:)``)
