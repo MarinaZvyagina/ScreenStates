@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.57.0]
+
+- Add a regression test locking in that `refresh(_:)`'s success path
+  clears a stale `refreshError` left by a previous failed `refresh(_:)`
+  call. No source or API changes — `refresh(_:)` already cleared
+  `refreshError` unconditionally at the start of every call.
+
 ## [1.56.0]
 
 - Add `.github/RELEASING.md` documenting the tag/publish process —

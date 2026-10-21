@@ -597,6 +597,19 @@ struct ScreenStateStoreTests {
         #expect(store.refreshError == nil)
     }
 
+    @Test("refresh(_:) success clears a stale refreshError from a previous failed refresh")
+    func refreshSuccessClearsStaleRefreshError() async {
+        let store = ScreenStateStore<Int>()
+        store.setData(1)
+        await store.refresh { throw SampleError() }
+        #expect(store.refreshError != nil)
+
+        await store.refresh { 2 }
+        #expect(store.refreshError == nil)
+        #expect(store.state == .data(2))
+        #expect(!store.isRefreshing)
+    }
+
     @Test("refreshCollection(_:) maps a newly empty result to .empty")
     func refreshCollectionToEmpty() async {
         let store = ScreenStateStore<[Int]>()
