@@ -3,6 +3,14 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.62.0]
+
+- Add a "SwiftUI & UIKit Equivalents" DocC article matching every
+  SwiftUI type to its UIKit counterpart in one table, including the
+  handful with no equivalent (and why). Linked from the module's
+  Topics page, both Getting Started articles, and README's
+  Documentation section. No source or API changes.
+
 ## [1.61.0]
 
 - Add `ScreenStateContainerViewDelegate`, reporting a bound store's

@@ -24,6 +24,7 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 - <doc:GettingStartedWithSwiftUI>
 - <doc:GettingStartedWithUIKit>
 - <doc:Recipes>
+- <doc:SwiftUIAndUIKitEquivalents>
 
 ### Modeling state
 

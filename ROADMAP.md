@@ -96,7 +96,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [ ] Add a `ScreenStateView` initializer overload that takes an `EquatableValue` fast-path check (mirroring the `Equatable`-payload redundant-invalidation guard planned for `ScreenStateStore` in Week 9) to skip re-rendering identical `.data` content.
 - [x] Add a UIKit `ScreenStateContainerView` snapshot test suite covering programmatic `bind(to:)` rebinding to a different store mid-lifecycle, which only has SwiftUI coverage today.
 - [x] Expose `ScreenStateStore`'s `isRefreshing`/`refreshError` to UIKit consumers via a small delegate callback, mirroring how SwiftUI observes them through `@Observable`.
-- [ ] Add a DocC article cross-referencing equivalent SwiftUI/UIKit API pairs in a single table, so a reader working in one framework can find the other's equivalent at a glance.
+- [x] Add a DocC article cross-referencing equivalent SwiftUI/UIKit API pairs in a single table, so a reader working in one framework can find the other's equivalent at a glance.
 
 ## Week 13 — Error presentation depth
 
