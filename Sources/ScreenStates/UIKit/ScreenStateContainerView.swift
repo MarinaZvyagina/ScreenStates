@@ -2,6 +2,28 @@
 import UIKit
 import Observation
 
+/// Notified when a store bound via ``ScreenStateContainerView/bind(to:)``'s
+/// `isRefreshing`/`refreshError` change — the UIKit counterpart to reading
+/// them directly in a SwiftUI view's body, which re-renders on any
+/// ``ScreenStateStore`` property access automatically. `state` itself is
+/// already mirrored by `bind(to:)`'s own `state` property; this covers the
+/// two properties that doesn't.
+///
+/// Default (empty) implementations are provided, so a conformer only needs
+/// to implement whichever callback it actually cares about.
+@MainActor
+public protocol ScreenStateContainerViewDelegate: AnyObject {
+    /// Called whenever the bound store's `isRefreshing` changes.
+    func screenStateContainerViewDidUpdateIsRefreshing(_ isRefreshing: Bool)
+    /// Called whenever the bound store's `refreshError` changes.
+    func screenStateContainerViewDidUpdateRefreshError(_ error: Error?)
+}
+
+extension ScreenStateContainerViewDelegate {
+    public func screenStateContainerViewDidUpdateIsRefreshing(_ isRefreshing: Bool) {}
+    public func screenStateContainerViewDidUpdateRefreshError(_ error: Error?) {}
+}
+
 /// A `UIView` that swaps its content for the right placeholder based on a
 /// ``ScreenState``, mirroring ``ScreenStateView`` from the SwiftUI side.
 ///
@@ -22,6 +44,10 @@ public final class ScreenStateContainerView<Value>: UIView {
         didSet { render() }
     }
 
+    /// Notified when the bound store's `isRefreshing`/`refreshError`
+    /// change — see ``ScreenStateContainerViewDelegate``.
+    public weak var delegate: (any ScreenStateContainerViewDelegate)?
+
     private let emptyView: UIView
     private let loadingView: UIView
     private let errorViewProvider: (Error) -> UIView
@@ -33,6 +59,8 @@ public final class ScreenStateContainerView<Value>: UIView {
     /// store a later `bind(to:)` call has since replaced.
     private var bindGeneration = 0
     private var currentContentView: UIView?
+    private var lastIsRefreshing = false
+    private var lastRefreshError: Error?
 
     /// Uses the built-in Empty / Loading / Error placeholders.
     /// - Parameters:
@@ -70,22 +98,78 @@ public final class ScreenStateContainerView<Value>: UIView {
         fatalError("init(coder:) is unavailable")
     }
 
-    /// Mirrors `store.state` into this view using `withObservationTracking`,
-    /// the Observation framework's way of bridging `@Observable` types into
-    /// non-SwiftUI code.
+    /// Mirrors `store.state` into this view, and `store.isRefreshing`/
+    /// `store.refreshError` into ``delegate``, using
+    /// `withObservationTracking` — the Observation framework's way of
+    /// bridging `@Observable` types into non-SwiftUI code.
+    ///
+    /// Each property gets its own independent tracking chain rather than
+    /// one shared one: `withObservationTracking`'s `onChange` fires at
+    /// most once per registration, and `refresh(_:)` writes all three of
+    /// `refreshError`, `isRefreshing`, and (via the operation's `Task`)
+    /// `refreshError` again in quick succession. A single shared
+    /// registration can only catch the first of those before it needs
+    /// re-arming — which, being itself async, can't keep up — silently
+    /// dropping the rest. Independent chains each only have to keep up
+    /// with changes to their own property.
     public func bind(to store: ScreenStateStore<Value>) {
         bindGeneration += 1
-        observe(store, generation: bindGeneration)
+        lastIsRefreshing = store.isRefreshing
+        lastRefreshError = store.refreshError
+        observeState(store, generation: bindGeneration)
+        observeIsRefreshing(store, generation: bindGeneration)
+        observeRefreshError(store, generation: bindGeneration)
     }
 
-    private func observe(_ store: ScreenStateStore<Value>, generation: Int) {
+    private func observeState(_ store: ScreenStateStore<Value>, generation: Int) {
         withObservationTracking {
             state = store.state
         } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self, self.bindGeneration == generation else { return }
-                self.observe(store, generation: generation)
+                self.observeState(store, generation: generation)
             }
+        }
+    }
+
+    private func observeIsRefreshing(_ store: ScreenStateStore<Value>, generation: Int) {
+        withObservationTracking {
+            let isRefreshing = store.isRefreshing
+            if isRefreshing != lastIsRefreshing {
+                lastIsRefreshing = isRefreshing
+                delegate?.screenStateContainerViewDidUpdateIsRefreshing(isRefreshing)
+            }
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                guard let self, self.bindGeneration == generation else { return }
+                self.observeIsRefreshing(store, generation: generation)
+            }
+        }
+    }
+
+    private func observeRefreshError(_ store: ScreenStateStore<Value>, generation: Int) {
+        withObservationTracking {
+            let refreshError = store.refreshError
+            if !Self.errorsEqual(refreshError, lastRefreshError) {
+                lastRefreshError = refreshError
+                delegate?.screenStateContainerViewDidUpdateRefreshError(refreshError)
+            }
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                guard let self, self.bindGeneration == generation else { return }
+                self.observeRefreshError(store, generation: generation)
+            }
+        }
+    }
+
+    /// `Error` isn't `Equatable` (it's an existential), so this bridges to
+    /// `NSError` for comparison — the same trick ``ScreenState``'s own
+    /// `Equatable` conformance uses for its `.error` case.
+    private static func errorsEqual(_ lhs: Error?, _ rhs: Error?) -> Bool {
+        switch (lhs, rhs) {
+        case (nil, nil): true
+        case let (lhs?, rhs?): (lhs as NSError) == (rhs as NSError)
+        default: false
         }
     }
 

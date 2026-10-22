@@ -383,7 +383,24 @@ final class ArticlesViewController: UIViewController {
 }
 ```
 
-`bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so `ScreenStateContainerView` re-renders automatically whenever `store.state` changes, with no Combine, delegates, or NotificationCenter involved. Calling `bind(to:)` again with a different store (e.g. reusing a container across cells) immediately reflects the new store and stops reacting to the previous one.
+`bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so `ScreenStateContainerView` re-renders automatically whenever `store.state` changes, with no Combine or NotificationCenter involved. Calling `bind(to:)` again with a different store (e.g. reusing a container across cells) immediately reflects the new store and stops reacting to the previous one.
+
+A SwiftUI view can just read `store.isRefreshing`/`store.refreshError` directly — any property access inside its `body` is tracked automatically. `ScreenStateContainerView` has no `body` to do that in, so it reports both through `ScreenStateContainerViewDelegate` instead:
+
+```swift
+container.delegate = self // conform to ScreenStateContainerViewDelegate
+
+func screenStateContainerViewDidUpdateIsRefreshing(_ isRefreshing: Bool) {
+    refreshSpinner.isHidden = !isRefreshing
+}
+
+func screenStateContainerViewDidUpdateRefreshError(_ error: Error?) {
+    guard let error else { return }
+    showToast(error.localizedDescription)
+}
+```
+
+Both methods have empty default implementations, so a conformer only needs whichever one it actually cares about.
 
 ### Skipping the boilerplate with ScreenStateViewController
 
@@ -409,6 +426,8 @@ final class ArticlesViewController: ScreenStateViewController<[Article]> {
 ```
 
 `store` is exposed as a public property; the fully-customized-placeholders initializer is available too, mirroring `ScreenStateContainerView`'s own two initializers.
+
+`ScreenStateViewController` already conforms to `ScreenStateContainerViewDelegate` for you — override its `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)` (both `open`, empty by default) instead of setting a delegate yourself.
 
 ### Custom Empty / Loading / Error views
 
@@ -444,8 +463,9 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
-| `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store |
-| `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate |
+| `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store; `delegate: ScreenStateContainerViewDelegate?` reports `isRefreshing`/`refreshError` |
+| `ScreenStateContainerViewDelegate` | `screenStateContainerViewDidUpdateIsRefreshing(_:)`/`screenStateContainerViewDidUpdateRefreshError(_:)`, both with empty default implementations |
+| `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate; override `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)` for the same two callbacks |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle` |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle` |
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |

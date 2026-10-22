@@ -84,5 +84,69 @@ struct ScreenStateContainerViewTests {
 
         #expect(container.state == .data(3))
     }
+
+    @Test("delegate is notified when the bound store's isRefreshing/refreshError change")
+    func delegateNotifiedOfRefreshingAndError() async {
+        let container = ScreenStateContainerView<Int>(content: { _ in UIView() })
+        let delegate = SpyContainerDelegate()
+        container.delegate = delegate
+        let store = ScreenStateStore<Int>(.data(1))
+        container.bind(to: store)
+
+        await store.refresh { throw SampleError() }
+        // isRefreshing's final true -> false transition happens in a
+        // defer right as refresh(_:) returns, with no further await left
+        // for its pending re-subscription to naturally run against.
+        await Task.yield()
+        await Task.yield()
+
+        #expect(delegate.isRefreshingUpdates == [true, false])
+        #expect(delegate.refreshErrorUpdates.count == 1)
+        #expect(delegate.refreshErrorUpdates[0] is SampleError)
+    }
+
+    @Test("delegate reflects the newly-bound store after a rebind, not the previous one")
+    func delegateReflectsNewStoreAfterRebind() async {
+        let container = ScreenStateContainerView<Int>(content: { _ in UIView() })
+        let delegate = SpyContainerDelegate()
+        container.delegate = delegate
+        let storeA = ScreenStateStore<Int>(.data(1))
+        let storeB = ScreenStateStore<Int>(.data(2))
+        container.bind(to: storeA)
+        container.bind(to: storeB)
+
+        // storeA refreshing/failing after the rebind must not reach the
+        // delegate — same regression class as the state-corruption tests
+        // above, just for isRefreshing/refreshError instead of state.
+        await storeA.refresh { throw SampleError() }
+        await Task.yield()
+        await Task.yield()
+        #expect(delegate.isRefreshingUpdates.isEmpty)
+        #expect(delegate.refreshErrorUpdates.isEmpty)
+
+        await storeB.refresh { throw SampleError() }
+        await Task.yield()
+        await Task.yield()
+        #expect(delegate.isRefreshingUpdates == [true, false])
+        #expect(delegate.refreshErrorUpdates.count == 1)
+    }
+}
+
+private struct SampleError: Error {}
+
+@MainActor
+private final class SpyContainerDelegate: ScreenStateContainerViewDelegate {
+    private(set) var isRefreshingUpdates: [Bool] = []
+    private(set) var refreshErrorUpdates: [Error] = []
+
+    func screenStateContainerViewDidUpdateIsRefreshing(_ isRefreshing: Bool) {
+        isRefreshingUpdates.append(isRefreshing)
+    }
+
+    func screenStateContainerViewDidUpdateRefreshError(_ error: Error?) {
+        if let error {
+            refreshErrorUpdates.append(error)
+        }
+    }
 }
 #endif

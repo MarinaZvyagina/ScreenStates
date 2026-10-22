@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.61.0]
+
+- Add `ScreenStateContainerViewDelegate`, reporting a bound store's
+  `isRefreshing`/`refreshError` changes — the UIKit counterpart to a
+  SwiftUI view reading them directly in its `body`. Set
+  `ScreenStateContainerView.delegate`, or, for `ScreenStateViewController`
+  subclasses, just override the new `open` `isRefreshingDidChange(_:)`/
+  `refreshErrorDidChange(_:)` hooks (it already conforms to the
+  delegate for you). Additive API; no source changes needed at
+  existing call sites.
+
 ## [1.60.0]
 
 - Fix `ScreenStateContainerView.bind(to:)`: calling it a second time

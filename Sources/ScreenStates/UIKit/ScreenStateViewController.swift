@@ -25,7 +25,7 @@ import UIKit
 /// }
 /// ```
 @MainActor
-open class ScreenStateViewController<Value>: UIViewController {
+open class ScreenStateViewController<Value>: UIViewController, ScreenStateContainerViewDelegate {
     /// The store driving this screen's content.
     public let store: ScreenStateStore<Value>
     private let container: ScreenStateContainerView<Value>
@@ -78,7 +78,25 @@ open class ScreenStateViewController<Value>: UIViewController {
             container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             container.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
+        container.delegate = self
         container.bind(to: store)
+    }
+
+    /// Called whenever `store.isRefreshing` changes. Does nothing by
+    /// default — override to react to it (e.g. showing a refresh
+    /// spinner overlaid on the existing content).
+    open func isRefreshingDidChange(_ isRefreshing: Bool) {}
+
+    /// Called whenever `store.refreshError` changes. Does nothing by
+    /// default — override to react to it (e.g. showing a toast).
+    open func refreshErrorDidChange(_ error: Error?) {}
+
+    public func screenStateContainerViewDidUpdateIsRefreshing(_ isRefreshing: Bool) {
+        isRefreshingDidChange(isRefreshing)
+    }
+
+    public func screenStateContainerViewDidUpdateRefreshError(_ error: Error?) {
+        refreshErrorDidChange(error)
     }
 
     #if os(tvOS)

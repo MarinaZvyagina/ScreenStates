@@ -69,5 +69,43 @@ struct ScreenStateViewControllerTests {
 
         #expect(receivedValue == 7)
     }
+
+    @Test("isRefreshingDidChange(_:)/refreshErrorDidChange(_:) are called when the bound store's isRefreshing/refreshError change")
+    func refreshHooksForwardFromTheContainerDelegate() async {
+        let store = ScreenStateStore<Int>(.data(1))
+        let viewController = RefreshTrackingViewController(store: store)
+        _ = viewController.view
+
+        await store.refresh { throw SampleError() }
+        // isRefreshing's final true -> false transition happens in a
+        // defer right as refresh(_:) returns, with no further await left
+        // for its pending re-subscription to naturally run against.
+        await Task.yield()
+        await Task.yield()
+
+        #expect(viewController.isRefreshingUpdates == [true, false])
+        #expect(viewController.refreshErrorUpdates.count == 1)
+        #expect(viewController.refreshErrorUpdates.first is SampleError)
+    }
+}
+
+@MainActor
+private final class RefreshTrackingViewController: ScreenStateViewController<Int> {
+    private(set) var isRefreshingUpdates: [Bool] = []
+    private(set) var refreshErrorUpdates: [Error] = []
+
+    init(store: ScreenStateStore<Int>) {
+        super.init(store: store) { _ in UIView() }
+    }
+
+    override func isRefreshingDidChange(_ isRefreshing: Bool) {
+        isRefreshingUpdates.append(isRefreshing)
+    }
+
+    override func refreshErrorDidChange(_ error: Error?) {
+        if let error {
+            refreshErrorUpdates.append(error)
+        }
+    }
 }
 #endif
