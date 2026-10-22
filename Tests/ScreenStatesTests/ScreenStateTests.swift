@@ -52,6 +52,26 @@ struct ScreenStateTests {
         #expect(ScreenState<Int>.error(error).accessibilityAnnouncement == "\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)")
     }
 
+    @Test("accessibilityAnnouncement uses the Connection Issue title instead for a connectivity URLError")
+    func accessibilityAnnouncementForConnectivityError() {
+        let error = URLError(.notConnectedToInternet)
+        #expect(ScreenState<Int>.error(error).accessibilityAnnouncement == "\(String.screenStatesConnectionIssue). \(error.localizedDescription)")
+    }
+
+    @Test("isConnectivityError(_:) is true for a URLError indicating no connectivity or a timed-out request")
+    func isConnectivityErrorForQualifyingCodes() {
+        #expect(ScreenState<Int>.isConnectivityError(URLError(.notConnectedToInternet)))
+        #expect(ScreenState<Int>.isConnectivityError(URLError(.networkConnectionLost)))
+        #expect(ScreenState<Int>.isConnectivityError(URLError(.timedOut)))
+    }
+
+    @Test("isConnectivityError(_:) is false for every other error, including other URLError codes")
+    func isConnectivityErrorForNonQualifyingErrors() {
+        #expect(!ScreenState<Int>.isConnectivityError(URLError(.badURL)))
+        #expect(!ScreenState<Int>.isConnectivityError(URLError(.cannotFindHost)))
+        #expect(!ScreenState<Int>.isConnectivityError(SampleError()))
+    }
+
     @Test("Equatable compares by case and payload")
     func equatable() {
         #expect(ScreenState<Int>.data(1) == ScreenState<Int>.data(1))

@@ -41,6 +41,8 @@ On Mac Catalyst, the default placeholders' icon and loading spinner are sized do
 
 In a compact-height (landscape iPhone) layout, the default Empty/Error placeholders lay their icon beside the title/message/Retry column instead of above it, so the content doesn't need to compete for height with a full-size icon stacked on top — driven by SwiftUI's `verticalSizeClass` environment value (UIKit's `traitCollection.verticalSizeClass`), available on iOS/iPadOS/Mac Catalyst only, so it's a no-op everywhere else.
 
+When the wrapped error is a `URLError` indicating no connectivity (`.notConnectedToInternet`, `.networkConnectionLost`) or a timed-out request (`.timedOut`), the default Error placeholders swap their icon for a Wi-Fi-specific one and (SwiftUI only, since UIKit's Error placeholder has no separate title slot) their title for "Connection Issue" instead of "Something Went Wrong" — every other error, including other `URLError` codes, keeps the generic treatment. `ScreenState.isConnectivityError(_:)` exposes the same check for a fully custom placeholder.
+
 Every default placeholder also takes a `style: ScreenStatePlaceholderStyle`, defaulting to `.standard` (the full-screen treatment described above). Pass `.compact` to embed the same placeholder in a card or section instead of a whole screen: a smaller icon, smaller text, and — for the Loading spinner — no more forcing itself to fill all available space. `.compact` always keeps a vertical icon-above-text layout, since a card's size is dictated by the card, not the device's orientation.
 
 ```swift
@@ -458,7 +460,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 
 | Type | Purpose |
 |---|---|
-| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)` helpers |
+| `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)`, `isConnectivityError(_:)` helpers |
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |

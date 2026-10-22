@@ -22,6 +22,13 @@ extension String {
         String(localized: "Something Went Wrong", bundle: .module, comment: "Default title shown when a screen's data failed to load.")
     }
 
+    /// Default title shown when a screen's data failed to load because of
+    /// a `URLError` indicating no connectivity or a timed-out request —
+    /// see ``ScreenState/isConnectivityError(_:)``.
+    public static var screenStatesConnectionIssue: String {
+        String(localized: "Connection Issue", bundle: .module, comment: "Default title for a connectivity/timeout error.")
+    }
+
     /// Title of the button that retries loading after an error.
     public static var screenStatesRetry: String {
         String(localized: "Retry", bundle: .module, comment: "Title of the button that retries loading after an error.")

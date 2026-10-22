@@ -48,8 +48,21 @@ extension ScreenState {
         case .empty: .screenStatesNothingHere
         case .loading: .screenStatesLoading
         case .data: nil
-        case .error(let error): "\(String.screenStatesSomethingWentWrong). \(error.localizedDescription)"
+        case .error(let error):
+            "\(Self.isConnectivityError(error) ? String.screenStatesConnectionIssue : String.screenStatesSomethingWentWrong). \(error.localizedDescription)"
         }
+    }
+
+    /// `true` if `error` is a `URLError` indicating no network
+    /// connectivity (`.notConnectedToInternet`, `.networkConnectionLost`)
+    /// or a timed-out request (`.timedOut`) — the cases the default Error
+    /// placeholders show a tailored "Connection Issue" treatment for
+    /// instead of the generic one. Every other error, including other
+    /// `URLError` codes, falls back to the generic treatment. A fully
+    /// custom placeholder can use this for the same distinction.
+    public static func isConnectivityError(_ error: Error) -> Bool {
+        guard let urlError = error as? URLError else { return false }
+        return [.notConnectedToInternet, .networkConnectionLost, .timedOut].contains(urlError.code)
     }
 
     /// Transforms the wrapped value with `transform` if the state is

@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Connection Issue" : {
+      "comment" : "Default title for a connectivity/timeout error.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection Issue"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проблема с подключением"
+          }
+        }
+      }
+    },
     "Loading" : {
       "comment" : "Announced to VoiceOver and shown as the accessibility label while a screen's data is loading.",
       "localizations" : {

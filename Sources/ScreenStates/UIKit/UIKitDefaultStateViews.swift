@@ -400,7 +400,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         self.onRetry = onRetry
         self.style = style
         symbol = UIImage(
-            systemName: "exclamationmark.triangle.fill",
+            systemName: ScreenState<Never>.isConnectivityError(error) ? "wifi.exclamationmark" : "exclamationmark.triangle.fill",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize(for: style), weight: .regular)
         )
         super.init(frame: .zero)

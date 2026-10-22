@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.63.0]
+
+- Add `ScreenState.isConnectivityError(_:)`: `true` for a `URLError`
+  indicating no connectivity (`.notConnectedToInternet`,
+  `.networkConnectionLost`) or a timed-out request (`.timedOut`).
+  When the wrapped error qualifies, the default Error placeholders
+  swap their icon for a Wi-Fi-specific one and (SwiftUI only — UIKit's
+  Error placeholder has no separate title slot) their title for
+  "Connection Issue" (localized English + Russian) instead of
+  "Something Went Wrong". Every other error, including other
+  `URLError` codes, keeps the generic treatment.
+  `ScreenState.accessibilityAnnouncement` reflects the same
+  distinction. Additive API; no source changes needed at existing
+  call sites.
+
 ## [1.62.0]
 
 - Add a "SwiftUI & UIKit Equivalents" DocC article matching every

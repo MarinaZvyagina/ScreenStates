@@ -251,8 +251,18 @@ public struct ScreenStateDefaultErrorView: View {
         #endif
     }
 
+    /// `true` for a `URLError` indicating no connectivity or a timed-out
+    /// request — see ``ScreenState/isConnectivityError(_:)``.
+    private var isConnectivityError: Bool {
+        ScreenState<Never>.isConnectivityError(error)
+    }
+
+    private var titleText: String {
+        isConnectivityError ? .screenStatesConnectionIssue : .screenStatesSomethingWentWrong
+    }
+
     private func icon(size: CGFloat) -> some View {
-        Image(systemName: "exclamationmark.triangle.fill")
+        Image(systemName: isConnectivityError ? "wifi.exclamationmark" : "exclamationmark.triangle.fill")
             .font(.system(size: size))
             .foregroundStyle(fillStyle)
     }
@@ -292,7 +302,7 @@ public struct ScreenStateDefaultErrorView: View {
     private var content: some View {
         ContentUnavailableView {
             Label {
-                Text(String.screenStatesSomethingWentWrong).font(theme.titleFont)
+                Text(titleText).font(theme.titleFont)
             } icon: {
                 icon(size: ScreenStatesMetrics.iconSize)
             }

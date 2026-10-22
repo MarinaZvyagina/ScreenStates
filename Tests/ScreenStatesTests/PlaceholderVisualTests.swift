@@ -153,6 +153,12 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
+    @Test("ScreenStateDefaultErrorUIView still renders a colorful icon for a connectivity URLError")
+    func errorUIViewIsColorfulForConnectivityError() {
+        let view = ScreenStateDefaultErrorUIView(error: URLError(.notConnectedToInternet))
+        #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
     @Test("ScreenStateDefaultErrorUIView uses a solid tint for its icon when Increase Contrast is on")
     func errorUIViewRespectsIncreaseContrast() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
@@ -317,6 +323,15 @@ struct PlaceholderVisualTests {
     @Test("ScreenStateDefaultErrorView renders a colorful gradient icon, not a plain gray one")
     func errorViewIsColorful() {
         let image = snapshotImage(of: ScreenStateDefaultErrorView(error: SampleError()), size: CGSize(width: 300, height: 300))
+        #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders a colorful icon for a connectivity URLError")
+    func errorViewIsColorfulForConnectivityError() {
+        let image = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: URLError(.notConnectedToInternet)),
+            size: CGSize(width: 300, height: 300)
+        )
         #expect(containsSaturatedColor(image))
     }
 
