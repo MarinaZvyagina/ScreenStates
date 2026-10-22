@@ -44,6 +44,7 @@ Every default placeholder exposes a stable `accessibilityIdentifier`, independen
 | `screenStates.empty` | ``ScreenStateDefaultEmptyView``/``ScreenStateDefaultEmptyUIView`` |
 | `screenStates.error` | ``ScreenStateDefaultErrorView``/``ScreenStateDefaultErrorUIView`` |
 | `screenStates.error.retryButton` | The Retry button, when `onRetry` is given |
+| `screenStates.error.secondaryActionButton` | The secondary action button, when `secondaryAction` is given |
 
 ## See Also
 

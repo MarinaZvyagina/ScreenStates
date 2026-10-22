@@ -43,6 +43,15 @@ In a compact-height (landscape iPhone) layout, the default Empty/Error placehold
 
 When the wrapped error is a `URLError` indicating no connectivity (`.notConnectedToInternet`, `.networkConnectionLost`) or a timed-out request (`.timedOut`), the default Error placeholders swap their icon for a Wi-Fi-specific one and (SwiftUI only, since UIKit's Error placeholder has no separate title slot) their title for "Connection Issue" instead of "Something Went Wrong" — every other error, including other `URLError` codes, keeps the generic treatment. `ScreenState.isConnectivityError(_:)` exposes the same check for a fully custom placeholder.
 
+The default Error placeholders also take an optional `secondaryAction: (title: String, action: () -> Void)?`, shown as a second button alongside Retry — e.g. a "Go Back" that's more appropriate than retrying when the failure isn't transient:
+
+```swift
+ScreenStateDefaultErrorView(error: error, onRetry: reload, secondaryAction: (title: "Go Back", action: goBack))
+ScreenStateDefaultErrorUIView(error: error, onRetry: reload, secondaryAction: (title: "Go Back", action: goBack))
+```
+
+It's `nil` by default, so existing call sites are unaffected.
+
 Every default placeholder also takes a `style: ScreenStatePlaceholderStyle`, defaulting to `.standard` (the full-screen treatment described above). Pass `.compact` to embed the same placeholder in a card or section instead of a whole screen: a smaller icon, smaller text, and — for the Loading spinner — no more forcing itself to fill all available space. `.compact` always keeps a vertical icon-above-text layout, since a card's size is dictated by the card, not the device's orientation.
 
 ```swift
@@ -468,8 +477,8 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store; `delegate: ScreenStateContainerViewDelegate?` reports `isRefreshing`/`refreshError` |
 | `ScreenStateContainerViewDelegate` | `screenStateContainerViewDidUpdateIsRefreshing(_:)`/`screenStateContainerViewDidUpdateRefreshError(_:)`, both with empty default implementations |
 | `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate; override `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)` for the same two callbacks |
-| `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle` |
-| `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle` |
+| `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle`; the Error one also takes a `secondaryAction: (title: String, action: () -> Void)?` |
+| `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle`; the Error one also takes a `secondaryAction: (title: String, action: () -> Void)?` |
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
 | `ScreenStateShimmerLoadingView` / `ScreenStateShimmerLoadingUIView` | Opt-in pulsing-skeleton alternative to the default spinner Loading placeholder |
 | `ScreenStatesTheme` | `tint`/`titleFont`/`messageFont` overrides for every default SwiftUI placeholder; set via `View.screenStatesTheme(_:)` |

@@ -390,14 +390,32 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     let stack = UIStackView()
     private let textStack = UIStackView()
     private let retryButton = UIButton(configuration: .borderedTinted())
+    /// Internal (not `private`) so `@testable import` tests can verify its
+    /// visibility/title and simulate a tap — this module's test target
+    /// has no live window/scene to drive real touch events through.
+    let secondaryActionButton = UIButton(configuration: .borderless())
     private let onRetry: (() -> Void)?
+    private let secondaryAction: (title: String, action: () -> Void)?
     private let style: ScreenStatePlaceholderStyle
     private let symbol: UIImage?
     private let error: Error
 
-    public init(error: Error, onRetry: (() -> Void)? = nil, style: ScreenStatePlaceholderStyle = .standard) {
+    /// - Parameters:
+    ///   - error: the error to describe.
+    ///   - onRetry: an optional retry action; shows a Retry button when given.
+    ///   - secondaryAction: an optional second button shown alongside
+    ///     Retry — e.g. `(title: "Go Back", action: goBack)`. Hidden by
+    ///     default, so existing call sites are unaffected.
+    ///   - style: the placeholder's visual style.
+    public init(
+        error: Error,
+        onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
+        style: ScreenStatePlaceholderStyle = .standard
+    ) {
         self.error = error
         self.onRetry = onRetry
+        self.secondaryAction = secondaryAction
         self.style = style
         symbol = UIImage(
             systemName: ScreenState<Never>.isConnectivityError(error) ? "wifi.exclamationmark" : "exclamationmark.triangle.fill",
@@ -445,8 +463,16 @@ public final class ScreenStateDefaultErrorUIView: UIView {
         retryButton.isHidden = !showsRetry
         retryButton.accessibilityIdentifier = "screenStates.error.retryButton"
 
+        var secondaryConfiguration = UIButton.Configuration.borderless()
+        secondaryConfiguration.title = secondaryAction?.title
+        secondaryActionButton.configuration = secondaryConfiguration
+        secondaryActionButton.addAction(UIAction { [weak self] _ in self?.secondaryAction?.action() }, for: .touchUpInside)
+        secondaryActionButton.isHidden = secondaryAction == nil
+        secondaryActionButton.accessibilityIdentifier = "screenStates.error.secondaryActionButton"
+
         textStack.addArrangedSubview(messageLabel)
         textStack.addArrangedSubview(retryButton)
+        textStack.addArrangedSubview(secondaryActionButton)
         textStack.axis = .vertical
         textStack.spacing = style == .compact ? 8 : 12
         textStack.alignment = .center
@@ -544,9 +570,16 @@ public final class ScreenStateDefaultErrorUIView: UIView {
 
     #if os(tvOS)
     /// Sends focus straight to the Retry button (when shown) instead of
-    /// making the Siri Remote user hunt for it.
+    /// making the Siri Remote user hunt for it — falling back to the
+    /// secondary action button if Retry isn't shown but that is.
     public override var preferredFocusEnvironments: [UIFocusEnvironment] {
-        retryButton.isHidden ? super.preferredFocusEnvironments : [retryButton]
+        if !retryButton.isHidden {
+            return [retryButton]
+        }
+        if !secondaryActionButton.isHidden {
+            return [secondaryActionButton]
+        }
+        return super.preferredFocusEnvironments
     }
     #endif
 }

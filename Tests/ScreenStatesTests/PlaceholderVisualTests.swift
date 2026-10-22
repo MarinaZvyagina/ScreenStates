@@ -159,6 +159,29 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
+    @Test("ScreenStateDefaultErrorUIView hides its secondary action button by default")
+    func errorUIViewHidesSecondaryActionButtonByDefault() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        #expect(view.secondaryActionButton.isHidden)
+    }
+
+    @Test("ScreenStateDefaultErrorUIView shows its secondary action button with the given title when provided")
+    func errorUIViewShowsSecondaryActionButtonWhenProvided() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError(), secondaryAction: (title: "Go Back", action: {}))
+        #expect(!view.secondaryActionButton.isHidden)
+        #expect(view.secondaryActionButton.configuration?.title == "Go Back")
+    }
+
+    @Test("ScreenStateDefaultErrorUIView's secondary action button invokes the given action")
+    func errorUIViewSecondaryActionButtonInvokesAction() {
+        var tapped = false
+        let view = ScreenStateDefaultErrorUIView(error: SampleError(), secondaryAction: (title: "Go Back", action: { tapped = true }))
+
+        view.secondaryActionButton.sendActions(for: .touchUpInside)
+
+        #expect(tapped)
+    }
+
     @Test("ScreenStateDefaultErrorUIView uses a solid tint for its icon when Increase Contrast is on")
     func errorUIViewRespectsIncreaseContrast() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
@@ -333,6 +356,31 @@ struct PlaceholderVisualTests {
             size: CGSize(width: 300, height: 300)
         )
         #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon with a secondary action alongside Retry")
+    func errorViewRendersWithSecondaryAction() {
+        // Fixed width only (as in the largest-Dynamic-Type-size test
+        // above): two stacked buttons grow the actions area taller than a
+        // fixed 300x300 frame reliably fits alongside the icon.
+        let renderer = ImageRenderer(
+            content: ScreenStateDefaultErrorView(
+                error: SampleError(),
+                onRetry: {},
+                secondaryAction: (title: "Go Back", action: {})
+            )
+            .frame(width: 300))
+        renderer.scale = 2
+        #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders its colorful icon with only a secondary action, no Retry")
+    func errorViewRendersWithOnlySecondaryAction() {
+        let renderer = ImageRenderer(
+            content: ScreenStateDefaultErrorView(error: SampleError(), secondaryAction: (title: "Go Back", action: {}))
+                .frame(width: 300))
+        renderer.scale = 2
+        #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
 
     @Test("ScreenStateDefaultErrorView uses the theme's tint instead of its gradient, when set")

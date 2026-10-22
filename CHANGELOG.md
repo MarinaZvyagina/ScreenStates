@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.64.0]
+
+- Add an optional `secondaryAction: (title: String, action: () -> Void)?` to `ScreenStateDefaultErrorView` and `ScreenStateDefaultErrorUIView`: a second button (e.g. "Go Back") alongside Retry. Hidden by default, so existing call sites are unaffected.
+
 ## [1.63.0]
 
 - Add `ScreenState.isConnectivityError(_:)`: `true` for a `URLError`

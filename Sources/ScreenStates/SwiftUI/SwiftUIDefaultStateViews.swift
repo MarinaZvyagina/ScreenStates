@@ -195,6 +195,7 @@ public struct ScreenStateDefaultEmptyView: View {
 public struct ScreenStateDefaultErrorView: View {
     private let error: Error
     private let onRetry: (() -> Void)?
+    private let secondaryAction: (title: String, action: () -> Void)?
     private let style: ScreenStatePlaceholderStyle
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.screenStatesTheme) private var theme
@@ -205,9 +206,22 @@ public struct ScreenStateDefaultErrorView: View {
     @Namespace private var focusNamespace
     #endif
 
-    public init(error: Error, onRetry: (() -> Void)? = nil, style: ScreenStatePlaceholderStyle = .standard) {
+    /// - Parameters:
+    ///   - error: the error to describe.
+    ///   - onRetry: an optional retry action; shows a Retry button when given.
+    ///   - secondaryAction: an optional second button shown alongside
+    ///     Retry — e.g. `(title: "Go Back", action: goBack)`. Hidden by
+    ///     default, so existing call sites are unaffected.
+    ///   - style: the placeholder's visual style.
+    public init(
+        error: Error,
+        onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
+        style: ScreenStatePlaceholderStyle = .standard
+    ) {
         self.error = error
         self.onRetry = onRetry
+        self.secondaryAction = secondaryAction
         self.style = style
     }
 
@@ -296,6 +310,11 @@ public struct ScreenStateDefaultErrorView: View {
             #endif
     }
 
+    private func secondaryActionButton(title: String, action: @escaping () -> Void) -> some View {
+        Button(title, action: action)
+            .accessibilityIdentifier("screenStates.error.secondaryActionButton")
+    }
+
     // swift-format-ignore
     // Same reason as retryButton(onRetry:) above: the #if/#endif inside
     // `actions:` wrap a single modifier mid-chain.
@@ -315,6 +334,15 @@ public struct ScreenStateDefaultErrorView: View {
                     .prefersDefaultFocus(true, in: focusNamespace)
                     #endif
             }
+            if let secondaryAction {
+                secondaryActionButton(title: secondaryAction.title, action: secondaryAction.action)
+                    #if os(tvOS)
+                    // Only the primary action should pull default focus;
+                    // skip this when Retry is also shown, so the two don't
+                    // fight over it.
+                    .prefersDefaultFocus(onRetry == nil, in: focusNamespace)
+                    #endif
+            }
         }
     }
 
@@ -327,6 +355,9 @@ public struct ScreenStateDefaultErrorView: View {
                     .foregroundStyle(.secondary)
                 if let onRetry {
                     retryButton(onRetry: onRetry)
+                }
+                if let secondaryAction {
+                    secondaryActionButton(title: secondaryAction.title, action: secondaryAction.action)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -347,6 +378,10 @@ public struct ScreenStateDefaultErrorView: View {
                     .foregroundStyle(.secondary)
                 if let onRetry {
                     retryButton(onRetry: onRetry)
+                        .font(theme.messageFont ?? .footnote)
+                }
+                if let secondaryAction {
+                    secondaryActionButton(title: secondaryAction.title, action: secondaryAction.action)
                         .font(theme.messageFont ?? .footnote)
                 }
             }
