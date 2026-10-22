@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.60.0]
+
+- Fix `ScreenStateContainerView.bind(to:)`: calling it a second time
+  with a different store left the previous store's observation
+  subscription alive, so a later change on the *old* store could
+  overwrite `state` with stale data even after rebinding — e.g.
+  reusing a container across cells. Rebinding now immediately
+  reflects the new store and stops reacting to the previous one. No
+  API changes.
+
 ## [1.59.0]
 
 - Add a regression test locking in that `observeStateChanges(of:screen:)`

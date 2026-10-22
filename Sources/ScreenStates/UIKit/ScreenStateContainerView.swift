@@ -26,6 +26,12 @@ public final class ScreenStateContainerView<Value>: UIView {
     private let loadingView: UIView
     private let errorViewProvider: (Error) -> UIView
     private let contentProvider: (Value) -> UIView
+
+    /// Bumped by every ``bind(to:)`` call; the recursive re-subscription
+    /// inside `observe(_:generation:)` drops itself once its captured
+    /// generation no longer matches, instead of continuing to mirror a
+    /// store a later `bind(to:)` call has since replaced.
+    private var bindGeneration = 0
     private var currentContentView: UIView?
 
     /// Uses the built-in Empty / Loading / Error placeholders.
@@ -68,15 +74,17 @@ public final class ScreenStateContainerView<Value>: UIView {
     /// the Observation framework's way of bridging `@Observable` types into
     /// non-SwiftUI code.
     public func bind(to store: ScreenStateStore<Value>) {
-        observe(store)
+        bindGeneration += 1
+        observe(store, generation: bindGeneration)
     }
 
-    private func observe(_ store: ScreenStateStore<Value>) {
+    private func observe(_ store: ScreenStateStore<Value>, generation: Int) {
         withObservationTracking {
             state = store.state
         } onChange: { [weak self] in
             Task { @MainActor in
-                self?.observe(store)
+                guard let self, self.bindGeneration == generation else { return }
+                self.observe(store, generation: generation)
             }
         }
     }

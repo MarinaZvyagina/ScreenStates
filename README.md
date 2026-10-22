@@ -383,7 +383,7 @@ final class ArticlesViewController: UIViewController {
 }
 ```
 
-`bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so `ScreenStateContainerView` re-renders automatically whenever `store.state` changes, with no Combine, delegates, or NotificationCenter involved.
+`bind(to:)` uses `withObservationTracking` under the hood — the same Observation framework mechanism SwiftUI itself relies on — so `ScreenStateContainerView` re-renders automatically whenever `store.state` changes, with no Combine, delegates, or NotificationCenter involved. Calling `bind(to:)` again with a different store (e.g. reusing a container across cells) immediately reflects the new store and stops reacting to the previous one.
 
 ### Skipping the boilerplate with ScreenStateViewController
 
