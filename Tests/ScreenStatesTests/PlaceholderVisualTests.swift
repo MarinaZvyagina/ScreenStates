@@ -162,6 +162,13 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
+    @Test("ScreenStateDefaultErrorUIView still renders a colorful icon for a connectivity URLError at the largest accessibility Dynamic Type size")
+    func errorUIViewIsColorfulForConnectivityErrorAtLargestDynamicTypeSize() {
+        let view = ScreenStateDefaultErrorUIView(error: URLError(.notConnectedToInternet))
+        view.updateFont(contentSizeCategory: .accessibilityExtraExtraExtraLarge)
+        #expect(containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
     @Test("ScreenStateDefaultErrorUIView hides its secondary action button by default")
     func errorUIViewHidesSecondaryActionButtonByDefault() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
@@ -365,6 +372,18 @@ struct PlaceholderVisualTests {
             size: CGSize(width: 300, height: 300)
         )
         #expect(containsSaturatedColor(image))
+    }
+
+    @Test("ScreenStateDefaultErrorView still renders a colorful icon for a connectivity URLError at the largest accessibility Dynamic Type size")
+    func errorViewIsColorfulForConnectivityErrorAtLargestDynamicTypeSize() {
+        // Fixed width only, same reason as the generic largest-Dynamic-Type
+        // test above.
+        let renderer = ImageRenderer(
+            content: ScreenStateDefaultErrorView(error: URLError(.notConnectedToInternet))
+                .dynamicTypeSize(.accessibility5)
+                .frame(width: 400))
+        renderer.scale = 2
+        #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
 
     @Test("ScreenStateDefaultErrorView still renders its colorful icon with a secondary action alongside Retry")
