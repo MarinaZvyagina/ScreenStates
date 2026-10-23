@@ -31,6 +31,7 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 - ``ScreenState``
 - ``ScreenStateStore``
 - ``ScreenStatePreviewError``
+- ``ScreenStateDisplayableError``
 - <doc:ConcurrencyAndCancellation>
 
 ### Accessibility support

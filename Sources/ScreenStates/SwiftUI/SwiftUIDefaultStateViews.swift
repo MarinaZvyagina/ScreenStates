@@ -275,6 +275,13 @@ public struct ScreenStateDefaultErrorView: View {
         isConnectivityError ? .screenStatesConnectionIssue : .screenStatesSomethingWentWrong
     }
 
+    /// `error`'s ``ScreenStateDisplayableError/displayMessage`` when it
+    /// conforms to that protocol, otherwise `localizedDescription` — see
+    /// ``ScreenState/displayMessage(for:)``.
+    private var displayMessage: String {
+        ScreenState<Never>.displayMessage(for: error)
+    }
+
     private func icon(size: CGFloat) -> some View {
         Image(systemName: isConnectivityError ? "wifi.exclamationmark" : "exclamationmark.triangle.fill")
             .font(.system(size: size))
@@ -326,7 +333,7 @@ public struct ScreenStateDefaultErrorView: View {
                 icon(size: ScreenStatesMetrics.iconSize)
             }
         } description: {
-            Text(error.localizedDescription).font(theme.messageFont)
+            Text(displayMessage).font(theme.messageFont)
         } actions: {
             if let onRetry {
                 retryButton(onRetry: onRetry)
@@ -350,7 +357,7 @@ public struct ScreenStateDefaultErrorView: View {
         HStack(alignment: .center, spacing: 16) {
             icon(size: ScreenStatesMetrics.iconSize)
             VStack(alignment: .leading, spacing: 12) {
-                Text(error.localizedDescription)
+                Text(displayMessage)
                     .font(theme.messageFont ?? .subheadline)
                     .foregroundStyle(.secondary)
                 if let onRetry {
@@ -373,7 +380,7 @@ public struct ScreenStateDefaultErrorView: View {
         HStack(alignment: .center, spacing: 12) {
             icon(size: ScreenStatesMetrics.iconSize(for: .compact))
             VStack(alignment: .leading, spacing: 6) {
-                Text(error.localizedDescription)
+                Text(displayMessage)
                     .font(theme.messageFont ?? .footnote)
                     .foregroundStyle(.secondary)
                 if let onRetry {

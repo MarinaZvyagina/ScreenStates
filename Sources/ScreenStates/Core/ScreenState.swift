@@ -49,7 +49,7 @@ extension ScreenState {
         case .loading: .screenStatesLoading
         case .data: nil
         case .error(let error):
-            "\(Self.isConnectivityError(error) ? String.screenStatesConnectionIssue : String.screenStatesSomethingWentWrong). \(error.localizedDescription)"
+            "\(Self.isConnectivityError(error) ? String.screenStatesConnectionIssue : String.screenStatesSomethingWentWrong). \(Self.displayMessage(for: error))"
         }
     }
 
@@ -63,6 +63,16 @@ extension ScreenState {
     public static func isConnectivityError(_ error: Error) -> Bool {
         guard let urlError = error as? URLError else { return false }
         return [.notConnectedToInternet, .networkConnectionLost, .timedOut].contains(urlError.code)
+    }
+
+    /// The message to show for `error`: its ``ScreenStateDisplayableError/displayMessage``
+    /// when it conforms to that protocol, otherwise `localizedDescription`.
+    /// The default Error placeholders use this instead of
+    /// `error.localizedDescription` directly, so adopting
+    /// ``ScreenStateDisplayableError`` on your own error types is enough to
+    /// change what they show, with no call-site changes needed.
+    public static func displayMessage(for error: Error) -> String {
+        (error as? ScreenStateDisplayableError)?.displayMessage ?? error.localizedDescription
     }
 
     /// Transforms the wrapped value with `transform` if the state is

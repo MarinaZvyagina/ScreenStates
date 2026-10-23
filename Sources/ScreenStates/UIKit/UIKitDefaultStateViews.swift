@@ -422,7 +422,7 @@ public final class ScreenStateDefaultErrorUIView: UIView {
             withConfiguration: UIImage.SymbolConfiguration(pointSize: ScreenStatesMetrics.iconSize(for: style), weight: .regular)
         )
         super.init(frame: .zero)
-        setUp(message: error.localizedDescription, showsRetry: onRetry != nil)
+        setUp(message: ScreenState<Never>.displayMessage(for: error), showsRetry: onRetry != nil)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(darkerSystemColorsStatusDidChange),

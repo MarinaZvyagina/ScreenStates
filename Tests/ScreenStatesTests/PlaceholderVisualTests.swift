@@ -29,6 +29,9 @@ import SwiftUI
 @MainActor
 struct PlaceholderVisualTests {
     private struct SampleError: Error {}
+    private struct SampleDisplayableError: ScreenStateDisplayableError {
+        let displayMessage: String
+    }
 
     @Test("ScreenStateDefaultLoadingUIView tints its ring with a colorful gradient, not a plain gray spinner")
     func loadingUIViewIsColorful() {
@@ -187,6 +190,12 @@ struct PlaceholderVisualTests {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
         view.updateIcon(isDarkerSystemColorsEnabled: true)
         #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultErrorUIView shows a ScreenStateDisplayableError's displayMessage instead of localizedDescription")
+    func errorUIViewShowsDisplayMessageForDisplayableError() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleDisplayableError(displayMessage: "That article was removed."))
+        #expect(view.messageLabel.text == "That article was removed.")
     }
 
     @Test("ScreenStateDefaultErrorUIView scales its message label at the largest accessibility Dynamic Type size")

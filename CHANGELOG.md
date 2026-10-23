@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.65.0]
+
+- Add `ScreenStateDisplayableError`: a protocol letting your own error types supply a `displayMessage` distinct from `localizedDescription`. Add `ScreenState.displayMessage(for:)`, which uses it when the wrapped error conforms and falls back to `localizedDescription` otherwise. `ScreenStateDefaultErrorView`/`ErrorUIView` and `accessibilityAnnouncement` now show this instead of `error.localizedDescription` directly.
+
 ## [1.64.0]
 
 - Add an optional `secondaryAction: (title: String, action: () -> Void)?` to `ScreenStateDefaultErrorView` and `ScreenStateDefaultErrorUIView`: a second button (e.g. "Go Back") alongside Retry. Hidden by default, so existing call sites are unaffected.

@@ -72,6 +72,28 @@ struct ScreenStateTests {
         #expect(!ScreenState<Int>.isConnectivityError(SampleError()))
     }
 
+    private struct SampleDisplayableError: ScreenStateDisplayableError {
+        let displayMessage: String
+    }
+
+    @Test("displayMessage(for:) returns displayMessage for a ScreenStateDisplayableError")
+    func displayMessageForDisplayableError() {
+        let error = SampleDisplayableError(displayMessage: "That article was removed.")
+        #expect(ScreenState<Int>.displayMessage(for: error) == "That article was removed.")
+    }
+
+    @Test("displayMessage(for:) falls back to localizedDescription for every other error")
+    func displayMessageForNonDisplayableError() {
+        let error = SampleError()
+        #expect(ScreenState<Int>.displayMessage(for: error) == error.localizedDescription)
+    }
+
+    @Test("accessibilityAnnouncement uses displayMessage(for:) instead of localizedDescription when the error is displayable")
+    func accessibilityAnnouncementUsesDisplayMessage() {
+        let error = SampleDisplayableError(displayMessage: "That article was removed.")
+        #expect(ScreenState<Int>.error(error).accessibilityAnnouncement == "\(String.screenStatesSomethingWentWrong). That article was removed.")
+    }
+
     @Test("Equatable compares by case and payload")
     func equatable() {
         #expect(ScreenState<Int>.data(1) == ScreenState<Int>.data(1))
