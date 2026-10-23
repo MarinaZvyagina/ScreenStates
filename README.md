@@ -62,6 +62,8 @@ struct APIError: ScreenStateDisplayableError {
 store.setError(APIError(displayMessage: "That article was removed."))
 ```
 
+See [`Error Presentation`](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/errorpresentation) for the full rundown of all three.
+
 Every default placeholder also takes a `style: ScreenStatePlaceholderStyle`, defaulting to `.standard` (the full-screen treatment described above). Pass `.compact` to embed the same placeholder in a card or section instead of a whole screen: a smaller icon, smaller text, and — for the Loading spinner — no more forcing itself to fill all available space. `.compact` always keeps a vertical icon-above-text layout, since a card's size is dictated by the card, not the device's orientation.
 
 ```swift
@@ -471,7 +473,7 @@ and run it.
 
 ## Documentation
 
-Full API reference and getting-started guides for both paradigms — plus a Recipes article covering common multi-screen patterns (list + detail, one store per tab, master-detail), a Concurrency & Cancellation article covering overlapping calls, `cancel()`, and `reset(to:)`, an Accessibility article rounding up VoiceOver, Reduce Motion, Increase Contrast, Dynamic Type, and identifiers, a Styling article covering the `.compact` style, the shimmer/redacted alternative Loading placeholders, and `ScreenStatesTheme`, and a SwiftUI & UIKit Equivalents article matching every SwiftUI type to its UIKit counterpart in one table — are published at
+Full API reference and getting-started guides for both paradigms — plus a Recipes article covering common multi-screen patterns (list + detail, one store per tab, master-detail), a Concurrency & Cancellation article covering overlapping calls, `cancel()`, and `reset(to:)`, an Accessibility article rounding up VoiceOver, Reduce Motion, Increase Contrast, Dynamic Type, and identifiers, a Styling article covering the `.compact` style, the shimmer/redacted alternative Loading placeholders, and `ScreenStatesTheme`, an Error Presentation article covering the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`, and a SwiftUI & UIKit Equivalents article matching every SwiftUI type to its UIKit counterpart in one table — are published at
 **[marinazvyagina.github.io/ScreenStates](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)**,
 generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/generate-docs.sh).
 

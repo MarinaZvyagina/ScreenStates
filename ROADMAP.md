@@ -104,7 +104,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add an optional secondary action slot (e.g. "Go Back" alongside "Retry") to the default Error placeholders, defaulting to hidden so existing call sites are unaffected.
 - [x] Add a `ScreenState.Error`-side helper to surface a user-facing message distinct from `localizedDescription` when the wrapped error conforms to a new `ScreenStateDisplayableError` protocol.
 - [x] Add snapshot tests for the new offline/timeout error variant across both SwiftUI and UIKit, at both standard and largest Dynamic Type sizes.
-- [ ] Add a DocC "Error Presentation" article documenting the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`.
+- [x] Add a DocC "Error Presentation" article documenting the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`.
 
 ## Week 14 — Performance & footprint
 

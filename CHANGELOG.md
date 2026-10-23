@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.67.0]
+
+- Add a DocC "Error Presentation" article documenting the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`.
+
 ## [1.66.0]
 
 - Add snapshot tests covering the offline/timeout (connectivity) variant of `ScreenStateDefaultErrorView`/`ErrorUIView` at the largest accessibility Dynamic Type size, alongside the existing standard-size coverage.
