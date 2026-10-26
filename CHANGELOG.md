@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.71.0]
+
+- Audit the default placeholder views for unnecessary SwiftUI body re-evaluations on unrelated `ScreenStateStore` property changes: confirmed `isRefreshing`/`refreshError` can only ever be active while `state` is `.data`, so none of the three default placeholders can ever be mid-refresh. Documented on `isRefreshing`, with regression tests covering `refresh(_:)`/`refreshCollection(_:)`'s fallback-to-load from every placeholder state.
+
 ## [1.70.0]
 
 - Add regression tests locking in that `ScreenState.map(_:)`/`flatMap(_:)` call `transform` exactly once, deterministically rather than via a wall-clock benchmark, guarding against a future O(n²) regression under a large collection payload.

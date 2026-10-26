@@ -607,11 +607,33 @@ struct ScreenStateStoreTests {
         #expect(store.state.isEmpty)
     }
 
-    @Test("refresh(_:) falls back to load(_:) when there's no data yet")
-    func refreshWithNoExistingData() async {
-        let store = ScreenStateStore<Int>()
+    // Also the audit for the Week 14 roadmap item on unnecessary
+    // placeholder re-renders: `refresh(_:)`/`refreshCollection(_:)` only
+    // set `isRefreshing` once `state` is confirmed `.data`, falling back
+    // to `load(_:)`/`loadCollection(_:)` (which never touches it)
+    // otherwise -- so `isRefreshing` can never be observed `true`
+    // alongside `.empty`, `.loading`, or `.error`, and none of the three
+    // default placeholders can ever be mid-refresh. See `isRefreshing`'s
+    // doc comment in ScreenState.swift.
+    @Test(
+        "refresh(_:) falls back to load(_:) and never sets isRefreshing when there's no data yet",
+        arguments: [ScreenState<Int>.empty, .loading, .error(SampleError())]
+    )
+    func refreshWithNoExistingDataFallsBackToLoad(startingState: ScreenState<Int>) async {
+        let store = ScreenStateStore(startingState)
         await store.refresh { 7 }
         #expect(store.state == .data(7))
+        #expect(!store.isRefreshing)
+    }
+
+    @Test(
+        "refreshCollection(_:) falls back to loadCollection(_:) and never sets isRefreshing when there's no data yet",
+        arguments: [ScreenState<[Int]>.empty, .loading, .error(SampleError())]
+    )
+    func refreshCollectionWithNoExistingDataFallsBackToLoad(startingState: ScreenState<[Int]>) async {
+        let store = ScreenStateStore(startingState)
+        await store.refreshCollection { [7] }
+        #expect(store.state == .data([7]))
         #expect(!store.isRefreshing)
     }
 

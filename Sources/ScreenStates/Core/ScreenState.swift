@@ -150,6 +150,17 @@ public final class ScreenStateStore<Value> {
 
     /// `true` while ``refresh(_:)`` or ``refreshCollection(_:)`` is fetching
     /// in the background with the previous data still shown in `state`.
+    ///
+    /// Both only ever set this `true` once they've confirmed `state` is
+    /// already `.data` (falling back to ``load(_:)``/``loadCollection(_:)``
+    /// otherwise, which never touches it) — so `isRefreshing` and
+    /// `refreshError` are never observed while `state` is `.empty`,
+    /// `.loading`, or `.error`. None of the three default placeholders can
+    /// ever be on screen while either is active, so a parent view that
+    /// reads both in the same `body` (e.g. to show a refresh toast
+    /// alongside a ``ScreenStateView``) never has a *placeholder*
+    /// re-rendered by `isRefreshing`/`refreshError` changing — only
+    /// whatever renders the `.data` case could be.
     public private(set) var isRefreshing = false
 
     /// The error from the most recently failed ``refresh(_:)`` or
