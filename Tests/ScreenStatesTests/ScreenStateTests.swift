@@ -164,6 +164,62 @@ struct ScreenStateTests {
         let g = { (value: Int) in value.isMultiple(of: 4) ? ScreenState<Int>.data(value + 1) : .empty }
         #expect(state.flatMap(f).flatMap(g) == state.flatMap { f($0).flatMap(g) })
     }
+
+    /// A collection standing in for a large real payload, counting every
+    /// element access -- used below to lock in, deterministically rather
+    /// than via a flaky wall-clock measurement, that `map(_:)`/`flatMap(_:)`
+    /// call `transform` exactly once. (They can't iterate the collection
+    /// themselves regardless -- neither has a `Value: Collection`
+    /// constraint to index into it with -- so `accessCount` only guards
+    /// against a future change that added one and then did.)
+    private struct AccessCountingCollection: RandomAccessCollection {
+        // A reference-type counter, so the subscript can stay a plain
+        // (non-mutating) `get` -- matching how `Collection`'s own
+        // subscript requirement is declared -- while still recording
+        // accesses across copies of this value type.
+        private final class Counter { var accessCount = 0 }
+        private let counter = Counter()
+        let elementCount: Int
+
+        var accessCount: Int { counter.accessCount }
+
+        var startIndex: Int { 0 }
+        var endIndex: Int { elementCount }
+
+        subscript(position: Int) -> Int {
+            counter.accessCount += 1
+            return position
+        }
+    }
+
+    @Test("map(_:) calls transform exactly once and never iterates a large wrapped collection itself")
+    func mapNeverIteratesTheCollectionItself() {
+        var transformCallCount = 0
+
+        let result = ScreenState.data(AccessCountingCollection(elementCount: 1_000_000)).map { value in
+            transformCallCount += 1
+            // Captures `value.accessCount` before the transform touches
+            // anything else -- still 0 only if `map(_:)` itself never
+            // indexed into the collection on the way here.
+            return value.accessCount
+        }
+
+        #expect(transformCallCount == 1)
+        #expect(result == .data(0))
+    }
+
+    @Test("flatMap(_:) calls transform exactly once and never iterates a large wrapped collection itself")
+    func flatMapNeverIteratesTheCollectionItself() {
+        var transformCallCount = 0
+
+        let result = ScreenState.data(AccessCountingCollection(elementCount: 1_000_000)).flatMap { value in
+            transformCallCount += 1
+            return .data(value.accessCount)
+        }
+
+        #expect(transformCallCount == 1)
+        #expect(result == .data(0))
+    }
 }
 
 @Suite("ScreenStateStore")

@@ -110,6 +110,6 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 - [x] Add a CI job that tracks `ScreenStates`' compiled binary size per release, failing if it regresses past a threshold, to keep the "dependency-free, lightweight" promise measurable rather than assumed.
 - [x] Audit `ScreenStateStore`'s `Task` lifecycle for an avoidable retain cycle between the stored in-flight `Task` and `self`, adding a regression test if one is found.
-- [ ] Add a benchmark test (via `XCTest`'s `measure`) for `ScreenState.map`/`flatMap` under a large collection payload, to catch an accidental O(n²) regression in future changes.
+- [x] Add a benchmark test (via `XCTest`'s `measure`) for `ScreenState.map`/`flatMap` under a large collection payload, to catch an accidental O(n²) regression in future changes.
 - [ ] Audit the default placeholder views for unnecessary SwiftUI body re-evaluations on unrelated `ScreenStateStore` property changes (e.g. `isRefreshing` toggling shouldn't re-render an unrelated Error placeholder).
 - [ ] Add a DocC "Performance" article documenting the binary-size budget, the `Task` lifecycle guarantee, and the re-render characteristics of the default placeholders.

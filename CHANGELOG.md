@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.70.0]
+
+- Add regression tests locking in that `ScreenState.map(_:)`/`flatMap(_:)` call `transform` exactly once, deterministically rather than via a wall-clock benchmark, guarding against a future O(n²) regression under a large collection payload.
+
 ## [1.69.0]
 
 - Audit `ScreenStateStore`'s `Task` lifecycle for an avoidable retain cycle: confirmed `currentTask`'s closures already capture `[weak self]` consistently, with no actionable change needed. Add a regression test locking in that there's no leftover retention once an operation finishes and the store's last external reference is dropped.
