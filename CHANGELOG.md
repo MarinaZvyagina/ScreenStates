@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.72.0]
+
+- Add a DocC "Performance" article documenting the binary-size budget, the `Task` lifecycle guarantee, and the re-render characteristics of the default placeholders.
+
 ## [1.71.0]
 
 - Audit the default placeholder views for unnecessary SwiftUI body re-evaluations on unrelated `ScreenStateStore` property changes: confirmed `isRefreshing`/`refreshError` can only ever be active while `state` is `.data`, so none of the three default placeholders can ever be mid-refresh. Documented on `isRefreshing`, with regression tests covering `refresh(_:)`/`refreshCollection(_:)`'s fallback-to-load from every placeholder state.
