@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.69.0]
+
+- Audit `ScreenStateStore`'s `Task` lifecycle for an avoidable retain cycle: confirmed `currentTask`'s closures already capture `[weak self]` consistently, with no actionable change needed. Add a regression test locking in that there's no leftover retention once an operation finishes and the store's last external reference is dropped.
+
 ## [1.68.0]
 
 - Add a CI job that builds `swift build -c release` and fails if the compiled `.o` size total exceeds a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed.

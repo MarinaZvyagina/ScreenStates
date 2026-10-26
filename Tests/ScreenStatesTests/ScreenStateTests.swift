@@ -253,6 +253,37 @@ struct ScreenStateStoreTests {
         await makeLoadAndDrop()
     }
 
+    // Audit finding for `currentTask`'s Task lifecycle: `self` holds
+    // `currentTask` strongly, and that Task's own closure captures
+    // `[weak self]` (see `load(_:)` and its siblings in ScreenState.swift)
+    // -- confirmed, by temporarily capturing `self` strongly there instead
+    // and re-running this test, that it makes no observable difference
+    // *after* an operation has finished: a completed Task releases its
+    // closure's captures on return regardless of capture style, so there's
+    // no leftover retention either way once `load(_:)` has already
+    // returned. `[weak self]` still matters for a *still-running*
+    // operation -- without it, the store couldn't become eligible for
+    // deallocation until that operation finishes, even once every other
+    // reference to it is already gone -- but that case isn't
+    // independently testable through the public async API: observing it
+    // would require a caller suspended inside `load(_:)` to have already
+    // dropped its own reference to the store, which is a contradiction,
+    // since that caller's own local binding is itself a live strong
+    // reference for the whole suspension.
+    @Test("the store has no leftover retention after an operation finishes and its last reference is dropped")
+    func noLeftoverRetentionAfterOperationFinishes() async {
+        weak var weakStore: ScreenStateStore<Int>?
+
+        func makeLoadAndDrop() async {
+            let store = ScreenStateStore<Int>()
+            weakStore = store
+            await store.load { 7 }
+        }
+        await makeLoadAndDrop()
+
+        #expect(weakStore == nil)
+    }
+
     @Test("loadCollection(_:) maps an empty result to .empty")
     func loadCollectionEmpty() async {
         let store = ScreenStateStore<[Int]>()
