@@ -80,6 +80,36 @@ jobs:
           git commit -m "ci: update coverage badge to ${PERCENT}% [skip ci]"
           git push
 
+  # A proxy for the "dependency-free, lightweight" promise in the README:
+  # sums the release-configuration .o sizes for the ScreenStates target
+  # (there's no single linked artifact to measure instead, since the
+  # library product is "automatic" and nothing in this package's own
+  # build graph links it) and fails if that total exceeds the committed
+  # budget. A deliberate, reviewed size increase bumps maxBytes in
+  # .github/binary-size-budget.json as part of the same PR; this job
+  # never bumps it on its own, unlike the self-updating coverage badge.
+  binary-size:
+    name: Binary size budget
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build release
+        run: swift build -c release
+
+      - name: Check binary size budget
+        run: |
+          set -euo pipefail
+          SIZE=$(find .build/release/ScreenStates.build -maxdepth 1 -name "*.o" -exec stat -f%z {} \; | awk '{sum += $1} END {print sum}')
+          BUDGET=$(jq '.maxBytes' .github/binary-size-budget.json)
+          echo "Compiled size: $SIZE bytes (budget: $BUDGET bytes)"
+          if [ "$SIZE" -gt "$BUDGET" ]; then
+            echo "::error::Compiled size $SIZE bytes exceeds the $BUDGET byte budget in .github/binary-size-budget.json. If this growth is a deliberate, reviewed trade-off, bump maxBytes there as part of this PR."
+            exit 1
+          fi
+
   # A canary for upcoming toolchain breakage: builds and tests against
   # whatever's the newest Xcode already installed on the runner image,
   # which is the beta once one ships ahead of the next GA release.

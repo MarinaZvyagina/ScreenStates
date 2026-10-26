@@ -19,6 +19,8 @@ CI also runs the same suite against the last two GA Xcode versions installed on 
 
 The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKit-only file is guarded with `#if canImport(UIKit) && !os(watchOS)`, so a code review plus the two builds above is enough to verify platform correctness without installing every additional simulator runtime.
 
+CI also builds `swift build -c release` and sums the resulting `.o` sizes against a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed. If your change legitimately grows that total past the budget, bump `maxBytes` there as part of the same PR — the job never bumps it on its own.
+
 ## Style
 
 CI runs `swift format lint` (bundled with the Swift 6 toolchain — nothing extra to install) against `.swift-format`'s project config, as a blocking check. Run it yourself before opening a PR:

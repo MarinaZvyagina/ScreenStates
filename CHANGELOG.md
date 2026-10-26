@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.68.0]
+
+- Add a CI job that builds `swift build -c release` and fails if the compiled `.o` size total exceeds a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed.
+
 ## [1.67.0]
 
 - Add a DocC "Error Presentation" article documenting the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`.
