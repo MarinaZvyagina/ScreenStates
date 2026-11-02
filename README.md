@@ -345,6 +345,15 @@ struct ArticlesScreen: View {
 
 That's it: `ScreenStateView` shows the default Loading spinner, Empty placeholder, or Error view (with a working Retry button) automatically, and your `content` closure only ever runs for the `.data` case.
 
+When `Value: Equatable`, `ScreenStateView` conforms to `Equatable` too (comparing by `state` alone, ignoring the placeholder/content closures) — append `.equatable()` to skip re-rendering it entirely whenever the previous and new `state` compare equal, the SwiftUI-idiomatic counterpart to `ScreenStateStore.setData(_:)`'s own `Value: Equatable` guard against a redundant `@Observable` invalidation:
+
+```swift
+ScreenStateView(store.state, onRetry: reload) { articles in
+    List(articles) { article in Text(article.title) }
+}
+.equatable()
+```
+
 If you'd rather not wrap the whole call site in an initializer, `.screenState(_:onRetry:content:)` is the same thing as a modifier:
 
 ```swift
@@ -485,7 +494,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 | `ScreenStateDisplayableError` | Protocol: `displayMessage: String`, a user-facing message distinct from `localizedDescription`; `ScreenState.displayMessage(for:)` uses it when the wrapped error conforms |
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
-| `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState` |
+| `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState`; conforms to `Equatable` (by `state` alone) when `Value: Equatable`, enabling `.equatable()`'s render-skipping fast path |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
 | `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store; `delegate: ScreenStateContainerViewDelegate?` reports `isRefreshing`/`refreshError` |
 | `ScreenStateContainerViewDelegate` | `screenStateContainerViewDidUpdateIsRefreshing(_:)`/`screenStateContainerViewDidUpdateRefreshError(_:)`, both with empty default implementations |

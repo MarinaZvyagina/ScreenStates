@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.73.0]
+
+- Add a conditional `Equatable` conformance to `ScreenStateView` (comparing by `state` alone) when `Value: Equatable`, enabling SwiftUI's `.equatable()` fast path to skip re-rendering it — including re-invoking `content` for `.data` — whenever `state` is unchanged. Mirrors `ScreenStateStore.setData(_:)`'s own `Value: Equatable` guard.
+
 ## [1.72.0]
 
 - Add a DocC "Performance" article documenting the binary-size budget, the `Task` lifecycle guarantee, and the re-render characteristics of the default placeholders.

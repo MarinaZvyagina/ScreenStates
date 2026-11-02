@@ -10,7 +10,12 @@ import SwiftUI
 /// }
 /// ```
 public struct ScreenStateView<Value, Content: View>: View {
-    private let state: ScreenState<Value>
+    // `nonisolated(unsafe)` so the `Equatable` conformance below (which
+    // `Equatable` itself requires to be `nonisolated`) can read it without
+    // also requiring `Value: Sendable` -- safe since, like every other
+    // `View`, a `ScreenStateView` is only ever constructed and compared on
+    // the main actor by SwiftUI's own rendering pipeline.
+    nonisolated(unsafe) private let state: ScreenState<Value>
     private let content: (Value) -> Content
     private let emptyView: AnyView
     private let loadingView: AnyView
@@ -59,6 +64,27 @@ public struct ScreenStateView<Value, Content: View>: View {
         case .error(let error):
             errorView(error)
         }
+    }
+}
+
+extension ScreenStateView: Equatable where Value: Equatable {
+    /// Compares only `state` — the only stored property that can change
+    /// what's rendered for a given set of placeholder/content builders.
+    /// Enables SwiftUI's `.equatable()` fast path: when `Value: Equatable`,
+    /// append `.equatable()` to a `ScreenStateView` to skip re-rendering it
+    /// entirely — including re-invoking `content` for `.data` — whenever
+    /// the previous and new `state` compare equal, mirroring
+    /// `ScreenStateStore.setData(_:)`'s own `Value: Equatable` guard
+    /// against a redundant `@Observable` invalidation:
+    ///
+    /// ```swift
+    /// ScreenStateView(store.state) { articles in
+    ///     List(articles) { ArticleRow($0) }
+    /// }
+    /// .equatable()
+    /// ```
+    nonisolated public static func == (lhs: ScreenStateView<Value, Content>, rhs: ScreenStateView<Value, Content>) -> Bool {
+        lhs.state == rhs.state
     }
 }
 #endif
