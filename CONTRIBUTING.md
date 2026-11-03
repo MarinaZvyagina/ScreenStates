@@ -43,6 +43,8 @@ swift format lint --configuration .swift-format --recursive --strict Sources Tes
 
 Please use the issue templates — they ask for just enough context (platform, Swift/Xcode version, repro steps for bugs) to act on the report without a round trip. For a suspected security vulnerability, see [`SECURITY.md`](SECURITY.md) instead — please don't open a public issue for those.
 
+If you're not sure something is a bug, or you're just stuck on how to use an API, [**Q&A Discussions**](https://github.com/MarinaZvyagina/ScreenStates/discussions/categories/q-a) is a lighter-weight alternative to opening an issue.
+
 ## Pull requests
 
 Fill out the PR template. Small, focused PRs are easier to review than one PR covering several unrelated changes — if you're touching more than one of the areas above, consider splitting it up.

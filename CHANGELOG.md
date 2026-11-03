@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.74.0]
+
+- Enable GitHub Discussions, with a Q&A discussion template (`.github/DISCUSSION_TEMPLATE/q-a.yml`) and a link from README/CONTRIBUTING, as a lighter-weight alternative to opening an issue.
+
 ## [1.73.0]
 
 - Add a conditional `Equatable` conformance to `ScreenStateView` (comparing by `state` alone) when `Value: Equatable`, enabling SwiftUI's `.equatable()` fast path to skip re-rendering it — including re-invoking `content` for `.data` — whenever `state` is unchanged. Mirrors `ScreenStateStore.setData(_:)`'s own `Value: Equatable` guard.

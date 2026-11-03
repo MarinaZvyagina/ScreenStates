@@ -78,7 +78,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 - [x] Add `CODE_OF_CONDUCT.md`.
 - [x] Add `SECURITY.md` with a responsible-disclosure contact.
-- [ ] Add a GitHub Discussions Q&A category/template, linked from README, as a lighter-weight alternative to opening an issue.
+- [x] Add a GitHub Discussions Q&A category/template, linked from README, as a lighter-weight alternative to opening an issue.
 - [x] Add a "Used By" section to README inviting adopters to add themselves via PR.
 - [x] Add `.github/RELEASING.md` documenting the tag/publish process, matching the version-bump convention already used in `CHANGELOG.md`.
 

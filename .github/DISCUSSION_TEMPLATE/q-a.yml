@@ -1,0 +1,26 @@
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What are you trying to do?
+      description: The goal, not just the error — there's often a simpler path than the one you're stuck on.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you've tried
+      description: A minimal code snippet is the fastest way to get a useful answer.
+      placeholder: |
+        let store = ScreenStateStore<[Article]>()
+        await store.load { ... }
+        // ...
+      render: swift
+
+  - type: input
+    id: version
+    attributes:
+      label: ScreenStates version
+      placeholder: "1.27.0"

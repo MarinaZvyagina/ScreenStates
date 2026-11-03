@@ -521,7 +521,7 @@ Using ScreenStates in your app? Add yourself here via PR — just your app/compa
 
 ## Contributing
 
-Bug reports, feature requests, and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for build/test commands and conventions.
+Bug reports, feature requests, and PRs are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for build/test commands and conventions. Not sure something's a bug, or just stuck on an API? [**Q&A Discussions**](https://github.com/MarinaZvyagina/ScreenStates/discussions/categories/q-a) is a lighter-weight alternative to opening an issue.
 
 ## License
 
