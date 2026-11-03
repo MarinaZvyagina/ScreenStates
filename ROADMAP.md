@@ -113,3 +113,35 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add a benchmark test (via `XCTest`'s `measure`) for `ScreenState.map`/`flatMap` under a large collection payload, to catch an accidental O(n²) regression in future changes.
 - [x] Audit the default placeholder views for unnecessary SwiftUI body re-evaluations on unrelated `ScreenStateStore` property changes (e.g. `isRefreshing` toggling shouldn't re-render an unrelated Error placeholder).
 - [x] Add a DocC "Performance" article documenting the binary-size budget, the `Task` lifecycle guarantee, and the re-render characteristics of the default placeholders.
+
+## Week 15 — Pagination ergonomics
+
+- [ ] Add `ScreenStateStore.loadNextPage(_:)` for `Value: RangeReplaceableCollection`, appending a new page to existing `.data` instead of replacing it, with its own `isLoadingNextPage` flag.
+- [ ] Add `loadNextPageError`, mirroring `refreshError`, so a failed page fetch doesn't discard already-loaded pages.
+- [ ] Guard `loadNextPage(_:)` against the same overlapping/stale-result race already guarded for `load`/`refresh`, with a regression test.
+- [ ] Add a `ScreenAnalyticsEvent` for pagination (`screen_next_page_loaded`/`screen_next_page_failed`), mirroring the existing retry/load-duration events.
+- [ ] Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.
+
+## Week 16 — Internationalization reach
+
+- [ ] Add Spanish and French localizations to `Localizable.xcstrings` (currently English + Russian only).
+- [ ] Add RTL snapshot tests (Arabic locale) for the default Empty/Error placeholders, verifying icon/text ordering flips correctly.
+- [ ] Audit the default placeholders' Dynamic Type + RTL combination at the largest accessibility size, fixing any clipping/mirroring issue found.
+- [ ] Add a DocC "Localization" article documenting how to add a language to `Localizable.xcstrings` and override individual default strings per-app.
+- [ ] Add a CI check that fails if `Localizable.xcstrings` has a string present in English but missing a translation in any other configured language.
+
+## Week 17 — Developer experience & CI maturity
+
+- [ ] Add a CI job running `swift package diagnose-api-breaking-changes` against the latest git tag, to catch an accidental breaking change before merge.
+- [ ] Add a CI job building the package for visionOS (`continue-on-error` initially) — GitHub's hosted runners carry the visionOS SDK even though local dev doesn't, unblocking visionOS verification without a local SDK install.
+- [ ] Automate `Scripts/generate-docs.sh` into a CI job that regenerates and commits `docs/` on every push to `main`, mirroring the self-committing coverage-badge job, instead of a manual step.
+- [ ] Add a CI job enforcing a minimum code-coverage floor (a failing gate, not just the existing informational badge), mirroring the binary-size-budget's "bump the committed threshold for an intentional change" pattern.
+- [ ] Audit every public type for an explicit `Sendable` annotation where Swift 6's inferred conformance is non-obvious, adding one where missing.
+
+## Week 18 — Demo app depth & polish
+
+- [ ] Add a paginated list screen to the Demo app exercising `loadNextPage(_:)` (Week 15's feature) end-to-end.
+- [ ] Add a Demo app screen exercising a custom `ScreenStateDisplayableError`-conforming error type, as a runnable example of the Error Presentation article's recipe.
+- [ ] Add an XCUITest covering the secondary-action button (already shipped) end-to-end in the Demo app.
+- [ ] Add a CONTRIBUTING.md section on how to add a new default-placeholder style variant, as a short internal-contributor guide.
+- [ ] Add a FAQ section to README answering the most likely setup questions (platform minimums, UIKit vs SwiftUI choice, when to reach for analytics).
