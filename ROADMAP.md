@@ -87,7 +87,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add a `ScreenStateStore.refreshError`-clearing path so a successful `refresh(_:)` after a failed one doesn't leave the stale error dangling once `isRefreshing` flips back to `false`.
 - [x] Add a `ScreenAnalyticsEvent` for retry taps specifically (distinct from a generic load event), so analytics can distinguish "user hit retry" from the initial load.
 - [x] Add `ScreenStateStore.loadCollection(_:)`/`refreshCollection(_:)` analytics events mirroring the ones already tracked for `load(_:)`/`refresh(_:)`.
-- [ ] Add a `ScreenOpenSource`-aware convenience initializer on `ScreenStateStore` so call sites that already know their open source don't need a separate `track(openSource:)` call.
+- [x] Add a `ScreenOpenSource`-aware convenience initializer on `ScreenStateStore` so call sites that already know their open source don't need a separate `track(openSource:)` call. (Decided against, 2026-11-03: would give the core, analytics-agnostic `ScreenStateStore` a direct dependency on `ScreenAnalyticsService` and a side effect in `init`, conflicting with `CONTRIBUTING.md`'s own API bar — "does every screen need this," not "could a screen use this" — and duplicating the already-established `observeStateChanges(of:screen:)` onboarding path. User decision: skip entirely, no code added.)
 - [ ] Add a DocC code snippet (via `@Snippet`) for the retry-with-backoff recipe, replacing the current prose-only `loadWithRetry` example in the Recipes article.
 
 ## Week 12 — SwiftUI & UIKit parity
