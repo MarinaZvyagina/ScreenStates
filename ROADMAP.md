@@ -117,7 +117,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 15 — Pagination ergonomics
 
 - [x] Add `ScreenStateStore.loadNextPage(_:)` for `Value: RangeReplaceableCollection`, appending a new page to existing `.data` instead of replacing it, with its own `isLoadingNextPage` flag.
-- [ ] Add `loadNextPageError`, mirroring `refreshError`, so a failed page fetch doesn't discard already-loaded pages.
+- [x] Add `loadNextPageError`, mirroring `refreshError`, so a failed page fetch doesn't discard already-loaded pages.
 - [ ] Guard `loadNextPage(_:)` against the same overlapping/stale-result race already guarded for `load`/`refresh`, with a regression test.
 - [ ] Add a `ScreenAnalyticsEvent` for pagination (`screen_next_page_loaded`/`screen_next_page_failed`), mirroring the existing retry/load-duration events.
 - [ ] Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.

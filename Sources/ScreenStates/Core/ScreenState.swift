@@ -174,6 +174,13 @@ public final class ScreenStateStore<Value> {
     /// background, with the existing pages still shown in `state`.
     public private(set) var isLoadingNextPage = false
 
+    /// The error from the most recently failed ``loadNextPage(_:)``,
+    /// mirroring ``refreshError``. `state` is left untouched by a failed
+    /// page fetch — the pages already loaded stay on screen — so this is
+    /// the only way to learn a page fetch failed. Cleared at the start of
+    /// the next `loadNextPage(_:)` call.
+    public private(set) var loadNextPageError: Error?
+
     /// Bumped by every `load`/`refresh`/`loadWithRetry` call; a call whose
     /// token no longer matches once its operation resolves knows a newer
     /// call has since started, and drops its own result instead of applying
@@ -410,12 +417,15 @@ extension ScreenStateStore where Value: RangeReplaceableCollection {
     /// existing `.data` collection instead of replacing `state` — the
     /// pagination counterpart of ``refresh(_:)`` keeping data on screen
     /// while a background fetch runs. ``isLoadingNextPage`` is `true` for
-    /// the duration.
+    /// the duration. On failure `state` is left alone and the error is
+    /// reported via ``loadNextPageError`` instead, so the pages already
+    /// loaded aren't discarded just because the next one failed.
     ///
     /// Requires `state` to already be `.data` — call `loadCollection(_:)`
     /// first for the initial page. Does nothing if `state` isn't `.data`.
     public func loadNextPage(_ operation: @escaping @Sendable () async throws -> Value) async {
         guard case .data(let existing) = state else { return }
+        loadNextPageError = nil
         isLoadingNextPage = true
         defer { isLoadingNextPage = false }
         do {
@@ -424,7 +434,7 @@ extension ScreenStateStore where Value: RangeReplaceableCollection {
             combined.append(contentsOf: nextPage)
             state = .data(combined)
         } catch {
-            setError(error)
+            loadNextPageError = error
         }
     }
 }

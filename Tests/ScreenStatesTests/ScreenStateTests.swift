@@ -419,15 +419,25 @@ struct ScreenStateStoreTests {
         #expect(!store.isLoadingNextPage)
     }
 
-    @Test("loadNextPage(_:) failure replaces state with .error")
-    func loadNextPageFailureReplacesState() async {
-        // Pending follow-up (Week 15's `loadNextPageError` item): this
-        // discards the already-loaded pages on a failed fetch. For now,
-        // `.error` is the only way to learn a page fetch failed.
+    @Test("loadNextPage(_:) failure leaves old pages in place and reports loadNextPageError")
+    func loadNextPageFailureLeavesPagesInPlace() async {
         let store = ScreenStateStore<[Int]>()
         store.setData([1, 2])
         await store.loadNextPage { throw SampleError() }
-        #expect(store.state.error is SampleError)
+        #expect(store.state == .data([1, 2]))
+        #expect(store.loadNextPageError is SampleError)
+    }
+
+    @Test("loadNextPage(_:) success clears a stale loadNextPageError from a previous failed page fetch")
+    func loadNextPageSuccessClearsStaleError() async {
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1])
+        await store.loadNextPage { throw SampleError() }
+        #expect(store.loadNextPageError is SampleError)
+
+        await store.loadNextPage { [2] }
+        #expect(store.loadNextPageError == nil)
+        #expect(store.state == .data([1, 2]))
     }
 
     @Test("loadWithRetry(_:) succeeds on the first attempt without invoking backoff")

@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.76.0]
+
+- Add `ScreenStateStore.loadNextPageError`, mirroring `refreshError`: `loadNextPage(_:)` now leaves `state` untouched on failure (instead of replacing it with `.error`, discarding the pages already loaded) and reports the failure through this property instead.
+
 ## [1.75.0]
 
 - Add `ScreenStateStore.loadNextPage(_:)` for `Value: RangeReplaceableCollection`, appending a new page to the existing `.data` collection instead of replacing `state`, plus a new `isLoadingNextPage` flag.

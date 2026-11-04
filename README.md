@@ -215,7 +215,7 @@ List(articles) { ... }
     }
 ```
 
-`store.isLoadingNextPage` is `true` while a page fetch is in flight. It requires `state` to already be `.data` — call `loadCollection(_:)` first for the initial page — and does nothing otherwise.
+`store.isLoadingNextPage` is `true` while a page fetch is in flight; if it fails, `state` is untouched (the pages already loaded stay on screen) and the error is reported via `store.loadNextPageError` instead, the same shape as `refresh(_:)`/`refreshError`. It requires `state` to already be `.data` — call `loadCollection(_:)` first for the initial page — and does nothing otherwise.
 
 ### Retrying on failure
 
@@ -507,7 +507,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)`, `isConnectivityError(_:)`, `displayMessage(for:)` helpers |
 | `ScreenStateDisplayableError` | Protocol: `displayMessage: String`, a user-facing message distinct from `localizedDescription`; `ScreenState.displayMessage(for:)` uses it when the wrapped error conforms |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadNextPage(_:)` (when `Value: RangeReplaceableCollection`, appends to existing `.data`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `isLoadingNextPage`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadNextPage(_:)` (when `Value: RangeReplaceableCollection`, appends to existing `.data`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `isLoadingNextPage`, `loadNextPageError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState`; conforms to `Equatable` (by `state` alone) when `Value: Equatable`, enabling `.equatable()`'s render-skipping fast path |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
