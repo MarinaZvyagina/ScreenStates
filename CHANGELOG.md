@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.77.0]
+
+- Guard `loadNextPage(_:)` against the same overlapping/stale-result race already guarded for `load`/`refresh`/`loadWithRetry`/`loadCollection`/`refreshCollection`: a stale page fetch resolving after a newer call has already started is now silently dropped instead of applied.
+
 ## [1.76.0]
 
 - Add `ScreenStateStore.loadNextPageError`, mirroring `refreshError`: `loadNextPage(_:)` now leaves `state` untouched on failure (instead of replacing it with `.error`, discarding the pages already loaded) and reports the failure through this property instead.

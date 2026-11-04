@@ -4,7 +4,7 @@ The guarantees ``ScreenStateStore`` makes about overlapping, cancelled, and rese
 
 ## Overview
 
-``ScreenStateStore`` is `@MainActor` and built under Swift 6 strict concurrency. Every `load`/`loadCollection`/`refresh`/`refreshCollection`/`loadWithRetry` call is `async`, which raises three questions the moment a screen does more than one of them: what happens if a second call starts before the first finishes? How do you stop one early? And how do you force a store back to a known state outside of any of them? This article covers all three.
+``ScreenStateStore`` is `@MainActor` and built under Swift 6 strict concurrency. Every `load`/`loadCollection`/`refresh`/`refreshCollection`/`loadWithRetry`/`loadNextPage` call is `async`, which raises three questions the moment a screen does more than one of them: what happens if a second call starts before the first finishes? How do you stop one early? And how do you force a store back to a known state outside of any of them? This article covers all three.
 
 ## Overlapping calls only ever apply the latest result
 
@@ -15,7 +15,7 @@ await store.load { try await api.fetchArticle(id: 1) } // slow — still in flig
 await store.load { try await api.fetchArticle(id: 2) } // fast — resolves first
 ```
 
-Internally, every call stamps itself with a token before running `operation`, and only applies its result — `.data`, `.error`, or the `.empty` mapping `loadCollection(_:)`/`refreshCollection(_:)` do — if that token is still the most recently started one by the time `operation` resolves. In the example above, article 1's slower fetch resolving *after* article 2's result is already showing never overwrites it; its result is silently dropped. `refresh(_:)`/`refreshCollection(_:)`'s `isRefreshing` follows the same rule: it only clears once the *newest* in-flight refresh finishes, not whichever overlapping one happens to resolve first.
+Internally, every call stamps itself with a token before running `operation`, and only applies its result — `.data`, `.error`, or the `.empty` mapping `loadCollection(_:)`/`refreshCollection(_:)` do — if that token is still the most recently started one by the time `operation` resolves. In the example above, article 1's slower fetch resolving *after* article 2's result is already showing never overwrites it; its result is silently dropped. `refresh(_:)`/`refreshCollection(_:)`'s `isRefreshing` follows the same rule: it only clears once the *newest* in-flight refresh finishes, not whichever overlapping one happens to resolve first. `loadNextPage(_:)`'s `isLoadingNextPage` follows it too.
 
 You don't need to call ``ScreenStateStore/cancel()`` for this to hold — it's automatic. Reach for `cancel()` when you additionally want to stop the older call's work from running at all, not just prevent its result from landing.
 

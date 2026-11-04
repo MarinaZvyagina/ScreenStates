@@ -440,6 +440,29 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data([1, 2]))
     }
 
+    @Test("loadNextPage(_:) drops a stale result once a newer call has already started")
+    func loadNextPageDropsStaleResult() async {
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1])
+        let gate = Gate()
+
+        let staleTask = Task {
+            await store.loadNextPage {
+                await gate.waitForOpen()
+                return [2]
+            }
+        }
+        await gate.waitForStart()
+
+        await store.loadNextPage { [3] }
+        #expect(store.state == .data([1, 3]))
+
+        await gate.open()
+        await staleTask.value
+
+        #expect(store.state == .data([1, 3]))
+    }
+
     @Test("loadWithRetry(_:) succeeds on the first attempt without invoking backoff")
     func loadWithRetrySucceedsFirstTry() async {
         let store = ScreenStateStore<Int>()

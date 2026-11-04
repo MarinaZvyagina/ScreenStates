@@ -138,11 +138,12 @@ extension ScreenState: Sendable where Value: Sendable {}
 /// await store.load { try await api.fetchArticles() }
 /// ```
 ///
-/// If a second `load`/`refresh`/`loadWithRetry` call starts before an
-/// earlier one has finished, only the most recently started call's result is
-/// ever applied — an earlier, now-stale response landing late can't
-/// overwrite state a newer call already produced. Call ``cancel()`` to stop
-/// whichever one is currently running without waiting for it to resolve.
+/// If a second `load`/`refresh`/`loadWithRetry`/`loadNextPage` call starts
+/// before an earlier one has finished, only the most recently started
+/// call's result is ever applied — an earlier, now-stale response landing
+/// late can't overwrite state a newer call already produced. Call
+/// ``cancel()`` to stop whichever one is currently running without waiting
+/// for it to resolve.
 @MainActor
 @Observable
 public final class ScreenStateStore<Value> {
@@ -419,23 +420,35 @@ extension ScreenStateStore where Value: RangeReplaceableCollection {
     /// while a background fetch runs. ``isLoadingNextPage`` is `true` for
     /// the duration. On failure `state` is left alone and the error is
     /// reported via ``loadNextPageError`` instead, so the pages already
-    /// loaded aren't discarded just because the next one failed.
+    /// loaded aren't discarded just because the next one failed. Guarded
+    /// against the same overlapping-call race as `load`/`refresh`: if a
+    /// second `loadNextPage(_:)` (or any other `load`/`refresh`-family
+    /// call) starts before this one's `operation` resolves, this call's
+    /// result is silently dropped instead of applied.
     ///
     /// Requires `state` to already be `.data` — call `loadCollection(_:)`
     /// first for the initial page. Does nothing if `state` isn't `.data`.
     public func loadNextPage(_ operation: @escaping @Sendable () async throws -> Value) async {
         guard case .data(let existing) = state else { return }
+        let token = beginOperation()
         loadNextPageError = nil
         isLoadingNextPage = true
-        defer { isLoadingNextPage = false }
-        do {
-            let nextPage = try await operation()
-            var combined = existing
-            combined.append(contentsOf: nextPage)
-            state = .data(combined)
-        } catch {
-            loadNextPageError = error
+        defer { if isCurrent(token) { isLoadingNextPage = false } }
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let nextPage = try await operation()
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                var combined = existing
+                combined.append(contentsOf: nextPage)
+                self.state = .data(combined)
+            } catch {
+                guard !Task.isCancelled, self.isCurrent(token) else { return }
+                self.loadNextPageError = error
+            }
         }
+        currentTask = task
+        await task.value
     }
 }
 
