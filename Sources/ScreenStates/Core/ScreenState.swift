@@ -170,6 +170,10 @@ public final class ScreenStateStore<Value> {
     /// next load or refresh.
     public private(set) var refreshError: Error?
 
+    /// `true` while ``loadNextPage(_:)`` is fetching another page in the
+    /// background, with the existing pages still shown in `state`.
+    public private(set) var isLoadingNextPage = false
+
     /// Bumped by every `load`/`refresh`/`loadWithRetry` call; a call whose
     /// token no longer matches once its operation resolves knows a newer
     /// call has since started, and drops its own result instead of applying
@@ -398,6 +402,30 @@ extension ScreenStateStore where Value: Collection {
         }
         currentTask = task
         await task.value
+    }
+}
+
+extension ScreenStateStore where Value: RangeReplaceableCollection {
+    /// Fetches another page with `operation` and appends it to the
+    /// existing `.data` collection instead of replacing `state` — the
+    /// pagination counterpart of ``refresh(_:)`` keeping data on screen
+    /// while a background fetch runs. ``isLoadingNextPage`` is `true` for
+    /// the duration.
+    ///
+    /// Requires `state` to already be `.data` — call `loadCollection(_:)`
+    /// first for the initial page. Does nothing if `state` isn't `.data`.
+    public func loadNextPage(_ operation: @escaping @Sendable () async throws -> Value) async {
+        guard case .data(let existing) = state else { return }
+        isLoadingNextPage = true
+        defer { isLoadingNextPage = false }
+        do {
+            let nextPage = try await operation()
+            var combined = existing
+            combined.append(contentsOf: nextPage)
+            state = .data(combined)
+        } catch {
+            setError(error)
+        }
     }
 }
 

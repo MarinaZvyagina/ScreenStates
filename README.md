@@ -202,6 +202,21 @@ List(articles) { ... }
 
 While a refresh is in flight, `store.isRefreshing` is `true`; if it fails, `store.state` is untouched and the error is reported via `store.refreshError` instead (so you can show a toast without discarding the list). Both fall back to `load(_:)`/`loadCollection(_:)` automatically when there's no data yet to preserve.
 
+### Loading more pages
+
+When `Value: RangeReplaceableCollection`, `loadNextPage(_:)` fetches another page and appends it to the existing `.data` collection instead of replacing `state` — the pagination counterpart of `refresh(_:)` keeping the list on screen:
+
+```swift
+List(articles) { ... }
+    .task {
+        if articles.last?.id == article.id {
+            await store.loadNextPage { try await api.fetchArticles(page: nextPage) }
+        }
+    }
+```
+
+`store.isLoadingNextPage` is `true` while a page fetch is in flight. It requires `state` to already be `.data` — call `loadCollection(_:)` first for the initial page — and does nothing otherwise.
+
 ### Retrying on failure
 
 Some failures are worth retrying automatically before giving up — a flaky network call, for example. `loadWithRetry(maxAttempts:backoff:_:)` behaves like `load(_:)`, but retries a failing `operation` instead of settling into `.error` after the first failure:
@@ -492,7 +507,7 @@ generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/
 |---|---|
 | `ScreenState<Value>` | `.empty`, `.loading`, `.data(Value)`, `.error(Error)`, plus `value`, `error`, `isLoading`, `isEmpty`, `analyticsKind`, `accessibilityAnnouncement`, `map(_:)`, `flatMap(_:)`, `isConnectivityError(_:)`, `displayMessage(for:)` helpers |
 | `ScreenStateDisplayableError` | Protocol: `displayMessage: String`, a user-facing message distinct from `localizedDescription`; `ScreenState.displayMessage(for:)` uses it when the wrapped error conforms |
-| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
+| `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadNextPage(_:)` (when `Value: RangeReplaceableCollection`, appends to existing `.data`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `isLoadingNextPage`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
 | `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState`; conforms to `Equatable` (by `state` alone) when `Value: Equatable`, enabling `.equatable()`'s render-skipping fast path |
 | `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |

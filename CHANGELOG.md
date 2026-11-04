@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.75.0]
+
+- Add `ScreenStateStore.loadNextPage(_:)` for `Value: RangeReplaceableCollection`, appending a new page to the existing `.data` collection instead of replacing `state`, plus a new `isLoadingNextPage` flag.
+
 ## [1.74.0]
 
 - Enable GitHub Discussions, with a Q&A discussion template (`.github/DISCUSSION_TEMPLATE/q-a.yml`) and a link from README/CONTRIBUTING, as a lighter-weight alternative to opening an issue.

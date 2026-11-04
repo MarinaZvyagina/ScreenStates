@@ -376,6 +376,60 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data([2, 3]))
     }
 
+    @Test("loadNextPage(_:) appends the new page to the existing .data collection")
+    func loadNextPageAppendsToExistingData() async {
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1, 2])
+        await store.loadNextPage { [3, 4] }
+        #expect(store.state == .data([1, 2, 3, 4]))
+    }
+
+    @Test("loadNextPage(_:) sets isLoadingNextPage while in flight, then clears it")
+    func loadNextPageSetsIsLoadingNextPageWhileInFlight() async {
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1])
+        let gate = Gate()
+
+        let task = Task {
+            await store.loadNextPage {
+                await gate.waitForOpen()
+                return [2]
+            }
+        }
+        await gate.waitForStart()
+        #expect(store.isLoadingNextPage)
+
+        await gate.open()
+        await task.value
+
+        #expect(!store.isLoadingNextPage)
+        #expect(store.state == .data([1, 2]))
+    }
+
+    @Test("loadNextPage(_:) does nothing when state isn't .data")
+    func loadNextPageDoesNothingWithoutExistingData() async {
+        let store = ScreenStateStore<[Int]>()
+        let counter = AttemptCounter()
+        await store.loadNextPage {
+            _ = await counter.next()
+            return [1]
+        }
+        #expect(await counter.count == 0)
+        #expect(store.state.isLoading)
+        #expect(!store.isLoadingNextPage)
+    }
+
+    @Test("loadNextPage(_:) failure replaces state with .error")
+    func loadNextPageFailureReplacesState() async {
+        // Pending follow-up (Week 15's `loadNextPageError` item): this
+        // discards the already-loaded pages on a failed fetch. For now,
+        // `.error` is the only way to learn a page fetch failed.
+        let store = ScreenStateStore<[Int]>()
+        store.setData([1, 2])
+        await store.loadNextPage { throw SampleError() }
+        #expect(store.state.error is SampleError)
+    }
+
     @Test("loadWithRetry(_:) succeeds on the first attempt without invoking backoff")
     func loadWithRetrySucceedsFirstTry() async {
         let store = ScreenStateStore<Int>()
