@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.78.0]
+
+- Add `ScreenAnalyticsEvent.screenNextPageLoaded(screen:)`/`.screenNextPageFailed(screen:errorDescription:)` and `ScreenAnalyticsService.trackNextPageLoaded(_:)`/`.trackNextPageFailed(_:errorDescription:)`, mirroring the existing retry/load-duration events for `loadNextPage(_:)`.
+
 ## [1.77.0]
 
 - Guard `loadNextPage(_:)` against the same overlapping/stale-result race already guarded for `load`/`refresh`/`loadWithRetry`/`loadCollection`/`refreshCollection`: a stale page fetch resolving after a newer call has already started is now silently dropped instead of applied.

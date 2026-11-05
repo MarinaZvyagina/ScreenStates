@@ -41,6 +41,20 @@ struct ScreenAnalyticsEventTests {
         #expect(event.parameters == ["screen": .string("Articles")])
     }
 
+    @Test("screenNextPageLoaded(screen:) sets the screen")
+    func screenNextPageLoaded() {
+        let event = ScreenAnalyticsEvent.screenNextPageLoaded(screen: "Articles")
+        #expect(event.name == "screen_next_page_loaded")
+        #expect(event.parameters == ["screen": .string("Articles")])
+    }
+
+    @Test("screenNextPageFailed(screen:errorDescription:) sets the screen and the error")
+    func screenNextPageFailed() {
+        let event = ScreenAnalyticsEvent.screenNextPageFailed(screen: "Articles", errorDescription: "offline")
+        #expect(event.name == "screen_next_page_failed")
+        #expect(event.parameters == ["screen": .string("Articles"), "error": .string("offline")])
+    }
+
     @Test("ScreenState.analyticsKind names every case")
     func screenStateAnalyticsKind() {
         #expect(ScreenState<Int>.empty.analyticsKind == "empty")
@@ -126,6 +140,26 @@ struct ScreenAnalyticsServiceTests {
         service.trackRetryTapped("Articles")
 
         #expect(spy.events == [.screenRetryTapped(screen: "Articles")])
+    }
+
+    @Test("trackNextPageLoaded(_:) tracks a screen_next_page_loaded event")
+    func trackNextPageLoaded() {
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+
+        service.trackNextPageLoaded("Articles")
+
+        #expect(spy.events == [.screenNextPageLoaded(screen: "Articles")])
+    }
+
+    @Test("trackNextPageFailed(_:errorDescription:) tracks a screen_next_page_failed event")
+    func trackNextPageFailed() {
+        let spy = SpyTracker()
+        let service = ScreenAnalyticsService(trackers: [spy])
+
+        service.trackNextPageFailed("Articles", errorDescription: "offline")
+
+        #expect(spy.events == [.screenNextPageFailed(screen: "Articles", errorDescription: "offline")])
     }
 
     @Test("observeStateChanges(of:screen:) tracks each ScreenState transition")

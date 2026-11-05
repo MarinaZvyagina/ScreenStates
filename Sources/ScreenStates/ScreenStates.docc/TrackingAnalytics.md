@@ -51,6 +51,19 @@ ScreenStateView(store.state, onRetry: {
 }
 ```
 
+``ScreenStateStore/loadNextPage(_:)`` doesn't move `state` off `.data` on either a success or a failure, so `observeStateChanges(of:screen:)` has nothing to report for it — call `trackNextPageLoaded(_:)`/`trackNextPageFailed(_:errorDescription:)` (``ScreenAnalyticsEvent/screenNextPageLoaded(screen:)``/``ScreenAnalyticsEvent/screenNextPageFailed(screen:errorDescription:)``) from the same place you call `loadNextPage(_:)`, mirroring how `trackRetryTapped(_:)` is called from `onRetry`:
+
+```swift
+func loadMore() async {
+    await store.loadNextPage { try await api.fetchArticles(page: nextPage) }
+    if let error = store.loadNextPageError {
+        analytics.trackNextPageFailed("Articles", errorDescription: error.localizedDescription)
+    } else {
+        analytics.trackNextPageLoaded("Articles")
+    }
+}
+```
+
 Both ``ScreenState`` and ``ScreenOpenSource`` expose an `analyticsKind` helper — a short, stable, payload-free name for the current case (`"loading"`, `"error"`, `"push"`, `"deep_link"`, ...) — so you can build custom ``ScreenAnalyticsEvent``s yourself for anything the built-in factories don't cover.
 
 ## See Also

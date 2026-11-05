@@ -56,6 +56,26 @@ extension ScreenAnalyticsEvent {
         ScreenAnalyticsEvent(name: "screen_retry_tapped", parameters: ["screen": .string(screen)])
     }
 
+    /// The default event for a successful ``ScreenStateStore/loadNextPage(_:)``
+    /// call — distinct from ``screenStateChanged(screen:from:to:errorDescription:)``,
+    /// since appending a page doesn't change `state`'s own
+    /// ``ScreenState/analyticsKind`` the way a `load`/`refresh` transition
+    /// does. ScreenStates has no way to detect this on its own; call it
+    /// from the same place `loadNextPage(_:)` is called.
+    public static func screenNextPageLoaded(screen: String) -> ScreenAnalyticsEvent {
+        ScreenAnalyticsEvent(name: "screen_next_page_loaded", parameters: ["screen": .string(screen)])
+    }
+
+    /// The default event for a failed ``ScreenStateStore/loadNextPage(_:)``
+    /// call, carrying the error's description the same way
+    /// ``screenStateChanged(screen:from:to:errorDescription:)`` does for a
+    /// `.error` transition.
+    public static func screenNextPageFailed(screen: String, errorDescription: String) -> ScreenAnalyticsEvent {
+        ScreenAnalyticsEvent(
+            name: "screen_next_page_failed",
+            parameters: ["screen": .string(screen), "error": .string(errorDescription)])
+    }
+
     /// The default event for how long a screen spent in `.loading` before
     /// settling on `outcome` — a terminal state's ``ScreenState/analyticsKind``
     /// (`"data"`, `"empty"`, or `"error"`).

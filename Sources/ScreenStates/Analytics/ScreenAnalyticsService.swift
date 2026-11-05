@@ -40,6 +40,21 @@ public final class ScreenAnalyticsService {
         track(.screenRetryTapped(screen: screen))
     }
 
+    /// Tracks a successful ``ScreenStateStore/loadNextPage(_:)`` call.
+    /// Call it from the same place `loadNextPage(_:)` is called — see
+    /// ``ScreenAnalyticsEvent/screenNextPageLoaded(screen:)``.
+    public func trackNextPageLoaded(_ screen: String) {
+        track(.screenNextPageLoaded(screen: screen))
+    }
+
+    /// Tracks a failed ``ScreenStateStore/loadNextPage(_:)`` call. Call it
+    /// from the same place `loadNextPage(_:)` is called, e.g. by observing
+    /// ``ScreenStateStore/loadNextPageError`` — see
+    /// ``ScreenAnalyticsEvent/screenNextPageFailed(screen:errorDescription:)``.
+    public func trackNextPageFailed(_ screen: String, errorDescription: String) {
+        track(.screenNextPageFailed(screen: screen, errorDescription: errorDescription))
+    }
+
     /// Tracks every ``ScreenState`` transition on `store` from now on as a
     /// `screen_state_changed` event named `screen`, plus a
     /// `screen_load_duration` event (see ``ScreenAnalyticsEvent/screenLoadDuration(screen:outcome:milliseconds:)``)
