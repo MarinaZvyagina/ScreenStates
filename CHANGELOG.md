@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.79.0]
+
+- Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.
+
 ## [1.78.0]
 
 - Add `ScreenAnalyticsEvent.screenNextPageLoaded(screen:)`/`.screenNextPageFailed(screen:errorDescription:)` and `ScreenAnalyticsService.trackNextPageLoaded(_:)`/`.trackNextPageFailed(_:errorDescription:)`, mirroring the existing retry/load-duration events for `loadNextPage(_:)`.

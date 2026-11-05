@@ -120,7 +120,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add `loadNextPageError`, mirroring `refreshError`, so a failed page fetch doesn't discard already-loaded pages.
 - [x] Guard `loadNextPage(_:)` against the same overlapping/stale-result race already guarded for `load`/`refresh`, with a regression test.
 - [x] Add a `ScreenAnalyticsEvent` for pagination (`screen_next_page_loaded`/`screen_next_page_failed`), mirroring the existing retry/load-duration events.
-- [ ] Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.
+- [x] Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.
 
 ## Week 16 — Internationalization reach
 
