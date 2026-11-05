@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.81.0]
+
+- Add RTL snapshot tests for the default Empty/Error placeholders' compact-height layout, verifying the icon/text order mirrors under a right-to-left layout direction.
+
 ## [1.80.0]
 
 - Add Spanish and French localizations to `Localizable.xcstrings` (previously English + Russian only).

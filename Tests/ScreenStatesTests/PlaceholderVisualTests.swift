@@ -566,6 +566,47 @@ struct PlaceholderVisualTests {
         )
         #expect(containsSaturatedColor(image))
     }
+
+    @Test("ScreenStateDefaultEmptyView mirrors its compact-height icon/title order under a right-to-left layout direction")
+    func emptyViewMirrorsCompactHeightLayoutForRTL() {
+        let size = CGSize(width: 480, height: 180)
+
+        let ltr = snapshotImage(of: ScreenStateDefaultEmptyView().environment(\.verticalSizeClass, .compact), size: size)
+        #expect(containsSaturatedColor(ltr, in: .leftHalf(of: size)))
+        #expect(!containsSaturatedColor(ltr, in: .rightHalf(of: size)))
+
+        let rtl = snapshotImage(
+            of: ScreenStateDefaultEmptyView()
+                .environment(\.verticalSizeClass, .compact)
+                .environment(\.locale, Locale(identifier: "ar"))
+                .environment(\.layoutDirection, .rightToLeft),
+            size: size
+        )
+        #expect(containsSaturatedColor(rtl, in: .rightHalf(of: size)))
+        #expect(!containsSaturatedColor(rtl, in: .leftHalf(of: size)))
+    }
+
+    @Test("ScreenStateDefaultErrorView mirrors its compact-height icon/message order under a right-to-left layout direction")
+    func errorViewMirrorsCompactHeightLayoutForRTL() {
+        let size = CGSize(width: 480, height: 180)
+
+        let ltr = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError()).environment(\.verticalSizeClass, .compact),
+            size: size
+        )
+        #expect(containsSaturatedColor(ltr, in: .leftHalf(of: size)))
+        #expect(!containsSaturatedColor(ltr, in: .rightHalf(of: size)))
+
+        let rtl = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError())
+                .environment(\.verticalSizeClass, .compact)
+                .environment(\.locale, Locale(identifier: "ar"))
+                .environment(\.layoutDirection, .rightToLeft),
+            size: size
+        )
+        #expect(containsSaturatedColor(rtl, in: .rightHalf(of: size)))
+        #expect(!containsSaturatedColor(rtl, in: .leftHalf(of: size)))
+    }
     #endif
     #endif
 }
@@ -595,6 +636,38 @@ private func isSaturated(_ cgColor: CGColor, threshold: CGFloat) -> Bool {
     let g = components[1] * 255
     let b = components[2] * 255
     return max(r, g, b) - min(r, g, b) > threshold
+}
+
+extension CGRect {
+    /// The left half of a `size`-sized rect, in points -- paired with
+    /// `containsSaturatedColor(_:in:)` below to localize a wide
+    /// compact-height snapshot's icon to one side or the other, e.g. to
+    /// verify it moves under a right-to-left `layoutDirection`.
+    fileprivate static func leftHalf(of size: CGSize) -> CGRect {
+        CGRect(x: 0, y: 0, width: size.width / 2, height: size.height)
+    }
+
+    /// The right half of a `size`-sized rect, in points. See `leftHalf(of:)`.
+    fileprivate static func rightHalf(of size: CGSize) -> CGRect {
+        CGRect(x: size.width / 2, y: 0, width: size.width / 2, height: size.height)
+    }
+}
+
+/// `true` if any sufficiently opaque pixel within `region` (in points,
+/// scaled by `image.scale` to the image's actual pixel size) is clearly
+/// colorful -- the same check as `containsSaturatedColor(_:threshold:)`
+/// below, but restricted to one side of a wide frame.
+private func containsSaturatedColor(_ image: UIImage, in region: CGRect, threshold: CGFloat = 40) -> Bool {
+    guard let cgImage = image.cgImage else { return false }
+    let scale = image.scale
+    let pixelRegion = CGRect(
+        x: region.minX * scale,
+        y: region.minY * scale,
+        width: region.width * scale,
+        height: region.height * scale
+    )
+    guard let cropped = cgImage.cropping(to: pixelRegion) else { return false }
+    return containsSaturatedColor(UIImage(cgImage: cropped), threshold: threshold)
 }
 
 /// `true` if any sufficiently opaque pixel in `image` is clearly colorful
