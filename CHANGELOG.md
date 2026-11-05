@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.80.0]
+
+- Add Spanish and French localizations to `Localizable.xcstrings` (previously English + Russian only).
+
 ## [1.79.0]
 
 - Add a DocC "Pagination" article documenting `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, with a List-plus-"Load More" example.

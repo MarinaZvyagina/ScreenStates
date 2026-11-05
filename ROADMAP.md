@@ -124,7 +124,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 16 — Internationalization reach
 
-- [ ] Add Spanish and French localizations to `Localizable.xcstrings` (currently English + Russian only).
+- [x] Add Spanish and French localizations to `Localizable.xcstrings` (currently English + Russian only).
 - [ ] Add RTL snapshot tests (Arabic locale) for the default Empty/Error placeholders, verifying icon/text ordering flips correctly.
 - [ ] Audit the default placeholders' Dynamic Type + RTL combination at the largest accessibility size, fixing any clipping/mirroring issue found.
 - [ ] Add a DocC "Localization" article documenting how to add a language to `Localizable.xcstrings` and override individual default strings per-app.
