@@ -607,6 +607,42 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(rtl, in: .rightHalf(of: size)))
         #expect(!containsSaturatedColor(rtl, in: .leftHalf(of: size)))
     }
+
+    // Audit for the Week 16 roadmap item on Dynamic Type + RTL together:
+    // combining both with the compact-height layout still mirrors the icon
+    // to the expected (trailing, i.e. right-in-RTL) side and still renders
+    // it -- no clipping/mirroring issue found, so these two tests just
+    // lock in that combination alongside the Dynamic-Type-only and
+    // RTL-only coverage above.
+    @Test("ScreenStateDefaultEmptyView still mirrors and renders its icon under RTL at the largest accessibility Dynamic Type size")
+    func emptyViewMirrorsAndRendersForRTLAtLargestDynamicTypeSize() {
+        let size = CGSize(width: 480, height: 180)
+        let rtl = snapshotImage(
+            of: ScreenStateDefaultEmptyView()
+                .environment(\.verticalSizeClass, .compact)
+                .environment(\.layoutDirection, .rightToLeft)
+                .dynamicTypeSize(.accessibility5),
+            size: size
+        )
+        #expect(containsSaturatedColor(rtl))
+        #expect(containsSaturatedColor(rtl, in: .rightHalf(of: size)))
+        #expect(!containsSaturatedColor(rtl, in: .leftHalf(of: size)))
+    }
+
+    @Test("ScreenStateDefaultErrorView still mirrors and renders its icon under RTL at the largest accessibility Dynamic Type size")
+    func errorViewMirrorsAndRendersForRTLAtLargestDynamicTypeSize() {
+        let size = CGSize(width: 480, height: 180)
+        let rtl = snapshotImage(
+            of: ScreenStateDefaultErrorView(error: SampleError())
+                .environment(\.verticalSizeClass, .compact)
+                .environment(\.layoutDirection, .rightToLeft)
+                .dynamicTypeSize(.accessibility5),
+            size: size
+        )
+        #expect(containsSaturatedColor(rtl))
+        #expect(containsSaturatedColor(rtl, in: .rightHalf(of: size)))
+        #expect(!containsSaturatedColor(rtl, in: .leftHalf(of: size)))
+    }
     #endif
     #endif
 }
