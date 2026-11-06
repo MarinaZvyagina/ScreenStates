@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.84.0]
+
+- Add a CI job that fails if `Localizable.xcstrings` has a string present in one configured language but missing a translation in any other, to catch a new string that only got an English entry before merge.
+
 ## [1.83.0]
 
 - Add a DocC "Localization" article documenting how to add a language to `Localizable.xcstrings` and override individual default strings per-app.

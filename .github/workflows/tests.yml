@@ -18,6 +18,38 @@ jobs:
       - name: Run swift-format
         run: swift format lint --configuration .swift-format --recursive --strict Sources Tests
 
+  # Catches a string added in English (or any language) without a
+  # matching translation somewhere else -- e.g. a new placeholder string
+  # that only got an English entry before merge. "Configured languages"
+  # is whatever set of language codes already appears anywhere in the
+  # catalog; a brand new language is caught by this same check once it
+  # has at least one string translated.
+  localization-check:
+    name: Check for missing translations
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Check Localizable.xcstrings for missing translations
+        run: |
+          set -euo pipefail
+          MISSING=$(jq -r '
+            (.strings | [.[].localizations | keys[]] | unique) as $languages |
+            .strings | to_entries[] |
+            .key as $key |
+            .value.localizations as $locs |
+            $languages[] as $lang |
+            select(($locs[$lang].stringUnit.state // "missing") != "translated") |
+            "\($key): missing or untranslated for \($lang)"
+          ' Sources/ScreenStates/Resources/Localizable.xcstrings)
+          if [ -n "$MISSING" ]; then
+            echo "::error::Localizable.xcstrings has strings missing a translation:"
+            echo "$MISSING"
+            exit 1
+          fi
+
   docs:
     name: Build DocC catalog
     runs-on: macos-latest

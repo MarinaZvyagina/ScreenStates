@@ -21,6 +21,8 @@ The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKi
 
 CI also builds `swift build -c release` and sums the resulting `.o` sizes against a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed. If your change legitimately grows that total past the budget, bump `maxBytes` there as part of the same PR — the job never bumps it on its own.
 
+If you add or change a string in `Resources/Localizable.xcstrings`, make sure every language already in the catalog has a translated entry for it — CI fails the build otherwise (see [`Localization`](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/localization) for how to add a language or a string).
+
 ## Style
 
 CI runs `swift format lint` (bundled with the Swift 6 toolchain — nothing extra to install) against `.swift-format`'s project config, as a blocking check. Run it yourself before opening a PR:
