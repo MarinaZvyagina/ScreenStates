@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.83.0]
+
+- Add a DocC "Localization" article documenting how to add a language to `Localizable.xcstrings` and override individual default strings per-app.
+
 ## [1.82.0]
 
 - Audit the default placeholders' Dynamic Type + RTL combination at the largest accessibility size: no clipping or mirroring issue found. Add regression tests locking in that combination alongside the existing Dynamic-Type-only and RTL-only coverage.

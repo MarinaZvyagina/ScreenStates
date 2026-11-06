@@ -43,6 +43,10 @@ On watchOS, the default placeholders' icon and loading spinner are sized down so
 
 - <doc:Accessibility>
 
+### Localizing the default text
+
+- <doc:Localization>
+
 ### Performance characteristics
 
 - <doc:Performance>
