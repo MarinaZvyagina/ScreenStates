@@ -21,6 +21,8 @@ The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKi
 
 CI also builds `swift build -c release` and sums the resulting `.o` sizes against a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed. If your change legitimately grows that total past the budget, bump `maxBytes` there as part of the same PR — the job never bumps it on its own.
 
+Line coverage is also checked against a floor committed in `.github/coverage-floor.json` — a blocking check, unlike the informational coverage badge in the README. If your change legitimately drops coverage below that floor (e.g. removing a heavily-tested code path), bump `minPercent` there as part of the same PR.
+
 If you add or change a string in `Resources/Localizable.xcstrings`, make sure every language already in the catalog has a translated entry for it — CI fails the build otherwise (see [`Localization`](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/localization) for how to add a language or a string).
 
 ## Style

@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.87.0]
+
+- Add a CI job enforcing a minimum code-coverage floor (90%, committed in `.github/coverage-floor.json`) — a failing gate, unlike the existing informational coverage badge.
+
 ## [1.86.0]
 
 - Automate `docs/` regeneration into CI: the `docs` job now commits the regenerated static site back on every push to `main` (skipping when unchanged), replacing the previously-manual `Scripts/generate-docs.sh` step.

@@ -120,6 +120,24 @@ jobs:
             -enableCodeCoverage YES \
             -resultBundlePath TestResults.xcresult
 
+      # A failing gate, unlike the informational badge below: fails if
+      # coverage drops below the floor committed in
+      # .github/coverage-floor.json. Runs on every PR and push (the badge
+      # update below is main-only, since only main gets a badge commit).
+      # A deliberate, reviewed coverage decrease bumps minPercent there as
+      # part of the same PR, mirroring the binary-size-budget job; this
+      # job never bumps it on its own.
+      - name: Check coverage floor
+        run: |
+          set -euo pipefail
+          PERCENT=$(xcrun xccov view --report --json TestResults.xcresult | jq '(.targets[] | select(.name == "ScreenStates") | .lineCoverage) * 100 | floor')
+          FLOOR=$(jq '.minPercent' .github/coverage-floor.json)
+          echo "Coverage: $PERCENT% (floor: $FLOOR%)"
+          if [ "$PERCENT" -lt "$FLOOR" ]; then
+            echo "::error::Coverage $PERCENT% is below the $FLOOR% floor in .github/coverage-floor.json. If this drop is a deliberate, reviewed trade-off, bump minPercent there as part of this PR."
+            exit 1
+          fi
+
       # Self-hosted shields.io "endpoint" badge — no external coverage
       # service or secret needed. Only runs on pushes to main (not PRs,
       # which may come from forks without push access) and skips
