@@ -12,7 +12,7 @@ import Observation
 /// analytics.observeStateChanges(of: store, screen: "Articles")
 /// ```
 @MainActor
-public final class ScreenAnalyticsService {
+public final class ScreenAnalyticsService: Sendable {
     private let trackers: [ScreenAnalyticsTracker]
 
     public init(trackers: [ScreenAnalyticsTracker]) {

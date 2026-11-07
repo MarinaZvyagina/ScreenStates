@@ -146,7 +146,7 @@ extension ScreenState: Sendable where Value: Sendable {}
 /// for it to resolve.
 @MainActor
 @Observable
-public final class ScreenStateStore<Value> {
+public final class ScreenStateStore<Value>: Sendable {
     public private(set) var state: ScreenState<Value>
 
     /// `true` while ``refresh(_:)`` or ``refreshCollection(_:)`` is fetching

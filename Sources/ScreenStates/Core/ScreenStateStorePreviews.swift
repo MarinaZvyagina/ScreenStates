@@ -43,7 +43,7 @@ extension ScreenStateStore {
 
 /// A generic error for ``ScreenStateStore/previewError(_:)``, so a preview
 /// doesn't need its own placeholder `Error` type just to show `.error`.
-public struct ScreenStatePreviewError: LocalizedError {
+public struct ScreenStatePreviewError: LocalizedError, Sendable {
     public let errorDescription: String?
 
     public init(_ message: String = "Something went wrong") {

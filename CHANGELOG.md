@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.88.0]
+
+- Audit every public type for an explicit `Sendable` annotation: everything was already implicitly `Sendable` (global-actor isolation for `ScreenStateStore`/`ScreenAnalyticsService`, automatic struct synthesis for `ScreenStatePreviewError`), so this adds explicit conformances to document the guarantee and guard against a future silent regression, rather than fixing an actual gap. A compile-time regression test locks in all three.
+
 ## [1.87.0]
 
 - Add a CI job enforcing a minimum code-coverage floor (90%, committed in `.github/coverage-floor.json`) — a failing gate, unlike the existing informational coverage badge.

@@ -227,6 +227,38 @@ struct ScreenStateTests {
 struct ScreenStateStoreTests {
     private struct SampleError: Error {}
 
+    // A compile-time check, not a runtime one: `assertSendable(_:)`'s
+    // `T: Sendable` constraint means this file fails to *build* (not just
+    // fails this test) if any of these three ever stopped conforming --
+    // the strongest guarantee available for a conformance with no
+    // runtime-observable behavior of its own.
+    //
+    // Audited 2026-11-07, empirically (removing each `Sendable` in turn
+    // and re-running this test) rather than just by reasoning: every
+    // public type already satisfied `Sendable` *without* an explicit
+    // declaration -- `ScreenStateStore`/`ScreenAnalyticsService` because
+    // a type entirely isolated to one global actor (`@MainActor` here)
+    // is implicitly safe to share regardless of its stored properties'
+    // own Sendability, and even SwiftUI `View`-conforming structs with
+    // plain (non-`@Sendable`) closures passed the same way, since `View`
+    // conformance infers the same whole-type `@MainActor` isolation (see
+    // `ScreenStateView`'s `Equatable` conformance for where that exact
+    // inference was confirmed before). So nothing here was actually
+    // *missing* -- these three explicit annotations document an
+    // already-true guarantee and double as a regression guard: an
+    // implicit conformance would silently stop applying if a future
+    // change broke it, while an explicit one fails to compile instead.
+    // UIKit/SwiftUI view types were left without an explicit annotation,
+    // matching how neither `UIView` nor `View` conformers are `Sendable`
+    // in Apple's own frameworks either.
+    @Test("ScreenStateStore, ScreenAnalyticsService, and ScreenStatePreviewError are Sendable")
+    func sendableConformance() {
+        func assertSendable<T: Sendable>(_ value: T) {}
+        assertSendable(ScreenStateStore<Int>())
+        assertSendable(ScreenAnalyticsService(trackers: []))
+        assertSendable(ScreenStatePreviewError())
+    }
+
     @Test("load(_:) success maps to .data")
     func loadSuccess() async {
         let store = ScreenStateStore<Int>()
