@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.85.0]
+
+- Add a CI job building the package for visionOS (`continue-on-error` initially), since GitHub's hosted runners carry the visionOS SDK even though local dev doesn't — the only place visionOS-specific code gets compiled today.
+
 ## [1.84.0]
 
 - Add a CI job that fails if `Localizable.xcstrings` has a string present in one configured language but missing a translation in any other, to catch a new string that only got an English entry before merge.

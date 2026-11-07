@@ -210,3 +210,25 @@ jobs:
           xcodebuild test \
             -scheme ScreenStates \
             -destination "platform=iOS Simulator,id=$UDID"
+
+  # Verifies the visionOS-specific code paths actually compile. Local dev
+  # has no visionOS SDK installed (and disk space is too tight to safely
+  # download it), but GitHub's hosted macOS runners carry it already, so
+  # this is the only place that code gets built at all today.
+  # continue-on-error until this has run clean a few times, the same way
+  # test-xcode-beta started out.
+  build-visionos:
+    name: Build for visionOS
+    runs-on: macos-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build for visionOS
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -scheme ScreenStates \
+            -destination 'generic/platform=visionOS'

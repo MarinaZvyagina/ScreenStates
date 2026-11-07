@@ -133,7 +133,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 17 — Developer experience & CI maturity
 
 - [ ] Add a CI job running `swift package diagnose-api-breaking-changes` against the latest git tag, to catch an accidental breaking change before merge.
-- [ ] Add a CI job building the package for visionOS (`continue-on-error` initially) — GitHub's hosted runners carry the visionOS SDK even though local dev doesn't, unblocking visionOS verification without a local SDK install.
+- [x] Add a CI job building the package for visionOS (`continue-on-error` initially) — GitHub's hosted runners carry the visionOS SDK even though local dev doesn't, unblocking visionOS verification without a local SDK install.
 - [ ] Automate `Scripts/generate-docs.sh` into a CI job that regenerates and commits `docs/` on every push to `main`, mirroring the self-committing coverage-badge job, instead of a manual step.
 - [ ] Add a CI job enforcing a minimum code-coverage floor (a failing gate, not just the existing informational badge), mirroring the binary-size-budget's "bump the committed threshold for an intentional change" pattern.
 - [ ] Audit every public type for an explicit `Sendable` annotation where Swift 6's inferred conformance is non-obvious, adding one where missing.

@@ -17,7 +17,7 @@ Run this before opening a PR. If your change touches a `#if canImport(UIKit)`/`#
 
 CI also runs the same suite against the last two GA Xcode versions installed on the runner image (a real, blocking check — a regression on an older still-supported Xcode is as real as one on the newest), and separately against whatever Xcode beta happens to be newest on the runner, as a non-blocking canary for upcoming toolchain breakage (`continue-on-error`, so a red run there is worth a look but never blocks a PR).
 
-The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKit-only file is guarded with `#if canImport(UIKit) && !os(watchOS)`, so a code review plus the two builds above is enough to verify platform correctness without installing every additional simulator runtime.
+The tvOS/watchOS/visionOS SDKs aren't required for local development; every UIKit-only file is guarded with `#if canImport(UIKit) && !os(watchOS)`, so a code review plus the two builds above is enough to verify platform correctness without installing every additional simulator runtime. CI additionally builds the package for visionOS (`continue-on-error`, since that job is still new) on GitHub's hosted runners, which carry the SDK even though local dev doesn't — the only place visionOS-specific code actually gets compiled today.
 
 CI also builds `swift build -c release` and sums the resulting `.o` sizes against a budget committed in `.github/binary-size-budget.json`, to keep the "dependency-free, lightweight" promise measurable rather than assumed. If your change legitimately grows that total past the budget, bump `maxBytes` there as part of the same PR — the job never bumps it on its own.
 
