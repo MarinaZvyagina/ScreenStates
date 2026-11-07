@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.86.0]
+
+- Automate `docs/` regeneration into CI: the `docs` job now commits the regenerated static site back on every push to `main` (skipping when unchanged), replacing the previously-manual `Scripts/generate-docs.sh` step.
+
 ## [1.85.0]
 
 - Add a CI job building the package for visionOS (`continue-on-error` initially), since GitHub's hosted runners carry the visionOS SDK even though local dev doesn't — the only place visionOS-specific code gets compiled today.

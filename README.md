@@ -499,7 +499,7 @@ and run it.
 
 Full API reference and getting-started guides for both paradigms — plus a Recipes article covering common multi-screen patterns (list + detail, one store per tab, master-detail), a Concurrency & Cancellation article covering overlapping calls, `cancel()`, and `reset(to:)`, a Pagination article covering `loadNextPage(_:)`, `isLoadingNextPage`, and `loadNextPageError`, an Accessibility article rounding up VoiceOver, Reduce Motion, Increase Contrast, Dynamic Type, and identifiers, a Localization article covering how to add a language and override individual default strings per-app, a Styling article covering the `.compact` style, the shimmer/redacted alternative Loading placeholders, and `ScreenStatesTheme`, an Error Presentation article covering the offline-aware variant, the secondary action slot, and `ScreenStateDisplayableError`, a Performance article covering the binary-size budget, the `Task` lifecycle guarantee, and the default placeholders' re-render characteristics, and a SwiftUI & UIKit Equivalents article matching every SwiftUI type to its UIKit counterpart in one table — are published at
 **[marinazvyagina.github.io/ScreenStates](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/)**,
-generated with DocC. It's regenerated with [`Scripts/generate-docs.sh`](Scripts/generate-docs.sh).
+generated with DocC. CI regenerates and commits it automatically on every push to `main`; [`Scripts/generate-docs.sh`](Scripts/generate-docs.sh) runs the same process locally, for a preview before pushing.
 
 ## API reference
 

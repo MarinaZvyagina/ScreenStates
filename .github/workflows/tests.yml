@@ -53,6 +53,8 @@ jobs:
   docs:
     name: Build DocC catalog
     runs-on: macos-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -64,7 +66,38 @@ jobs:
           xcodebuild docbuild \
             -scheme ScreenStates \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath DerivedData \
             OTHER_DOCC_FLAGS="--warnings-as-errors"
+
+      # Regenerates the static site published at
+      # https://marinazvyagina.github.io/ScreenStates/ from the archive
+      # just built above and commits it back with [skip ci] -- replaces
+      # the previously-manual `Scripts/generate-docs.sh` step, mirroring
+      # the self-committing coverage badge job below. Only runs on pushes
+      # to main (not PRs, which may come from forks without push access)
+      # and skips committing when nothing changed.
+      - name: Regenerate and commit the docs/ site
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          ARCHIVE=$(find DerivedData -name 'ScreenStates.doccarchive' -print -quit)
+          rm -rf docs
+          "$(xcrun --find docc)" process-archive transform-for-static-hosting \
+            "$ARCHIVE" \
+            --output-path docs \
+            --hosting-base-path ScreenStates
+          touch docs/.nojekyll
+
+          if git diff --quiet -- docs; then
+            echo "docs/ unchanged, nothing to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "docs: regenerate docs/ [skip ci]"
+          git push
 
   test:
     name: Test on iOS Simulator
