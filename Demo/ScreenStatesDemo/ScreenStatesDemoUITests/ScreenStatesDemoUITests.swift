@@ -59,4 +59,31 @@ final class ScreenStatesDemoUITests: XCTestCase {
         XCTAssertTrue(seenError, "Expected the Error placeholder to appear at some point in the cycle")
         XCTAssertTrue(seenData, "Expected a fact from the sample set to appear at some point in the cycle")
     }
+
+    /// The Kylo Ren tab's `KyloRenFactsService.fetchFacts()` throws on every
+    /// `callCount % 4 == 1` call — including the very first, right after
+    /// the tab appears — so the Error placeholder with its
+    /// `secondaryAction` ("Use Cached Data") button is reliably the first
+    /// thing this test sees, with no need to ride out a longer cycle like
+    /// `testReyScreenCyclesThroughAllFourStates` does.
+    ///
+    /// Tapping that button is `KyloRenViewController.useCachedData()`'s
+    /// job: it calls `store.setData(CharacterFact.kyloRenSamples)`
+    /// directly, bypassing the network entirely, which this test confirms
+    /// end-to-end by asserting a known sample fact appears.
+    func testKyloRenScreenSecondaryActionShowsCachedData() {
+        let app = XCUIApplication()
+        app.launchArguments = ["UITesting"]
+        app.launch()
+
+        app.tabBars.buttons["Kylo Ren"].tap()
+
+        let secondaryActionButton = app.descendants(matching: .any)["screenStates.error.secondaryActionButton"]
+        XCTAssertTrue(secondaryActionButton.waitForExistence(timeout: 10), "Expected the Error placeholder's secondary action button to appear")
+
+        secondaryActionButton.tap()
+
+        let cachedFact = app.staticTexts["Born Ben Solo, son of Han Solo and Leia Organa."]
+        XCTAssertTrue(cachedFact.waitForExistence(timeout: 5), "Expected a fact from CharacterFact.kyloRenSamples to appear after tapping \"Use Cached Data\"")
+    }
 }

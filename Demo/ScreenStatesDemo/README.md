@@ -12,7 +12,9 @@ themed around *Star Wars* characters instead:
   listing facts about her with a golden-lightsaber accent.
 - **Kylo Ren** — UIKit, using `ScreenStateStore` + `ScreenStateContainerView`,
   wrapped for the tab bar with `UIViewControllerRepresentable`, with a
-  red-lightsaber accent.
+  red-lightsaber accent. Its Error placeholder also wires up
+  `secondaryAction`: a "Use Cached Data" button that shows sample facts
+  directly instead of retrying the network.
 - **Finn** — SwiftUI, same as Rey but driven by `loadNextPage(_:)` instead
   of a single `loadCollection(_:)`: it fetches one page of facts at a
   time, showing a spinner at the bottom of the list (`isLoadingNextPage`)
@@ -47,8 +49,10 @@ and the default placeholders into a real screen inside a real app. It
 rides the Rey tab's real auto-cycle rather than forcing a state, polling
 for all four to occur at least once within one generous window instead of
 assuming a strict order (launch/warm-up time before the test starts
-polling is real but unpredictable). Run it as part of the `ScreenStatesDemo`
-scheme's test action:
+polling is real but unpredictable). A second test drives the Kylo Ren
+tab's deterministic first-call error and taps its "Use Cached Data"
+button, asserting the sample data it shows. Run both as part of the
+`ScreenStatesDemo` scheme's test action:
 
 ```sh
 UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | test("iPhone"))][0].udid')
