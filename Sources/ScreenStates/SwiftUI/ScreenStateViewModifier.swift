@@ -16,9 +16,10 @@ extension View {
     public func screenState<Value, Content: View>(
         _ state: ScreenState<Value>,
         onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
         @ViewBuilder content: @escaping (Value) -> Content
     ) -> some View {
-        ScreenStateView(state, onRetry: onRetry, content: content)
+        ScreenStateView(state, onRetry: onRetry, secondaryAction: secondaryAction, content: content)
     }
 
     /// Sugar for the fully-customized

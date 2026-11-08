@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.91.0]
+
+- Fix `ScreenStateView`, `View.screenState(_:onRetry:content:)`, `ScreenStateContainerView`, and `ScreenStateViewController`'s built-in-placeholders initializers to accept and pass through `secondaryAction`, matching `onRetry` — found while wiring up a Demo app screen to exercise it: `secondaryAction` was added to `ScreenStateDefaultErrorView`/`UIView` directly in Week 13, but none of these four convenience APIs were updated to pass it through, leaving the fully-customized initializer as the only way to use it together with the default placeholders. Additive and non-breaking (`secondaryAction` defaults to `nil`).
+
 ## [1.90.0]
 
 - Add `FinnServiceError` to the Demo app, conforming to `ScreenStateDisplayableError` — a runnable example of the Error Presentation article's recipe, giving the default Error placeholder a custom `displayMessage` instead of the generic `DemoError`'s. Demo-only; no package source or API changes.

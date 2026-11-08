@@ -50,7 +50,13 @@ ScreenStateDefaultErrorView(error: error, onRetry: reload, secondaryAction: (tit
 ScreenStateDefaultErrorUIView(error: error, onRetry: reload, secondaryAction: (title: "Go Back", action: goBack))
 ```
 
-It's `nil` by default, so existing call sites are unaffected.
+It's `nil` by default, so existing call sites are unaffected. `ScreenStateView`, `ScreenStateContainerView`, and `ScreenStateViewController` all take the same `secondaryAction` parameter too, wiring it to their built-in Error placeholder the same way they already do for `onRetry`:
+
+```swift
+ScreenStateView(store.state, onRetry: reload, secondaryAction: (title: "Go Back", action: goBack)) { articles in
+    List(articles) { article in Text(article.title) }
+}
+```
 
 The default Error placeholders show `ScreenState.displayMessage(for:)` instead of `error.localizedDescription` directly — which is `localizedDescription` for most errors, but lets your own error types supply a message actually meant for the person using the app by conforming to `ScreenStateDisplayableError`:
 
@@ -510,11 +516,11 @@ generated with DocC. CI regenerates and commits it automatically on every push t
 | `ScreenStateDisplayableError` | Protocol: `displayMessage: String`, a user-facing message distinct from `localizedDescription`; `ScreenState.displayMessage(for:)` uses it when the wrapped error conforms |
 | `ScreenStateStore<Value>` | `@Observable` container: `state`, `load(_:)`, `loadCollection(_:)` (when `Value: Collection`), `loadNextPage(_:)` (when `Value: RangeReplaceableCollection`, appends to existing `.data`), `loadWithRetry(maxAttempts:backoff:_:)`, `refresh(_:)`, `refreshCollection(_:)` (when `Value: Collection`), `cancel()`, `reset(to:)`, `isRefreshing`, `refreshError`, `isLoadingNextPage`, `loadNextPageError`, `setLoading()`, `setEmpty()`, `setData(_:)` (skips a redundant `@Observable` invalidation when `Value: Equatable` and the value is unchanged), `setError(_:)`, plus `preview(_:)`, `previewLoading`, `previewEmpty`, `previewData(_:)`, `previewError(_:)` factories for `#Preview` |
 | `ScreenStatePreviewError` | Generic `LocalizedError` used by `previewError(_:)` |
-| `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState`; conforms to `Equatable` (by `state` alone) when `Value: Equatable`, enabling `.equatable()`'s render-skipping fast path |
-| `View.screenState(_:onRetry:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:content:)` |
-| `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`; `bind(to:)` syncs it to a store; `delegate: ScreenStateContainerViewDelegate?` reports `isRefreshing`/`refreshError` |
+| `ScreenStateView<Value, Content>` | SwiftUI container that switches on a `ScreenState`, with `onRetry`/`secondaryAction` wired to the default Error placeholder; conforms to `Equatable` (by `state` alone) when `Value: Equatable`, enabling `.equatable()`'s render-skipping fast path |
+| `View.screenState(_:onRetry:secondaryAction:content:)` | View-modifier sugar for `ScreenStateView(_:onRetry:secondaryAction:content:)` |
+| `ScreenStateContainerView<Value>` | UIKit `UIView` container that switches on a `ScreenState`, with `onRetry`/`secondaryAction` wired to the default Error placeholder; `bind(to:)` syncs it to a store; `delegate: ScreenStateContainerViewDelegate?` reports `isRefreshing`/`refreshError` |
 | `ScreenStateContainerViewDelegate` | `screenStateContainerViewDidUpdateIsRefreshing(_:)`/`screenStateContainerViewDidUpdateRefreshError(_:)`, both with empty default implementations |
-| `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate; override `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)` for the same two callbacks |
+| `ScreenStateViewController<Value>` | `UIViewController` base class wrapping a full-bounds `ScreenStateContainerView` (with the same `onRetry`/`secondaryAction`) bound to `store`; subclass it to skip the `viewDidLoad()` boilerplate; override `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)` for the same two callbacks |
 | `ScreenStateDefault{Empty,Loading,Error}View` | Default SwiftUI placeholders; take a `style: ScreenStatePlaceholderStyle`; the Error one also takes a `secondaryAction: (title: String, action: () -> Void)?` |
 | `ScreenStateDefault{Empty,Loading,Error}UIView` | Default UIKit placeholders; take a `style: ScreenStatePlaceholderStyle`; the Error one also takes a `secondaryAction: (title: String, action: () -> Void)?` |
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |

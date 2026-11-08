@@ -34,14 +34,17 @@ open class ScreenStateViewController<Value>: UIViewController, ScreenStateContai
     /// - Parameters:
     ///   - store: the store driving this screen's content.
     ///   - onRetry: wired to the default error view's Retry button.
+    ///   - secondaryAction: wired to the default error view's optional
+    ///     second button, shown alongside Retry.
     ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public init(
         store: ScreenStateStore<Value>,
         onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView
     ) {
         self.store = store
-        container = ScreenStateContainerView(onRetry: onRetry, content: contentProvider)
+        container = ScreenStateContainerView(onRetry: onRetry, secondaryAction: secondaryAction, content: contentProvider)
         super.init(nibName: nil, bundle: nil)
     }
 

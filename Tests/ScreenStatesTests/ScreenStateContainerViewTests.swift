@@ -130,6 +130,20 @@ struct ScreenStateContainerViewTests {
         #expect(delegate.isRefreshingUpdates == [true, false])
         #expect(delegate.refreshErrorUpdates.count == 1)
     }
+
+    @Test("the built-in-placeholders init wires secondaryAction through to the default error view")
+    func convenienceInitWiresSecondaryAction() {
+        var tapped = false
+        let container = ScreenStateContainerView<Int>(
+            secondaryAction: (title: "Go Back", action: { tapped = true })
+        ) { _ in UIView() }
+        container.state = .error(SampleError())
+
+        let errorView = container.subviews.compactMap { $0 as? ScreenStateDefaultErrorUIView }.first
+        #expect(errorView != nil)
+        errorView?.secondaryActionButton.sendActions(for: .touchUpInside)
+        #expect(tapped)
+    }
 }
 
 private struct SampleError: Error {}

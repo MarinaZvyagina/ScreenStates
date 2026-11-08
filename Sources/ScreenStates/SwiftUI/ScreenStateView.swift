@@ -25,17 +25,20 @@ public struct ScreenStateView<Value, Content: View>: View {
     /// - Parameters:
     ///   - state: the state to render.
     ///   - onRetry: wired to the default error view's Retry button.
+    ///   - secondaryAction: wired to the default error view's optional
+    ///     second button, shown alongside Retry.
     ///   - content: builds the view shown for ``ScreenState/data(_:)``.
     public init(
         _ state: ScreenState<Value>,
         onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
         @ViewBuilder content: @escaping (Value) -> Content
     ) {
         self.state = state
         self.content = content
         emptyView = AnyView(ScreenStateDefaultEmptyView())
         loadingView = AnyView(ScreenStateDefaultLoadingView())
-        errorView = { AnyView(ScreenStateDefaultErrorView(error: $0, onRetry: onRetry)) }
+        errorView = { AnyView(ScreenStateDefaultErrorView(error: $0, onRetry: onRetry, secondaryAction: secondaryAction)) }
     }
 
     /// Fully customizes the Empty / Loading / Error placeholders.

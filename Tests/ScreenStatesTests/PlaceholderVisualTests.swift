@@ -402,6 +402,54 @@ struct PlaceholderVisualTests {
         #expect(containsSaturatedColor(renderer.uiImage ?? UIImage()))
     }
 
+    // `secondaryAction` was added to ScreenStateDefaultErrorView/UIView in
+    // Week 13, but ScreenStateView/ScreenStateContainerView/
+    // ScreenStateViewController's own built-in-placeholders
+    // initializers were never updated to accept and pass it through --
+    // found while wiring up the Demo app's Kylo Ren screen for Week 18's
+    // XCUITest item. These two tests (and their UIKit-side counterparts
+    // in ScreenStateContainerViewTests.swift/ScreenStateViewControllerTests.swift)
+    // lock the fix in: a render with `secondaryAction` given is taller
+    // than one without, since the rendered error view now has two
+    // stacked buttons instead of one.
+    @Test("ScreenStateView's built-in-placeholders init wires secondaryAction through to the default error view")
+    func screenStateViewWiresSecondaryActionThroughToErrorView() {
+        let withoutSecondaryAction = ImageRenderer(
+            content: ScreenStateView(ScreenState<Int>.error(SampleError()), onRetry: {}) { _ in EmptyView() }
+                .frame(width: 300))
+        let withSecondaryAction = ImageRenderer(
+            content: ScreenStateView(
+                ScreenState<Int>.error(SampleError()),
+                onRetry: {},
+                secondaryAction: (title: "Go Back", action: {})
+            ) { _ in EmptyView() }
+            .frame(width: 300))
+
+        let heightWithout = withoutSecondaryAction.uiImage?.size.height ?? 0
+        let heightWith = withSecondaryAction.uiImage?.size.height ?? 0
+        #expect(heightWith > heightWithout)
+    }
+
+    @Test(".screenState(_:onRetry:secondaryAction:content:) wires secondaryAction through to the default error view")
+    func screenStateModifierWiresSecondaryActionThroughToErrorView() {
+        let withoutSecondaryAction = ImageRenderer(
+            content: EmptyView()
+                .screenState(ScreenState<Int>.error(SampleError()), onRetry: {}) { _ in EmptyView() }
+                .frame(width: 300))
+        let withSecondaryAction = ImageRenderer(
+            content: EmptyView()
+                .screenState(
+                    ScreenState<Int>.error(SampleError()),
+                    onRetry: {},
+                    secondaryAction: (title: "Go Back", action: {})
+                ) { _ in EmptyView() }
+                .frame(width: 300))
+
+        let heightWithout = withoutSecondaryAction.uiImage?.size.height ?? 0
+        let heightWith = withSecondaryAction.uiImage?.size.height ?? 0
+        #expect(heightWith > heightWithout)
+    }
+
     @Test("ScreenStateDefaultErrorView still renders its colorful icon with only a secondary action, no Retry")
     func errorViewRendersWithOnlySecondaryAction() {
         let renderer = ImageRenderer(

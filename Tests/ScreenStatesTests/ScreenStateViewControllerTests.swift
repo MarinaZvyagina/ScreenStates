@@ -87,6 +87,24 @@ struct ScreenStateViewControllerTests {
         #expect(viewController.refreshErrorUpdates.count == 1)
         #expect(viewController.refreshErrorUpdates.first is SampleError)
     }
+
+    @Test("the built-in-placeholders initializer wires secondaryAction through to the default error view")
+    func initializerWiresSecondaryAction() {
+        let store = ScreenStateStore<Int>(.error(SampleError()))
+        var tapped = false
+        let viewController = ScreenStateViewController(
+            store: store,
+            secondaryAction: (title: "Go Back", action: { tapped = true })
+        ) { _ in UIView() }
+
+        _ = viewController.view  // triggers viewDidLoad()
+
+        let container = viewController.view.subviews.first
+        let errorView = container?.subviews.compactMap { $0 as? ScreenStateDefaultErrorUIView }.first
+        #expect(errorView != nil)
+        errorView?.secondaryActionButton.sendActions(for: .touchUpInside)
+        #expect(tapped)
+    }
 }
 
 @MainActor

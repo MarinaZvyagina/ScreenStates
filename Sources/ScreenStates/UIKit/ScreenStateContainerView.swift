@@ -65,15 +65,18 @@ public final class ScreenStateContainerView<Value>: UIView {
     /// Uses the built-in Empty / Loading / Error placeholders.
     /// - Parameters:
     ///   - onRetry: wired to the default error view's Retry button.
+    ///   - secondaryAction: wired to the default error view's optional
+    ///     second button, shown alongside Retry.
     ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public convenience init(
         onRetry: (() -> Void)? = nil,
+        secondaryAction: (title: String, action: () -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView
     ) {
         self.init(
             emptyView: ScreenStateDefaultEmptyUIView(),
             loadingView: ScreenStateDefaultLoadingUIView(),
-            errorView: { ScreenStateDefaultErrorUIView(error: $0, onRetry: onRetry) },
+            errorView: { ScreenStateDefaultErrorUIView(error: $0, onRetry: onRetry, secondaryAction: secondaryAction) },
             content: contentProvider
         )
     }
