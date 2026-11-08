@@ -38,13 +38,23 @@ actor KyloRenFactsService {
 /// `CharacterFact.finnPages` per call, instead of ``ReyFactsService``'s
 /// everything-at-once shape. `fetchNextPage()` returns `[]` once every
 /// page has been served, the same "no more results" signal a real
-/// paginated API would give.
+/// paginated API would give. `fetchFirstPage()` also occasionally throws
+/// `FinnServiceError.jammed` — a runnable example of the Error
+/// Presentation article's `ScreenStateDisplayableError` recipe, giving
+/// the default Error placeholder a Finn-flavored message distinct from
+/// `localizedDescription` instead of `DemoError`'s generic one.
 actor FinnFactsService {
     private var nextPageIndex = 0
+    private var firstPageCallCount = 0
 
     func fetchFirstPage() async throws -> [CharacterFact] {
-        nextPageIndex = 0
-        return try await fetchNextPage()
+        firstPageCallCount += 1
+        try await Task.sleep(for: .milliseconds(700))
+        guard firstPageCallCount % 4 != 1 else {
+            throw FinnServiceError.jammed
+        }
+        nextPageIndex = 1
+        return CharacterFact.finnPages[0]
     }
 
     func fetchNextPage() async throws -> [CharacterFact] {

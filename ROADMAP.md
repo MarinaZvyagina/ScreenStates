@@ -141,7 +141,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 ## Week 18 — Demo app depth & polish
 
 - [x] Add a paginated list screen to the Demo app exercising `loadNextPage(_:)` (Week 15's feature) end-to-end.
-- [ ] Add a Demo app screen exercising a custom `ScreenStateDisplayableError`-conforming error type, as a runnable example of the Error Presentation article's recipe.
+- [x] Add a Demo app screen exercising a custom `ScreenStateDisplayableError`-conforming error type, as a runnable example of the Error Presentation article's recipe.
 - [ ] Add an XCUITest covering the secondary-action button (already shipped) end-to-end in the Demo app.
 - [ ] Add a CONTRIBUTING.md section on how to add a new default-placeholder style variant, as a short internal-contributor guide.
 - [ ] Add a FAQ section to README answering the most likely setup questions (platform minimums, UIKit vs SwiftUI choice, when to reach for analytics).

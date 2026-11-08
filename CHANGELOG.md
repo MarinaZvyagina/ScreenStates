@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.90.0]
+
+- Add `FinnServiceError` to the Demo app, conforming to `ScreenStateDisplayableError` — a runnable example of the Error Presentation article's recipe, giving the default Error placeholder a custom `displayMessage` instead of the generic `DemoError`'s. Demo-only; no package source or API changes.
+
 ## [1.89.0]
 
 - Add a third Demo app screen ("Finn," SwiftUI) exercising `loadNextPage(_:)`/`isLoadingNextPage` end-to-end, auto-paginating through a simulated multi-page backend. Demo-only; no package source or API changes.

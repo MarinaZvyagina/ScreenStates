@@ -1,4 +1,5 @@
 import Foundation
+import ScreenStates
 
 struct CharacterFact: Identifiable, Sendable {
     let id: UUID
@@ -51,5 +52,19 @@ enum DemoError: LocalizedError {
 
     var errorDescription: String? {
         "Couldn't reach the server. Check your connection and try again."
+    }
+}
+
+/// Thrown by ``FinnFactsService``, instead of `DemoError`, to show what
+/// adopting ``ScreenStateDisplayableError`` actually changes: the default
+/// Error placeholder shows `displayMessage` below, not `localizedDescription`
+/// — which this type doesn't even implement, since it doesn't need to.
+enum FinnServiceError: ScreenStateDisplayableError {
+    case jammed
+
+    var displayMessage: String {
+        switch self {
+        case .jammed: "The First Order is jamming the signal. Try again in a moment."
+        }
     }
 }
