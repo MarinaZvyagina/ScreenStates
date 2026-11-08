@@ -1,12 +1,14 @@
 import Foundation
 import SwiftUI
 
-/// Two screens, two paradigms: "Rey Skywalker" is built with SwiftUI's
-/// `ScreenStateView`, "Kylo Ren" is built with UIKit's
-/// `ScreenStateContainerView`. Both auto-cycle through Loading, Empty,
-/// Data, and Error every couple of seconds to show the whole state
-/// machine without any manual interaction — the app also hops between the
-/// two tabs on its own, so the whole thing is watchable hands-off.
+/// Three screens, two paradigms: "Rey Skywalker" and "Finn" are built with
+/// SwiftUI's `ScreenStateView`, "Kylo Ren" with UIKit's
+/// `ScreenStateContainerView`. Rey and Kylo Ren auto-cycle through
+/// Loading, Empty, Data, and Error every couple of seconds; Finn instead
+/// auto-cycles through `loadNextPage(_:)`'s pagination, one page at a
+/// time — see `FinnScreen`. All three run without any manual interaction,
+/// and the app hops between tabs on its own, so the whole thing is
+/// watchable hands-off.
 @main
 struct ScreenStatesDemoApp: App {
     @State private var selection = 0
@@ -22,6 +24,10 @@ struct ScreenStatesDemoApp: App {
                     .tabItem { Label("Kylo Ren", systemImage: "flame.fill") }
                     .tag(1)
                     .ignoresSafeArea(edges: .bottom)
+
+                FinnScreen()
+                    .tabItem { Label("Finn", systemImage: "shield.lefthalf.filled") }
+                    .tag(2)
             }
             .task { await autoSwitchTabs() }
         }
@@ -35,7 +41,7 @@ struct ScreenStatesDemoApp: App {
         guard !ProcessInfo.processInfo.arguments.contains("UITesting") else { return }
         while !Task.isCancelled {
             try? await Task.sleep(for: .seconds(6))
-            selection = selection == 0 ? 1 : 0
+            selection = (selection + 1) % 3
         }
     }
 }

@@ -33,3 +33,25 @@ actor KyloRenFactsService {
         }
     }
 }
+
+/// Backs ``FinnScreen``: a real paginated backend, one page of
+/// `CharacterFact.finnPages` per call, instead of ``ReyFactsService``'s
+/// everything-at-once shape. `fetchNextPage()` returns `[]` once every
+/// page has been served, the same "no more results" signal a real
+/// paginated API would give.
+actor FinnFactsService {
+    private var nextPageIndex = 0
+
+    func fetchFirstPage() async throws -> [CharacterFact] {
+        nextPageIndex = 0
+        return try await fetchNextPage()
+    }
+
+    func fetchNextPage() async throws -> [CharacterFact] {
+        try await Task.sleep(for: .milliseconds(700))
+        guard nextPageIndex < CharacterFact.finnPages.count else { return [] }
+        let page = CharacterFact.finnPages[nextPageIndex]
+        nextPageIndex += 1
+        return page
+    }
+}

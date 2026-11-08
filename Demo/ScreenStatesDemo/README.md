@@ -4,24 +4,32 @@
   <img src="Media/demo.gif" alt="ScreenStates demo: a SwiftUI screen and a UIKit screen each cycling through Loading, Empty, Data, and Error" width="340">
 </p>
 
-A runnable iOS app showing the library on two screens, built with two
+A runnable iOS app showing the library on three screens, built with two
 different paradigms — and, since a plain "Articles" list is a bit dry,
-themed around two *Star Wars* characters instead:
+themed around *Star Wars* characters instead:
 
 - **Rey Skywalker** — SwiftUI, using `ScreenStateStore` + `ScreenStateView`,
   listing facts about her with a golden-lightsaber accent.
 - **Kylo Ren** — UIKit, using `ScreenStateStore` + `ScreenStateContainerView`,
   wrapped for the tab bar with `UIViewControllerRepresentable`, with a
-  red-lightsaber accent. No character artwork is used anywhere — just SF
-  Symbols and text, to stay clear of Lucasfilm/Disney-owned imagery.
+  red-lightsaber accent.
+- **Finn** — SwiftUI, same as Rey but driven by `loadNextPage(_:)` instead
+  of a single `loadCollection(_:)`: it fetches one page of facts at a
+  time, showing a spinner at the bottom of the list (`isLoadingNextPage`)
+  while the next page is in flight. No character artwork is used anywhere
+  on any screen — just SF Symbols and text, to stay clear of
+  Lucasfilm/Disney-owned imagery.
 
-Both screens call a simulated, flaky `ReyFactsService` / `KyloRenFactsService`
-through the library's real `loadCollection(_:)` API every couple of seconds,
-so opening either tab cycles through **Loading → Empty → Data → Error →
-Data** entirely on its own — no backend required. The Retry button on the
-Error placeholder calls the exact same reload path. The app also switches
-between the two tabs on its own every 6 seconds, so the whole thing is
-watchable hands-off — which is how the GIF above was recorded.
+Rey and Kylo Ren call a simulated, flaky `ReyFactsService` /
+`KyloRenFactsService` through the library's real `loadCollection(_:)` API
+every couple of seconds, so opening either tab cycles through **Loading →
+Empty → Data → Error → Data** entirely on its own — no backend required.
+The Retry button on the Error placeholder calls the exact same reload
+path. Finn's `FinnFactsService` instead serves one page at a time; its
+tab auto-paginates through all of them, then starts over. The app also
+switches between all three tabs on its own every 6 seconds, so the whole
+thing is watchable hands-off — which is how the GIF above was recorded
+(before Finn's tab was added, so it isn't shown there yet).
 
 ## Running it
 

@@ -489,11 +489,12 @@ ScreenStateContainerView<[Article]>(
 
 ## Demo app
 
-[`Demo/ScreenStatesDemo`](Demo/ScreenStatesDemo) is a runnable two-screen app —
-one SwiftUI screen (Rey Skywalker), one UIKit screen (Kylo Ren) — that
-auto-cycles through all four states every couple of seconds using the
-library's real API. Open `Demo/ScreenStatesDemo/ScreenStatesDemo.xcodeproj`
-and run it.
+[`Demo/ScreenStatesDemo`](Demo/ScreenStatesDemo) is a runnable three-screen app —
+two SwiftUI screens (Rey Skywalker, Finn) and one UIKit screen (Kylo Ren) —
+that auto-cycles through all four states every couple of seconds using the
+library's real API. Finn's screen instead auto-cycles through
+`loadNextPage(_:)`'s pagination, one page at a time. Open
+`Demo/ScreenStatesDemo/ScreenStatesDemo.xcodeproj` and run it.
 
 ## Documentation
 

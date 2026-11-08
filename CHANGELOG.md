@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.89.0]
+
+- Add a third Demo app screen ("Finn," SwiftUI) exercising `loadNextPage(_:)`/`isLoadingNextPage` end-to-end, auto-paginating through a simulated multi-page backend. Demo-only; no package source or API changes.
+
 ## [1.88.0]
 
 - Audit every public type for an explicit `Sendable` annotation: everything was already implicitly `Sendable` (global-actor isolation for `ScreenStateStore`/`ScreenAnalyticsService`, automatic struct synthesis for `ScreenStatePreviewError`), so this adds explicit conformances to document the guarantee and guard against a future silent regression, rather than fixing an actual gap. A compile-time regression test locks in all three.

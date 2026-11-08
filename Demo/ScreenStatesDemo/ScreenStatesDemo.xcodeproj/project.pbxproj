@@ -10,6 +10,7 @@
 		0706E6DB252713BB8595AC19 /* ScreenStates in Frameworks */ = {isa = PBXBuildFile; productRef = 0837E1A780D32D9038D784FD /* ScreenStates */; };
 		6E238544A8105BFACB1D59C8 /* DemoServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7150E3F796C84F47E330D8F7 /* DemoServices.swift */; };
 		8F3ABAC793D152FFC7C19822 /* ScreenStatesDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F87FC493B6A0D0FC22D666 /* ScreenStatesDemoUITests.swift */; };
+		A73185F0CBB4A4FC192CF27C /* FinnScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B79FD51CE4F1964592BE19 /* FinnScreen.swift */; };
 		C5D37F42ED8973A046B1F3CE /* ReyScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77A179D783DCF4F63BBFCB81 /* ReyScreen.swift */; };
 		CD5A86BA81C9B37C120482CE /* KyloRenScreenRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCC074E4C9FFFA231143A03 /* KyloRenScreenRepresentable.swift */; };
 		D96598888753E7BE4A560FB1 /* DemoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B692F80BCA903AF929766F /* DemoModels.swift */; };
@@ -40,6 +41,7 @@
 		79B692F80BCA903AF929766F /* DemoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModels.swift; sourceTree = "<group>"; };
 		847753AAA0E3C1514D461C1E /* ScreenStatesDemoUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ScreenStatesDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AED60AC71406B53F6AC175F /* ScreenStatesDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenStatesDemoApp.swift; sourceTree = "<group>"; };
+		E3B79FD51CE4F1964592BE19 /* FinnScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinnScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 				22DCFAF90D9B19DB7ADC9CD6 /* CharacterFactsListView.swift */,
 				79B692F80BCA903AF929766F /* DemoModels.swift */,
 				7150E3F796C84F47E330D8F7 /* DemoServices.swift */,
+				E3B79FD51CE4F1964592BE19 /* FinnScreen.swift */,
 				2BCC074E4C9FFFA231143A03 /* KyloRenScreenRepresentable.swift */,
 				236D974A296C57D39BB860D7 /* KyloRenViewController.swift */,
 				77A179D783DCF4F63BBFCB81 /* ReyScreen.swift */,
@@ -188,6 +191,7 @@
 				EC9F51BAD547FDC6D8D01415 /* CharacterFactsListView.swift in Sources */,
 				D96598888753E7BE4A560FB1 /* DemoModels.swift in Sources */,
 				6E238544A8105BFACB1D59C8 /* DemoServices.swift in Sources */,
+				A73185F0CBB4A4FC192CF27C /* FinnScreen.swift in Sources */,
 				CD5A86BA81C9B37C120482CE /* KyloRenScreenRepresentable.swift in Sources */,
 				F5C86DF269600B542EE3BB81 /* KyloRenViewController.swift in Sources */,
 				C5D37F42ED8973A046B1F3CE /* ReyScreen.swift in Sources */,
