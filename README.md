@@ -535,6 +535,14 @@ generated with DocC. CI regenerates and commits it automatically on every push t
 | `PrintScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that logs every event to the console |
 | `NoOpScreenAnalyticsTracker` | Ready-made `ScreenAnalyticsTracker` that silently discards every event |
 
+## FAQ
+
+**What's the minimum platform version?** iOS 17, macOS 14, tvOS 17, watchOS 10, or visionOS 1 — set by the Observation framework's own minimums (`@Observable` isn't available any earlier), not by anything ScreenStates itself does. See [Requirements](#requirements) above for what's available on each.
+
+**SwiftUI or UIKit?** Whichever your screen is already built with — `ScreenStateStore` is paradigm-agnostic, so the same store works with either. Use `ScreenStateView` (or `.screenState(_:onRetry:secondaryAction:content:)`) for a SwiftUI screen, and `ScreenStateContainerView`/`ScreenStateViewController` for a UIKit one. A screen never needs both; see the [SwiftUI & UIKit Equivalents](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/swiftuianduikitequivalents) DocC article if you're porting one screen's pattern to the other paradigm.
+
+**When should I reach for the Analytics module?** Only once you actually want to track screen opens, retries, or load durations for a `ScreenStateStore` — it's a separate, opt-in layer (`ScreenAnalyticsService`/`ScreenAnalyticsTracker`) that nothing else in the package depends on. Skip it entirely if you don't have an analytics backend to send events to; `ScreenState`/`ScreenStateStore`/the views all work the same without it.
+
 ## Used By
 
 Using ScreenStates in your app? Add yourself here via PR — just your app/company name, optionally linked to your App Store page or website.
