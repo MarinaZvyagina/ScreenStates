@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.93.0]
+
+- Add a CONTRIBUTING.md section on adding a new default-placeholder style variant, distinguishing a new `ScreenStatePlaceholderStyle` case (a layout tweak shared by every default placeholder) from a standalone opt-in alternative view like `ScreenStateShimmerLoadingView` (a full drop-in replacement for one placeholder slot). Docs-only; no source changes.
+
 ## [1.92.0]
 
 - Add an XCUITest covering the Kylo Ren screen's `secondaryAction` ("Use Cached Data") button end-to-end in the Demo app: taps it after the deterministic first-call error, then asserts `CharacterFact.kyloRenSamples` content appears. `KyloRenViewController` gains the `secondaryAction`/`useCachedData()` wiring this test needed, since the screen didn't previously use the API it was meant to exercise.

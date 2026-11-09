@@ -35,6 +35,15 @@ swift format lint --configuration .swift-format --recursive --strict Sources Tes
 
 `swift format format --configuration .swift-format -i --recursive Sources Tests` auto-fixes most findings. A couple of spots wrap a single `.modifier()` mid-chain in `#if`/`#endif` (not a whole statement) — the formatter misindents those, so they're marked `// swift-format-ignore` and keep their hand-written indentation; leave that comment in place if you touch one.
 
+## Adding a new default-placeholder style variant
+
+There are two different things "a new placeholder style" can mean in this codebase — pick the one that matches what you're actually adding:
+
+- **A new case of `ScreenStatePlaceholderStyle`** (`Sources/ScreenStates/Core/ScreenStatePlaceholderStyle.swift`), like the existing `.standard`/`.compact`: a layout variation of the *same* default view, selected via its `style:` parameter. Every default placeholder (`ScreenStateDefault{Empty,Loading,Error}View`/`UIView`) switches on it — e.g. `SwiftUIDefaultStateViews.swift`'s `iconSize(for:)`/`spinnerSize(for:)` — so adding a case means updating every one of those switches, not just the one view you care about. This is the right shape when the variant is a sizing/layout tweak that should be available on every default placeholder uniformly.
+- **A standalone opt-in alternative view**, like `ScreenStateShimmerLoadingView`/`ScreenStateShimmerLoadingUIView`: a full drop-in replacement for one placeholder slot (Empty, Loading, or Error), not wired into the `.standard`/`.compact` switch at all. This is the right shape when the variant is a different visual idea entirely (a skeleton pulse instead of a spinner, say), not a resize of the existing one. Build it as a SwiftUI/UIKit pair living in `Sources/ScreenStates/SwiftUI/` and `Sources/ScreenStates/UIKit/` respectively, and give it the same accessibility treatment every other default placeholder has: an `accessibilityLabel`/`accessibilityIdentifier` (follow the `screenStates.<name>` naming already in use), a Reduce Motion check before animating, an Increase Contrast fallback away from any gradient/low-opacity fill, and `.screenStatesTheme(_:)`/`ScreenStatesTheme` support if it renders a tint color. Since it's opt-in, it's passed explicitly wherever a `loadingView`/`emptyView`/`errorView`-shaped parameter is expected — it never becomes a default itself.
+
+Either way, this is a feature-level change: it needs `PlaceholderVisualTests.swift` snapshot coverage (reuse the existing `snapshotImage`/`containsSaturatedColor` helpers), a README update (the API reference table, plus the relevant usage section), a `CHANGELOG.md` entry, and a mention in the Styling DocC article.
+
 ## Making a change
 
 - Keep commits small and scoped to one change. Follow the existing `feat:`/`fix:`/`docs:`/`ci:`/`test:` prefix style — see `git log` for examples.
