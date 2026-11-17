@@ -56,7 +56,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Tune the default placeholders for landscape / compact-height iPhone layouts, which currently assume a portrait-sized column.
 - [x] Tune the default placeholders for visionOS (ornaments/depth), which currently just inherit the iOS layout as-is.
 - [x] Add a CI job that builds against the latest Xcode beta with `continue-on-error`, to catch upcoming toolchain breakage before it ships.
-- [ ] Fix the default placeholders' inset handling inside a `NavigationSplitView` detail column so they don't visually collide with the sidebar divider on iPad.
+- [x] Fix the default placeholders' inset handling inside a `NavigationSplitView` detail column so they don't visually collide with the sidebar divider on iPad. (Verified, 2026-11-17: no defect found. Built a real `NavigationSplitView` into a universal (iPhone+iPad) build of the Demo app and screenshotted it via `xcrun simctl io screenshot` at genuine iPad width — 1032×1319pt, confirmed via an on-screen `GeometryReader` readout, after discovering the Demo app's `TARGETED_DEVICE_FAMILY: "1"` makes it run iPhone-compat-sized by default on iPad, which a naive test would have mistaken for a collision. At real width, the Error placeholder's existing `.padding(.horizontal, 24)` + centered `.frame` already sits with generous clearance from the sidebar divider. No code change needed.)
 
 ## Week 8 — Visual variety & theming
 
