@@ -25,6 +25,8 @@ Line coverage is also checked against a floor committed in `.github/coverage-flo
 
 If you add or change a string in `Resources/Localizable.xcstrings`, make sure every language already in the catalog has a translated entry for it — CI fails the build otherwise (see [`Localization`](https://marinazvyagina.github.io/ScreenStates/documentation/screenstates/localization) for how to add a language or a string).
 
+CI also runs `swift package diagnose-api-breaking-changes` against the latest git tag (not main's previous commit — most commits don't get their own tag; see [`RELEASING.md`](.github/RELEASING.md)) on every PR, to catch an accidental breaking change before it merges. If a change is a deliberate, reviewed breaking change, that's expected to fail this check — call it out explicitly in the PR description rather than trying to silence it.
+
 ## Style
 
 CI runs `swift format lint` (bundled with the Swift 6 toolchain — nothing extra to install) against `.swift-format`'s project config, as a blocking check. Run it yourself before opening a PR:

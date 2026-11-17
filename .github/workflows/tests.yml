@@ -283,3 +283,25 @@ jobs:
           xcodebuild build \
             -scheme ScreenStates \
             -destination 'generic/platform=visionOS'
+
+  # Catches an accidental breaking change to the public API before it
+  # merges, comparing against the latest git tag rather than main's
+  # previous commit -- most commits don't get their own tag (see
+  # RELEASING.md), so comparing against the last *tagged* release is the
+  # meaningful boundary for "would this break someone who upgrades."
+  diagnose-api-breaking-changes:
+    name: Diagnose API breaking changes
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Diagnose API breaking changes against the latest tag
+        run: |
+          set -euo pipefail
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "Comparing against $LATEST_TAG"
+          swift package diagnose-api-breaking-changes "$LATEST_TAG"
