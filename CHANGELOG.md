@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.95.0]
+
+- Tune the SwiftUI default placeholders for visionOS: `.standard`-style `ScreenStateDefaultEmptyView`/`LoadingView`/`ErrorView` now get visionOS's native floating-glass depth material (`.glassBackgroundEffect()`) instead of inheriting the flat iOS layout as-is. `.compact` style is unaffected (it's meant to nest inside a caller-supplied card). No UIKit-side equivalent: visionOS UIKit has no public per-view glass-material API, and a UIKit window there already gets the system's glass background automatically. Verified against a real local visionOS Simulator build/test run (the visionOS platform SDK wasn't previously installed on this machine) in addition to CI's existing `build-visionos` job; not covered by a pixel-snapshot regression test, since `.glassBackgroundEffect()` was confirmed not to rasterize into an `ImageRenderer` snapshot (same class of limitation as `hoverEffect`, which also has no snapshot test).
+
 ## [1.94.0]
 
 - Add a README FAQ section answering the most likely setup questions: minimum platform versions, SwiftUI vs. UIKit choice, and when the opt-in Analytics module is worth reaching for. Docs-only; no source changes.

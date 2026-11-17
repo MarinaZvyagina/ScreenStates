@@ -36,6 +36,35 @@ private enum ScreenStatesMetrics {
     }
 }
 
+#if os(visionOS)
+extension View {
+    /// Gives a `.standard`-style default placeholder visionOS's native
+    /// floating-glass depth material (`.glassBackgroundEffect()`), instead
+    /// of rendering flat the way it would on iOS. `.compact`-style
+    /// placeholders skip this: they're meant to sit inside a card/section
+    /// the caller already supplies, and a second nested glass panel would
+    /// double up materials instead of blending into it.
+    ///
+    /// No pixel-level regression test covers this (like `hoverEffect`
+    /// elsewhere in this file): confirmed empirically that
+    /// `.glassBackgroundEffect()` doesn't rasterize into an
+    /// `ImageRenderer` snapshot the way live on-device/simulator
+    /// compositing does, so a snapshot test would pass or fail identically
+    /// whether this modifier is present or silently removed. Verified
+    /// instead via a real build and test run against the visionOS
+    /// Simulator (`xcodebuild build`/`test -destination 'platform=visionOS
+    /// Simulator'`), and by CI's `build-visionos` job on every push.
+    @ViewBuilder
+    func screenStatesGlassBackground(for style: ScreenStatePlaceholderStyle) -> some View {
+        if style == .standard {
+            glassBackgroundEffect()
+        } else {
+            self
+        }
+    }
+}
+#endif
+
 /// Default placeholder shown while a screen's data is loading.
 public struct ScreenStateDefaultLoadingView: View {
     private let style: ScreenStatePlaceholderStyle
@@ -58,6 +87,13 @@ public struct ScreenStateDefaultLoadingView: View {
         return AnyShapeStyle(AngularGradient(colors: [.pink, .orange, .yellow, .pink], center: .center))
     }
 
+    // swift-format-ignore
+    // The #if/#endif here wrap a single modifier mid-chain, not a whole
+    // statement — swift-format's indentConditionalCompilationBlocks: false
+    // (set repo-wide so file-scope `#if canImport(...)` wrappers don't get
+    // needlessly indented) misapplies to this case too and would de-indent
+    // `.screenStatesGlassBackground` out of alignment with the rest of the
+    // chain.
     public var body: some View {
         Circle()
             .trim(from: 0, to: 0.75)
@@ -81,6 +117,9 @@ public struct ScreenStateDefaultLoadingView: View {
             )
             .accessibilityLabel(String.screenStatesLoading)
             .accessibilityIdentifier("screenStates.loading")
+            #if os(visionOS)
+            .screenStatesGlassBackground(for: style)
+            #endif
     }
 }
 
@@ -163,6 +202,9 @@ public struct ScreenStateDefaultEmptyView: View {
                 icon(size: ScreenStatesMetrics.iconSize)
             }
         }
+        #if os(visionOS)
+        .screenStatesGlassBackground(for: style)
+        #endif
     }
 
     private var compactContent: some View {
@@ -351,6 +393,9 @@ public struct ScreenStateDefaultErrorView: View {
                     #endif
             }
         }
+        #if os(visionOS)
+        .screenStatesGlassBackground(for: style)
+        #endif
     }
 
     private var compactContent: some View {
