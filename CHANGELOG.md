@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.98.0]
+
+- Add `CustomDebugStringConvertible` to `ScreenState`, giving `po state`/print output a concise one-line description (e.g. `.data(3 items)` for a `Collection` payload, `.data(42)` otherwise) instead of the verbose default enum dump.
+
 ## [1.97.0]
 
 - Add `Hashable` conformance to `ScreenState` when `Value: Hashable`, mirroring the existing conditional `Equatable` conformance, so it can be used as a `Set`/`Dictionary` key. The `.error` case hashes the same `NSError` bridge `==` already compares against, keeping the two consistent.

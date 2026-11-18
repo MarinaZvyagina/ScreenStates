@@ -149,6 +149,32 @@ extension ScreenState: Hashable where Value: Hashable {
     }
 }
 
+/// Unconditional (not `Value`-constrained), unlike `Equatable`/`Hashable`
+/// above: `\(value)` works for any `Value` via Swift's default string
+/// interpolation, with no `CustomStringConvertible` requirement. `.data`
+/// special-cases a `Collection` payload to print its count instead of the
+/// collection's own (potentially very long) default description — the
+/// common case this is actually useful for, e.g. in `po state`/breakpoint
+/// output or a log line.
+extension ScreenState: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        switch self {
+        case .empty:
+            ".empty"
+        case .loading:
+            ".loading"
+        case .data(let value):
+            if let collection = value as? any Collection {
+                ".data(\(collection.count) item\(collection.count == 1 ? "" : "s"))"
+            } else {
+                ".data(\(value))"
+            }
+        case .error(let error):
+            ".error(\(error))"
+        }
+    }
+}
+
 extension ScreenState: Sendable where Value: Sendable {}
 
 /// An `@Observable` holder of a screen's ``ScreenState``, driving both

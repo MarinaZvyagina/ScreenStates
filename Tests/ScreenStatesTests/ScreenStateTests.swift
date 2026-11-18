@@ -120,6 +120,18 @@ struct ScreenStateTests {
         #expect(lhs.hashValue == rhs.hashValue)
     }
 
+    @Test("debugDescription gives a concise one-line description for every case")
+    func debugDescription() {
+        #expect(ScreenState<Int>.empty.debugDescription == ".empty")
+        #expect(ScreenState<Int>.loading.debugDescription == ".loading")
+        #expect(ScreenState<Int>.data(42).debugDescription == ".data(42)")
+        #expect(ScreenState<[Int]>.data([1, 2, 3]).debugDescription == ".data(3 items)")
+        #expect(ScreenState<[Int]>.data([1]).debugDescription == ".data(1 item)")
+        #expect(ScreenState<[Int]>.data([]).debugDescription == ".data(0 items)")
+        let error = SampleError()
+        #expect(ScreenState<Int>.error(error).debugDescription == ".error(\(error))")
+    }
+
     @Test("map(_:) transforms the .data payload and leaves every other case untouched")
     func mapHelper() {
         #expect(ScreenState<Int>.data(2).map { $0 * 10 } == .data(20))
