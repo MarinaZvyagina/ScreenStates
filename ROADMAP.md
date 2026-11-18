@@ -148,7 +148,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 19 — Store & state Swift-idiom polish
 
-- [ ] Add `Hashable` conformance to `ScreenState` when `Value: Hashable`, mirroring the existing conditional `Equatable` conformance, so it can be used as a `Set`/`Dictionary` key.
+- [x] Add `Hashable` conformance to `ScreenState` when `Value: Hashable`, mirroring the existing conditional `Equatable` conformance, so it can be used as a `Set`/`Dictionary` key.
 - [ ] Add `CustomDebugStringConvertible` to `ScreenState`, giving `po state`/print output a concise one-line description instead of the verbose default enum dump.
 - [ ] Audit `ScreenStateStore.setData(_:)`'s `Value: Equatable` redundant-invalidation guard against a reference-type (class) `Value`, confirming it behaves correctly when `==` isn't identity-based, with a regression test.
 - [ ] Audit whether `cancel()` is safely idempotent when called repeatedly with nothing in flight, and when called twice in a row mid-flight; add a regression test locking in the current behavior.

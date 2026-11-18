@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.97.0]
+
+- Add `Hashable` conformance to `ScreenState` when `Value: Hashable`, mirroring the existing conditional `Equatable` conformance, so it can be used as a `Set`/`Dictionary` key. The `.error` case hashes the same `NSError` bridge `==` already compares against, keeping the two consistent.
+
 ## [1.96.0]
 
 - Add a CI job running `swift package diagnose-api-breaking-changes` against the latest git tag, to catch an accidental breaking change before it merges. Verified locally against the newly-cut `v1.95.0` tag ("No breaking changes detected"). Unblocked by cutting that tag: the job was previously untestable since comparing against the last usable tag (`v1.4.0`) failed to even compile — that tag's `Package.swift` predates multiplatform support (iOS-only, no macOS 14+/`@Observable`).

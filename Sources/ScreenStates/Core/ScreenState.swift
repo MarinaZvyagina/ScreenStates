@@ -128,6 +128,27 @@ extension ScreenState: Equatable where Value: Equatable {
     }
 }
 
+/// Hashes consistently with the `Equatable` conformance above: the
+/// `.error` case hashes the same `NSError` bridge `==` compares against,
+/// and every case combines a distinct discriminator first so `.empty` and
+/// `.loading` (which wrap no payload to hash) don't collide.
+extension ScreenState: Hashable where Value: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .empty:
+            hasher.combine(0)
+        case .loading:
+            hasher.combine(1)
+        case .data(let value):
+            hasher.combine(2)
+            hasher.combine(value)
+        case .error(let error):
+            hasher.combine(3)
+            hasher.combine(error as NSError)
+        }
+    }
+}
+
 extension ScreenState: Sendable where Value: Sendable {}
 
 /// An `@Observable` holder of a screen's ``ScreenState``, driving both

@@ -102,6 +102,24 @@ struct ScreenStateTests {
         #expect(ScreenState<Int>.loading != ScreenState<Int>.empty)
     }
 
+    @Test("Hashable is usable as a Set/Dictionary key, consistent with Equatable")
+    func hashable() {
+        let states: Set<ScreenState<Int>> = [.data(1), .data(1), .data(2), .empty, .empty, .loading]
+        #expect(states.count == 4)
+        #expect(states.contains(.data(1)))
+        #expect(states.contains(.data(2)))
+        #expect(states.contains(.empty))
+        #expect(states.contains(.loading))
+    }
+
+    @Test("Hashable treats two equal .error states (by the NSError bridge) as the same hash")
+    func hashableErrorConsistentWithEquatable() {
+        let lhs = ScreenState<Int>.error(SampleError())
+        let rhs = ScreenState<Int>.error(SampleError())
+        #expect(lhs == rhs)
+        #expect(lhs.hashValue == rhs.hashValue)
+    }
+
     @Test("map(_:) transforms the .data payload and leaves every other case untouched")
     func mapHelper() {
         #expect(ScreenState<Int>.data(2).map { $0 * 10 } == .data(20))
