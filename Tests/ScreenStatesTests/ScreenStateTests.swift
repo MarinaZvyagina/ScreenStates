@@ -704,6 +704,52 @@ struct ScreenStateStoreTests {
         #expect(store.state.value == 2)
     }
 
+    /// A reference type with property-based `==`, not Swift's default
+    /// identity-based one -- used to confirm `setData(_:)`'s redundant-
+    /// invalidation guard follows `Value`'s own `==`, not `===`, since
+    /// `ScreenStateStore` makes no assumption about `Value` being a value
+    /// type.
+    private final class SampleArticle: Equatable {
+        let title: String
+        init(title: String) { self.title = title }
+        static func == (lhs: SampleArticle, rhs: SampleArticle) -> Bool { lhs.title == rhs.title }
+    }
+
+    @Test("setData(_:) skips a redundant invalidation for a reference-type Value whose == is property-based, not identity-based")
+    func setDataSkipsRedundantInvalidationForReferenceTypeValue() {
+        let store = ScreenStateStore<SampleArticle>()
+        store.setData(SampleArticle(title: "Breaking News"))
+
+        nonisolated(unsafe) var didChange = false
+        withObservationTracking {
+            _ = store.state
+        } onChange: {
+            didChange = true
+        }
+
+        // A different instance, but == by title -- the guard should treat
+        // this the same as passing the exact same instance back.
+        store.setData(SampleArticle(title: "Breaking News"))
+        #expect(!didChange)
+    }
+
+    @Test("setData(_:) still invalidates for a reference-type Value whose == reports a real change")
+    func setDataInvalidatesOnRealChangeForReferenceTypeValue() {
+        let store = ScreenStateStore<SampleArticle>()
+        store.setData(SampleArticle(title: "Breaking News"))
+
+        nonisolated(unsafe) var didChange = false
+        withObservationTracking {
+            _ = store.state
+        } onChange: {
+            didChange = true
+        }
+
+        store.setData(SampleArticle(title: "Updated Headline"))
+        #expect(didChange)
+        #expect(store.state.value?.title == "Updated Headline")
+    }
+
     @Test("reset(to:) defaults to .loading")
     func resetDefaultsToLoading() {
         let store = ScreenStateStore<Int>()

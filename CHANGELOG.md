@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.99.0]
+
+- Audit `ScreenStateStore.setData(_:)`'s redundant-invalidation guard against a reference-type `Value` whose `==` is property-based rather than identity-based: confirmed it already follows `Value`'s own `==` correctly (Swift dispatches `==` the same way regardless of `Value` being a class or struct), so no code change was needed. Regression tests lock in both the skip and the invalidate path for a reference-type `Value`.
+
 ## [1.98.0]
 
 - Add `CustomDebugStringConvertible` to `ScreenState`, giving `po state`/print output a concise one-line description (e.g. `.data(3 items)` for a `Collection` payload, `.data(42)` otherwise) instead of the verbose default enum dump.
