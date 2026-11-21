@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.100.0]
+
+- Audit `cancel()`'s idempotency: confirmed it's already safe to call repeatedly with nothing in flight and twice in a row mid-flight, since it just delegates to `Task.cancel()`, which is itself idempotent — no code change needed. Regression tests lock in the double-cancel-mid-flight case and the already-finished-operation case, complementing the existing nothing-ever-started coverage.
+
 ## [1.99.0]
 
 - Audit `ScreenStateStore.setData(_:)`'s redundant-invalidation guard against a reference-type `Value` whose `==` is property-based rather than identity-based: confirmed it already follows `Value`'s own `==` correctly (Swift dispatches `==` the same way regardless of `Value` being a class or struct), so no code change was needed. Regression tests lock in both the skip and the invalidate path for a reference-type `Value`.

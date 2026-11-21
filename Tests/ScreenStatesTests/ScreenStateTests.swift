@@ -354,6 +354,39 @@ struct ScreenStateStoreTests {
         #expect(store.state == .data(1))
     }
 
+    @Test("cancel() called twice in a row mid-flight behaves the same as calling it once")
+    func cancelTwiceInARowMidFlight() async {
+        let store = ScreenStateStore<Int>()
+        let gate = Gate()
+
+        let task = Task {
+            await store.load {
+                await gate.waitForOpen()
+                return 7
+            }
+        }
+        await gate.waitForStart()
+
+        store.cancel()
+        store.cancel()  // Task.cancel() is itself idempotent; this should have no additional effect.
+        await gate.open()
+        await task.value
+
+        #expect(store.state.isLoading)
+    }
+
+    @Test("cancel() is a no-op when the most recent operation already finished")
+    func cancelAfterOperationAlreadyFinished() async {
+        let store = ScreenStateStore<Int>()
+        await store.load { 7 }
+        #expect(store.state == .data(7))
+
+        // currentTask is non-nil here, but already complete -- unlike
+        // cancelWithNothingInFlight above, where it's nil outright.
+        store.cancel()
+        #expect(store.state == .data(7))
+    }
+
     @Test("deinit doesn't crash when no operation was ever started")
     func deinitWithNoCurrentTask() {
         _ = ScreenStateStore<Int>()

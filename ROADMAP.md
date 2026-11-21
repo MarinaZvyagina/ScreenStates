@@ -151,7 +151,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Add `Hashable` conformance to `ScreenState` when `Value: Hashable`, mirroring the existing conditional `Equatable` conformance, so it can be used as a `Set`/`Dictionary` key.
 - [x] Add `CustomDebugStringConvertible` to `ScreenState`, giving `po state`/print output a concise one-line description instead of the verbose default enum dump.
 - [x] Audit `ScreenStateStore.setData(_:)`'s `Value: Equatable` redundant-invalidation guard against a reference-type (class) `Value`, confirming it behaves correctly when `==` isn't identity-based, with a regression test.
-- [ ] Audit whether `cancel()` is safely idempotent when called repeatedly with nothing in flight, and when called twice in a row mid-flight; add a regression test locking in the current behavior.
+- [x] Audit whether `cancel()` is safely idempotent when called repeatedly with nothing in flight, and when called twice in a row mid-flight; add a regression test locking in the current behavior.
 - [ ] Add `isData`/`isError` boolean convenience properties to `ScreenState`, completing the `isEmpty`/`isLoading` family (today only `value != nil`/`error != nil` serve as workarounds).
 
 ## Week 20 — UIKit pull-to-refresh parity
