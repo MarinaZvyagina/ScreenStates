@@ -31,6 +31,18 @@ struct ScreenStateTests {
         #expect(!ScreenState<Int>.loading.isEmpty)
     }
 
+    @Test("isData reflects state")
+    func isDataHelper() {
+        #expect(ScreenState<Int>.data(42).isData)
+        #expect(!ScreenState<Int>.loading.isData)
+    }
+
+    @Test("isError reflects state")
+    func isErrorHelper() {
+        #expect(ScreenState<Int>.error(SampleError()).isError)
+        #expect(!ScreenState<Int>.empty.isError)
+    }
+
     @Test("accessibilityAnnouncement is nil for .data")
     func accessibilityAnnouncementForData() {
         #expect(ScreenState<Int>.data(42).accessibilityAnnouncement == nil)

@@ -31,6 +31,22 @@ extension ScreenState {
         if case .empty = self { true } else { false }
     }
 
+    /// `true` while the state is `.data`, completing the `isEmpty`/
+    /// `isLoading` family — equivalent to `value != nil`, but reads more
+    /// directly at a call site that only cares about the case, not the
+    /// payload itself.
+    public var isData: Bool {
+        if case .data = self { true } else { false }
+    }
+
+    /// `true` while the state is `.error`, completing the `isEmpty`/
+    /// `isLoading` family — equivalent to `error != nil`, but reads more
+    /// directly at a call site that only cares about the case, not the
+    /// wrapped error itself.
+    public var isError: Bool {
+        if case .error = self { true } else { false }
+    }
+
     /// The same text the default placeholders announce to VoiceOver for
     /// this case, reusable by a fully custom placeholder that wants to
     /// announce transitions with the same wording instead of inventing its
