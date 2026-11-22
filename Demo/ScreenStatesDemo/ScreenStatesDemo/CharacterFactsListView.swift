@@ -1,8 +1,12 @@
 import UIKit
 
-/// Plain UIKit content view for the `.data` case of the Kylo Ren screen — a
-/// simple list of facts built from a stack of rows.
-final class CharacterFactsListView: UIView {
+/// UIKit content view for the `.data` case of the Kylo Ren screen — a
+/// simple list of facts built from a stack of rows. A `UIScrollView`
+/// (not a plain `UIView`), so `KyloRenViewController`'s `pullToRefresh`
+/// has something to attach to — see `ScreenStateContainerView`'s own
+/// `pullToRefresh` parameter, which only takes effect for a `.data`
+/// content view that's a `UIScrollView` or subclass.
+final class CharacterFactsListView: UIScrollView {
     init(facts: [CharacterFact], tintColor: UIColor) {
         super.init(frame: .zero)
         backgroundColor = .systemBackground
@@ -13,9 +17,11 @@ final class CharacterFactsListView: UIView {
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: topAnchor, constant: 24),
-            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20)
+            stack.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor, constant: 24),
+            stack.leadingAnchor.constraint(equalTo: contentLayoutGuide.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: contentLayoutGuide.trailingAnchor, constant: -20),
+            stack.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor, constant: -24),
+            stack.widthAnchor.constraint(equalTo: frameLayoutGuide.widthAnchor, constant: -40)
         ])
     }
 

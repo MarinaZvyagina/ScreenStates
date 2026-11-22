@@ -14,7 +14,10 @@ themed around *Star Wars* characters instead:
   wrapped for the tab bar with `UIViewControllerRepresentable`, with a
   red-lightsaber accent. Its Error placeholder also wires up
   `secondaryAction`: a "Use Cached Data" button that shows sample facts
-  directly instead of retrying the network.
+  directly instead of retrying the network. Its content view is a
+  `UIScrollView`, so it also exercises `pullToRefresh`, calling
+  `refreshCollection(_:)` to keep the existing facts on screen while
+  refetching.
 - **Finn** — SwiftUI, same as Rey but driven by `loadNextPage(_:)` instead
   of a single `loadCollection(_:)`: it fetches one page of facts at a
   time, showing a spinner at the bottom of the list (`isLoadingNextPage`)

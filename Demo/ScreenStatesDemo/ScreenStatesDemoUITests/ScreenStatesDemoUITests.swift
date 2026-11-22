@@ -68,7 +68,7 @@ final class ScreenStatesDemoUITests: XCTestCase {
     /// `testReyScreenCyclesThroughAllFourStates` does.
     ///
     /// Tapping that button is `KyloRenViewController.useCachedData()`'s
-    /// job: it calls `store.setData(CharacterFact.kyloRenSamples)`
+    /// job: it calls `store.reset(to: .data(CharacterFact.kyloRenSamples))`
     /// directly, bypassing the network entirely, which this test confirms
     /// end-to-end by asserting a known sample fact appears.
     func testKyloRenScreenSecondaryActionShowsCachedData() {

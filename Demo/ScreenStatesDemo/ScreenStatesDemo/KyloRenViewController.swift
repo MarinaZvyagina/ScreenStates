@@ -9,7 +9,11 @@ import UIKit
 /// "Use Cached Data" shows `CharacterFact.kyloRenSamples` directly instead
 /// of retrying the network, pausing the auto-cycle for a few seconds so
 /// it's visible — a more realistic use for a second button than another
-/// retry.
+/// retry. `CharacterFactsListView` being a `UIScrollView` also lets this
+/// screen exercise `pullToRefresh`: unlike the auto-cycle's
+/// `loadCollection(_:)` (which always shows `.loading` first),
+/// `refreshCollection(_:)` keeps the existing facts on screen while
+/// pulling to refresh.
 final class KyloRenViewController: UIViewController {
     private let store = ScreenStateStore<[CharacterFact]>()
     private let service = KyloRenFactsService()
@@ -17,7 +21,8 @@ final class KyloRenViewController: UIViewController {
 
     private lazy var container = ScreenStateContainerView<[CharacterFact]>(
         onRetry: { [weak self] in self?.reload() },
-        secondaryAction: (title: "Use Cached Data", action: { [weak self] in self?.useCachedData() })
+        secondaryAction: (title: "Use Cached Data", action: { [weak self] in self?.useCachedData() }),
+        pullToRefresh: { [weak self] in await self?.pullToRefresh() }
     ) { facts in
         CharacterFactsListView(facts: facts, tintColor: .systemRed)
     }
@@ -55,12 +60,26 @@ final class KyloRenViewController: UIViewController {
         cycleTask = Self.makeCycleTask(store: store, service: service)
     }
 
+    /// Unlike `reload()`/the auto-cycle's `loadCollection(_:)` (which
+    /// always shows `.loading` first), `refreshCollection(_:)` keeps the
+    /// existing facts on screen while pulling to refresh.
+    private func pullToRefresh() async {
+        await store.refreshCollection { try await self.service.fetchFacts() }
+    }
+
     /// Shows cached data directly, pausing the auto-cycle for a few
     /// seconds so it's actually visible before `loadCollection(_:)`
-    /// would otherwise overwrite it with `.loading`.
+    /// would otherwise overwrite it with `.loading`. `reset(to:)`, not
+    /// `setData(_:)`: `cycleTask?.cancel()` only cooperatively cancels
+    /// the old cycle -- if it's already past its own cancellation check
+    /// inside `loadCollection(_:)`, mid-`fetchFacts()`, it can still
+    /// land moments later and overwrite the cached data, since
+    /// `setData(_:)` doesn't bump the generation token `loadCollection(_:)`
+    /// checks against. `reset(to:)` does, making any such stale result
+    /// get silently dropped instead.
     private func useCachedData() {
         cycleTask?.cancel()
-        store.setData(CharacterFact.kyloRenSamples)
+        store.reset(to: .data(CharacterFact.kyloRenSamples))
         cycleTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(3))
             guard let self, !Task.isCancelled else { return }
