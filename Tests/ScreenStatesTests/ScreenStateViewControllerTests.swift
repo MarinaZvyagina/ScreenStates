@@ -105,6 +105,25 @@ struct ScreenStateViewControllerTests {
         errorView?.secondaryActionButton.sendActions(for: .touchUpInside)
         #expect(tapped)
     }
+
+    // `UIRefreshControl` is unavailable on tvOS -- the whole feature is a
+    // no-op there, mirroring ScreenStateContainerView.swift's own guard.
+    #if os(iOS) || os(visionOS)
+    @Test("the built-in-placeholders initializer wires pullToRefresh through to the container")
+    func initializerWiresPullToRefresh() {
+        let store = ScreenStateStore<Int>(.data(1))
+        let viewController = ScreenStateViewController(
+            store: store,
+            pullToRefresh: {}
+        ) { _ in UIScrollView() }
+
+        _ = viewController.view  // triggers viewDidLoad()
+
+        let container = viewController.view.subviews.first
+        let scrollView = container?.subviews.compactMap { $0 as? UIScrollView }.first
+        #expect(scrollView?.refreshControl != nil)
+    }
+    #endif
 }
 
 @MainActor

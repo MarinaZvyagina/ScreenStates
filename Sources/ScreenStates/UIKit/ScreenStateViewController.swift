@@ -36,15 +36,26 @@ open class ScreenStateViewController<Value>: UIViewController, ScreenStateContai
     ///   - onRetry: wired to the default error view's Retry button.
     ///   - secondaryAction: wired to the default error view's optional
     ///     second button, shown alongside Retry.
+    ///   - pullToRefresh: called when the person pulls to refresh. Only
+    ///     takes effect when the view `contentProvider` returns for
+    ///     `.data` is a `UIScrollView` (or subclass) — see
+    ///     ``ScreenStateContainerView``'s own `pullToRefresh` parameter,
+    ///     which this is passed straight through to.
     ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public init(
         store: ScreenStateStore<Value>,
         onRetry: (() -> Void)? = nil,
         secondaryAction: (title: String, action: () -> Void)? = nil,
+        pullToRefresh: (() async -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView
     ) {
         self.store = store
-        container = ScreenStateContainerView(onRetry: onRetry, secondaryAction: secondaryAction, content: contentProvider)
+        container = ScreenStateContainerView(
+            onRetry: onRetry,
+            secondaryAction: secondaryAction,
+            pullToRefresh: pullToRefresh,
+            content: contentProvider
+        )
         super.init(nibName: nil, bundle: nil)
     }
 

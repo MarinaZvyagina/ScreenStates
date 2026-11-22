@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.104.0]
+
+- Thread `pullToRefresh` through `ScreenStateViewController`'s built-in-placeholders initializer, matching `ScreenStateContainerView`'s own parameter it passes straight through to.
+
 ## [1.103.0]
 
 - Add a `pullToRefresh: (() async -> Void)?` parameter to `ScreenStateContainerView`'s built-in-placeholders initializer, wiring a `UIRefreshControl` to the `.data` content view when it's a `UIScrollView` (or subclass, e.g. `UITableView`/`UICollectionView`) — a no-op otherwise, since pull-to-refresh has nothing to attach to. The refresh control's spinning state stays in sync with the bound store's `isRefreshing` (via `bind(to:)`) regardless of what triggered a refresh — the pull gesture itself or something else calling `refresh(_:)` directly. iOS/visionOS only: `UIRefreshControl` is unavailable on tvOS, so `pullToRefresh` is accepted there too (for a uniform API) but never takes effect.
