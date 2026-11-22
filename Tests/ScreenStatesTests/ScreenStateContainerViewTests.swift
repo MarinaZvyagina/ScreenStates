@@ -144,6 +144,53 @@ struct ScreenStateContainerViewTests {
         errorView?.secondaryActionButton.sendActions(for: .touchUpInside)
         #expect(tapped)
     }
+
+    // `UIRefreshControl` is unavailable on tvOS -- the whole feature is a
+    // no-op there, mirroring the production guard in
+    // ScreenStateContainerView.swift.
+    #if os(iOS) || os(visionOS)
+    @Test("pullToRefresh attaches a UIRefreshControl when the .data content view is a UIScrollView")
+    func pullToRefreshAttachesToScrollView() {
+        let container = ScreenStateContainerView<Int>(pullToRefresh: {}) { _ in UIScrollView() }
+        container.state = .data(1)
+
+        let scrollView = container.subviews.compactMap { $0 as? UIScrollView }.first
+        #expect(scrollView?.refreshControl != nil)
+    }
+
+    @Test("pullToRefresh does nothing when the .data content view isn't a UIScrollView")
+    func pullToRefreshNoOpForNonScrollView() {
+        let container = ScreenStateContainerView<Int>(pullToRefresh: {}) { _ in UIView() }
+        container.state = .data(1)
+        // Just confirming this doesn't crash -- there's no UIScrollView to
+        // inspect a refreshControl on.
+        #expect(container.subviews.first is UIView)
+    }
+
+    // `UIRefreshControl.isRefreshing` never actually flips in this test
+    // host: `beginRefreshing()` is a silent no-op "offscreen" (confirmed
+    // empirically -- logs `A UIRefreshControl received offscreen
+    // beginRefreshing. Ignored.` -- even after attaching the container to
+    // a real `UIWindow` with an explicit frame and a forced layout pass;
+    // a SwiftPM test target has no actual `UIWindowScene`/app lifecycle to
+    // satisfy it). So this test only checks the one real signal available
+    // without that: `pullToRefresh` itself got called.
+    @Test("pulling to refresh calls pullToRefresh")
+    func pullToRefreshCallsClosure() async {
+        nonisolated(unsafe) var callCount = 0
+        let container = ScreenStateContainerView<Int>(pullToRefresh: { callCount += 1 }) { _ in UIScrollView() }
+        container.state = .data(1)
+
+        let scrollView = container.subviews.compactMap { $0 as? UIScrollView }.first
+        scrollView?.refreshControl?.sendActions(for: .valueChanged)
+
+        // The action kicks off an unstructured Task; give it a chance to run.
+        await Task.yield()
+        await Task.yield()
+
+        #expect(callCount == 1)
+    }
+    #endif
 }
 
 private struct SampleError: Error {}

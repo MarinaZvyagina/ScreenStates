@@ -52,6 +52,7 @@ public final class ScreenStateContainerView<Value>: UIView {
     private let loadingView: UIView
     private let errorViewProvider: (Error) -> UIView
     private let contentProvider: (Value) -> UIView
+    private let pullToRefresh: (() async -> Void)?
 
     /// Bumped by every ``bind(to:)`` call; the recursive re-subscription
     /// inside `observe(_:generation:)` drops itself once its captured
@@ -62,21 +63,44 @@ public final class ScreenStateContainerView<Value>: UIView {
     private var lastIsRefreshing = false
     private var lastRefreshError: Error?
 
+    // `UIRefreshControl` is `API_UNAVAILABLE(tvos, watchos)` -- watchOS is
+    // already excluded from this whole file, but tvOS (which this
+    // container does support) needs its own guard here.
+    #if os(iOS) || os(visionOS)
+    /// The `UIRefreshControl` attached to the current `.data` content view,
+    /// if `pullToRefresh` was given and that view is a `UIScrollView`;
+    /// `nil` otherwise, and reset on every `render()` since `contentProvider`
+    /// may hand back a brand new view (and therefore a brand new scroll
+    /// view) on each call. Kept so `observeIsRefreshing(_:generation:)` can
+    /// drive its spinning state directly.
+    private var currentRefreshControl: UIRefreshControl?
+    #endif
+
     /// Uses the built-in Empty / Loading / Error placeholders.
     /// - Parameters:
     ///   - onRetry: wired to the default error view's Retry button.
     ///   - secondaryAction: wired to the default error view's optional
     ///     second button, shown alongside Retry.
+    ///   - pullToRefresh: called when the person pulls to refresh. Only
+    ///     takes effect when the view `contentProvider` returns for
+    ///     `.data` is a `UIScrollView` (or subclass, e.g. `UITableView`/
+    ///     `UICollectionView`) — a no-op otherwise, since pull-to-refresh
+    ///     has nothing to attach to. Typically wired to the same store's
+    ///     `refresh(_:)`/`refreshCollection(_:)`, so the refresh control's
+    ///     spinning stays in sync with `isRefreshing` even when a refresh
+    ///     is triggered some other way (see ``bind(to:)``).
     ///   - contentProvider: builds the view shown for ``ScreenState/data(_:)``.
     public convenience init(
         onRetry: (() -> Void)? = nil,
         secondaryAction: (title: String, action: () -> Void)? = nil,
+        pullToRefresh: (() async -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView
     ) {
         self.init(
             emptyView: ScreenStateDefaultEmptyUIView(),
             loadingView: ScreenStateDefaultLoadingUIView(),
             errorView: { ScreenStateDefaultErrorUIView(error: $0, onRetry: onRetry, secondaryAction: secondaryAction) },
+            pullToRefresh: pullToRefresh,
             content: contentProvider
         )
     }
@@ -86,11 +110,13 @@ public final class ScreenStateContainerView<Value>: UIView {
         emptyView: UIView,
         loadingView: UIView,
         errorView errorViewProvider: @escaping (Error) -> UIView,
+        pullToRefresh: (() async -> Void)? = nil,
         content contentProvider: @escaping (Value) -> UIView
     ) {
         self.emptyView = emptyView
         self.loadingView = loadingView
         self.errorViewProvider = errorViewProvider
+        self.pullToRefresh = pullToRefresh
         self.contentProvider = contentProvider
         super.init(frame: .zero)
         render()
@@ -141,6 +167,27 @@ public final class ScreenStateContainerView<Value>: UIView {
             if isRefreshing != lastIsRefreshing {
                 lastIsRefreshing = isRefreshing
                 delegate?.screenStateContainerViewDidUpdateIsRefreshing(isRefreshing)
+                #if os(iOS) || os(visionOS)
+                // Keeps the refresh control in sync with `isRefreshing`
+                // regardless of what triggered it -- the pull gesture
+                // itself (handled by `attachPullToRefreshIfNeeded(to:)`'s
+                // `.valueChanged` action) or a refresh started some other
+                // way (e.g. a toolbar button calling `store.refresh(_:)`
+                // directly). Both `beginRefreshing()`/`endRefreshing()`
+                // are safe to call when already in that state.
+                //
+                // Not covered by a test: `UIRefreshControl.isRefreshing`
+                // never actually flips in a SwiftPM test host -- confirmed
+                // empirically that `beginRefreshing()` is silently ignored
+                // "offscreen" there, even attached to a real `UIWindow`
+                // with an explicit frame and a forced layout pass (no
+                // actual `UIWindowScene`/app lifecycle to satisfy it).
+                if isRefreshing {
+                    currentRefreshControl?.beginRefreshing()
+                } else {
+                    currentRefreshControl?.endRefreshing()
+                }
+                #endif
             }
         } onChange: { [weak self] in
             Task { @MainActor in
@@ -178,6 +225,9 @@ public final class ScreenStateContainerView<Value>: UIView {
 
     private func render() {
         currentContentView?.removeFromSuperview()
+        #if os(iOS) || os(visionOS)
+        currentRefreshControl = nil
+        #endif
 
         let viewToShow: UIView
         switch state {
@@ -187,6 +237,9 @@ public final class ScreenStateContainerView<Value>: UIView {
             viewToShow = loadingView
         case .data(let value):
             viewToShow = contentProvider(value)
+            #if os(iOS) || os(visionOS)
+            attachPullToRefreshIfNeeded(to: viewToShow)
+            #endif
         case .error(let error):
             viewToShow = errorViewProvider(error)
         }
@@ -211,6 +264,35 @@ public final class ScreenStateContainerView<Value>: UIView {
         updateFocusIfNeeded()
         #endif
     }
+
+    #if os(iOS) || os(visionOS)
+    /// A no-op unless `pullToRefresh` was given and `view` is a
+    /// `UIScrollView` (or subclass) — pull-to-refresh has nothing to
+    /// attach to otherwise. Always creates a fresh `UIRefreshControl`
+    /// rather than reusing one from a previous `render()`, since
+    /// `contentProvider` may itself have handed back a brand new scroll
+    /// view this time; `lastIsRefreshing` immediately syncs it to the
+    /// bound store's current `isRefreshing`, in case a refresh was
+    /// already in flight when this view appeared.
+    private func attachPullToRefreshIfNeeded(to view: UIView) {
+        guard let pullToRefresh, let scrollView = view as? UIScrollView else { return }
+        let control = UIRefreshControl()
+        control.addAction(
+            UIAction { [weak self] _ in
+                Task {
+                    await pullToRefresh()
+                    self?.currentRefreshControl?.endRefreshing()
+                }
+            },
+            for: .valueChanged
+        )
+        scrollView.refreshControl = control
+        currentRefreshControl = control
+        if lastIsRefreshing {
+            control.beginRefreshing()
+        }
+    }
+    #endif
 
     #if os(tvOS)
     /// Delegates to whichever placeholder is currently shown, so the focus

@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.103.0]
+
+- Add a `pullToRefresh: (() async -> Void)?` parameter to `ScreenStateContainerView`'s built-in-placeholders initializer, wiring a `UIRefreshControl` to the `.data` content view when it's a `UIScrollView` (or subclass, e.g. `UITableView`/`UICollectionView`) — a no-op otherwise, since pull-to-refresh has nothing to attach to. The refresh control's spinning state stays in sync with the bound store's `isRefreshing` (via `bind(to:)`) regardless of what triggered a refresh — the pull gesture itself or something else calling `refresh(_:)` directly. iOS/visionOS only: `UIRefreshControl` is unavailable on tvOS, so `pullToRefresh` is accepted there too (for a uniform API) but never takes effect.
+
 ## [1.102.0]
 
 - Fix `ScreenStateShimmerLoadingUIView`'s low-contrast fill color, which used `.tertiarySystemFill` — part of a tiered system-fill color family that's iOS/Mac Catalyst/visionOS-only and unavailable on tvOS, breaking the tvOS build entirely. Found while verifying an unrelated change actually compiles for tvOS: there's no tvOS CI job, so this had shipped unnoticed. Now uses `.systemGray.withAlphaComponent(0.3)`, matching the SwiftUI sibling's `Color.secondary.opacity(0.3)` pattern (same base color, just a different opacity for Increase Contrast) instead of two unrelated colors.

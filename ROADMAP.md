@@ -156,7 +156,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 20 — UIKit pull-to-refresh parity
 
-- [ ] Add a `pullToRefresh: (() async -> Void)?` parameter to `ScreenStateContainerView`'s built-in-placeholders initializer, wiring a `UIRefreshControl` that calls it and ends spinning when it completes.
+- [x] Add a `pullToRefresh: (() async -> Void)?` parameter to `ScreenStateContainerView`'s built-in-placeholders initializer, wiring a `UIRefreshControl` that calls it and ends spinning when it completes.
 - [ ] Thread `pullToRefresh` through `ScreenStateViewController`'s matching built-in-placeholders initializer.
 - [ ] Sync the `UIRefreshControl`'s spinning state with the bound store's `isRefreshing` even when refresh is triggered programmatically elsewhere, so the control can't get stuck.
 - [ ] Add a Demo app screen (or extend an existing one) exercising UIKit pull-to-refresh end-to-end.

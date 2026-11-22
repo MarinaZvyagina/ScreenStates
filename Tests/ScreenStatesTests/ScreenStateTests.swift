@@ -1038,7 +1038,10 @@ struct ScreenStateStoreTests {
 /// Lets a test observe a `ScreenStateStore` in the middle of an in-flight
 /// async operation instead of only before/after it, by suspending the
 /// operation until the test explicitly releases it.
-private actor Gate {
+/// Internal (not `private`) so other test files in this target can reuse
+/// it for the same "deterministically control when an async operation
+/// resolves" need.
+actor Gate {
     private var startContinuation: CheckedContinuation<Void, Never>?
     private var openContinuation: CheckedContinuation<Void, Never>?
 
