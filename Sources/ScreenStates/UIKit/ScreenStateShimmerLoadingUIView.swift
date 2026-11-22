@@ -133,7 +133,14 @@ public final class ScreenStateShimmerLoadingUIView: UIView {
     /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
     /// system setting that can't be toggled in a test environment.
     func updateFillColor(isDarkerSystemColorsEnabled: Bool) {
-        let color: UIColor = isDarkerSystemColorsEnabled ? .systemGray : .tertiarySystemFill
+        // Same base color either way (unlike the gradient/ring tints
+        // elsewhere, which swap to a different color for Increase
+        // Contrast) -- just more opaque when it's on, mirroring the
+        // SwiftUI sibling's `Color.secondary.opacity(0.6/0.3)`. Not
+        // `.tertiarySystemFill`: that tiered system-fill family is
+        // iOS/Mac Catalyst/visionOS-only, unavailable on tvOS, which
+        // this view also ships on.
+        let color: UIColor = isDarkerSystemColorsEnabled ? .systemGray : UIColor.systemGray.withAlphaComponent(0.3)
         [avatar, line1, line2].forEach { $0.backgroundColor = color }
     }
 

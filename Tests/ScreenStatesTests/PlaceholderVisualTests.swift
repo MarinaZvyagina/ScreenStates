@@ -284,7 +284,7 @@ struct PlaceholderVisualTests {
         let view = ScreenStateShimmerLoadingUIView()
         view.updateFillColor(isDarkerSystemColorsEnabled: true)
         view.updateFillColor(isDarkerSystemColorsEnabled: false)
-        #expect(view.avatar.backgroundColor == .tertiarySystemFill)
+        #expect(view.avatar.backgroundColor == UIColor.systemGray.withAlphaComponent(0.3))
     }
 
     #if canImport(SwiftUI)

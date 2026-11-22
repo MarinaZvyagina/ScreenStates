@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.102.0]
+
+- Fix `ScreenStateShimmerLoadingUIView`'s low-contrast fill color, which used `.tertiarySystemFill` — part of a tiered system-fill color family that's iOS/Mac Catalyst/visionOS-only and unavailable on tvOS, breaking the tvOS build entirely. Found while verifying an unrelated change actually compiles for tvOS: there's no tvOS CI job, so this had shipped unnoticed. Now uses `.systemGray.withAlphaComponent(0.3)`, matching the SwiftUI sibling's `Color.secondary.opacity(0.3)` pattern (same base color, just a different opacity for Increase Contrast) instead of two unrelated colors.
+
 ## [1.101.0]
 
 - Add `isData`/`isError` boolean convenience properties to `ScreenState`, completing the `isEmpty`/`isLoading` family. Equivalent to `value != nil`/`error != nil`, but reads more directly at a call site that only cares about the case.
