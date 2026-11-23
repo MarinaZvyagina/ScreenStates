@@ -457,6 +457,21 @@ func screenStateContainerViewDidUpdateRefreshError(_ error: Error?) {
 
 Both methods have empty default implementations, so a conformer only needs whichever one it actually cares about.
 
+Pass `pullToRefresh` to wire up a `UIRefreshControl` automatically — it only takes effect when the `.data` content view is a `UIScrollView` (or subclass, e.g. `UITableView`/`UICollectionView`), since pull-to-refresh has nothing to attach to otherwise:
+
+```swift
+private lazy var container = ScreenStateContainerView<[Article]>(
+    onRetry: { [weak self] in Task { await self?.reload() } },
+    pullToRefresh: { [weak self] in
+        await self?.store.refreshCollection { try await api.fetchArticles() }
+    }
+) { articles in
+    ArticlesTableView(articles: articles) // a UITableView subclass
+}
+```
+
+The refresh control's spinning state stays in sync with `store.isRefreshing` regardless of what triggered a refresh — the pull gesture itself, or something else (e.g. a toolbar button) calling `refresh(_:)`/`refreshCollection(_:)` directly — so it can't get stuck showing or hiding incorrectly. `UIRefreshControl` is unavailable on tvOS, so `pullToRefresh` is accepted there too (for a uniform API across platforms) but never takes effect.
+
 ### Skipping the boilerplate with ScreenStateViewController
 
 Every screen above repeats the same `viewDidLoad()` boilerplate: pin the container to the view's edges, then bind it to the store. Subclass `ScreenStateViewController<Value>` instead and it's handled for you:

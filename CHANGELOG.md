@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.106.0]
+
+- Add a "Getting Started with UIKit" DocC article section + README paragraph documenting `pullToRefresh`. Docs-only; no source changes (the parameter itself shipped in the previous two entries).
+
 ## [1.105.0]
 
 - Make the Kylo Ren Demo screen's content view a `UIScrollView` and wire up `pullToRefresh`, calling `refreshCollection(_:)` to keep the existing facts on screen while refetching — a runnable example of `ScreenStateContainerView`'s new `pullToRefresh` parameter. Also fixes a latent race in `useCachedData()`: it used `setData(_:)` (not generation-token-guarded) instead of `reset(to:)`, so a cancelled-but-still-in-flight `loadCollection(_:)` call could still land moments later and silently overwrite the cached data. Demo-only; no package source or API changes beyond what shipped in the previous two entries.

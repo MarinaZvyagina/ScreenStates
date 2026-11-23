@@ -160,7 +160,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 - [x] Thread `pullToRefresh` through `ScreenStateViewController`'s matching built-in-placeholders initializer.
 - [x] Sync the `UIRefreshControl`'s spinning state with the bound store's `isRefreshing` even when refresh is triggered programmatically elsewhere, so the control can't get stuck. (Shipped as part of the previous item's commit — `observeIsRefreshing(_:generation:)`'s existing observation bridge already needed to drive this, since it's the only mechanism that can detect `isRefreshing` changing for *any* reason, not just the pull gesture. No separate commit, since there was no additional code left to write.)
 - [x] Add a Demo app screen (or extend an existing one) exercising UIKit pull-to-refresh end-to-end.
-- [ ] Add a "Getting Started with UIKit" DocC update + README API table row documenting `pullToRefresh` as UIKit's equivalent of SwiftUI's `.refreshable { }`.
+- [x] Add a "Getting Started with UIKit" DocC update + README API table row documenting `pullToRefresh` as UIKit's equivalent of SwiftUI's `.refreshable { }`.
 
 ## Week 21 — UIKit theming parity
 
