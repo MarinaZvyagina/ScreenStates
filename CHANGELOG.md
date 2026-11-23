@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.107.0]
+
+- Add `ScreenStatesThemeTrait`, bridging `ScreenStatesTheme` into UIKit's trait system: read via `UITraitCollection.screenStatesTheme`, set via `UITraitOverrides.screenStatesTheme` (e.g. `someView.traitOverrides.screenStatesTheme = theme`), inherited by descendant views the same way any other UIKit trait is. Not yet wired to any default UIKit placeholder view — that's a separate, upcoming change. Corrects an assumption from when this was originally planned: there's no public `UITraitBridgedEnvironmentKey`-style API (that name doesn't exist in UIKit) to bridge a *custom* trait like this one automatically to/from SwiftUI's `Environment` — a few built-in traits get that treatment privately, but a custom one doesn't. Set both separately on a screen that mixes paradigms.
+
 ## [1.106.0]
 
 - Add a "Getting Started with UIKit" DocC article section + README paragraph documenting `pullToRefresh`. Docs-only; no source changes (the parameter itself shipped in the previous two entries).

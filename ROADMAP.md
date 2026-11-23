@@ -164,7 +164,7 @@ Small, incremental improvements to ScreenStates, one item per day, planned in ba
 
 ## Week 21 — UIKit theming parity
 
-- [ ] Add a `UITraitDefinition` for `ScreenStatesTheme` (tint/titleFont/messageFont), bridging to/from SwiftUI's environment-based theme via `UITraitBridgedEnvironmentKey`.
+- [x] Add a `UITraitDefinition` for `ScreenStatesTheme` (tint/titleFont/messageFont), bridging to/from SwiftUI's environment-based theme via `UITraitBridgedEnvironmentKey`. (Corrected while implementing, 2026-11-23: `UITraitBridgedEnvironmentKey` isn't a real API — checked the installed SDK headers directly; no public mechanism bridges a *custom* UIKit trait to/from SwiftUI's `Environment` automatically. Shipped `ScreenStatesThemeTrait` as a real, working UIKit-side trait instead — inherited through a UIKit view hierarchy via `traitOverrides`, same as any built-in trait — without the cross-paradigm auto-bridging claim.)
 - [ ] Wire the default UIKit placeholder views to read this trait and apply it the same way the SwiftUI views already do.
 - [ ] Confirm (and document) that `traitOverrides` on `ScreenStateContainerView`/`ScreenStateViewController` propagates the theme correctly through a mixed SwiftUI-in-UIKit or UIKit-in-SwiftUI hierarchy.
 - [ ] Add regression tests covering the trait-based theme override, both directly and through a mixed hierarchy.

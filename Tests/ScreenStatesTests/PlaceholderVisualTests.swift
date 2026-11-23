@@ -317,6 +317,33 @@ struct PlaceholderVisualTests {
         #expect(ScreenStatesTheme.standard.messageFont == nil)
     }
 
+    @Test("ScreenStatesThemeTrait defaults to .standard when never overridden")
+    func themeTraitDefaultsToStandard() {
+        #expect(UITraitCollection().screenStatesTheme == .standard)
+    }
+
+    @Test("ScreenStatesThemeTrait round-trips a theme set via a trait collection")
+    func themeTraitRoundTrips() {
+        let theme = ScreenStatesTheme(tint: .green)
+        let traitCollection = UITraitCollection(ScreenStatesThemeTrait.self, value: theme)
+        #expect(traitCollection.screenStatesTheme == theme)
+    }
+
+    @Test("ScreenStatesThemeTrait set on a view is visible on a descendant view's traitCollection")
+    func themeTraitPropagatesThroughViewHierarchy() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let parent = UIView(frame: window.bounds)
+        let child = UIView()
+        let theme = ScreenStatesTheme(tint: .purple)
+        window.addSubview(parent)
+        parent.addSubview(child)
+        parent.traitOverrides.screenStatesTheme = theme
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        #expect(child.traitCollection.screenStatesTheme == theme)
+    }
+
     @Test("ScreenStateDefaultLoadingView uses the theme's tint instead of its gradient, when set")
     func loadingViewUsesThemeTint() {
         let image = snapshotImage(

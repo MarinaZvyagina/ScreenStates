@@ -543,6 +543,7 @@ generated with DocC. CI regenerates and commits it automatically on every push t
 | `ScreenStatePlaceholderStyle` | `.standard` (fills a whole screen) or `.compact` (smaller icon/text, sized to fit a card or section) |
 | `ScreenStateShimmerLoadingView` / `ScreenStateShimmerLoadingUIView` | Opt-in pulsing-skeleton alternative to the default spinner Loading placeholder |
 | `ScreenStatesTheme` | `tint`/`titleFont`/`messageFont` overrides for every default SwiftUI placeholder; set via `View.screenStatesTheme(_:)` |
+| `ScreenStatesThemeTrait` | Bridges `ScreenStatesTheme` into UIKit's trait system; read via `UITraitCollection.screenStatesTheme`, set via `UITraitOverrides.screenStatesTheme` (e.g. `someView.traitOverrides.screenStatesTheme = theme`) |
 | `ScreenStateRedactedLoadingView` | Opt-in Loading placeholder that redacts your real content view (`.redacted(reason: .placeholder)`) instead of showing a generic spinner/skeleton |
 | `ScreenOpenSource<Screen>` | `.push`/`.pop`/`.presented(from:)`, `.deepLink(URL)`, `.shortcut(id:)`, `.tabSelection`, `.unknown`, plus `isPop`, `originatingScreen`, `analyticsKind` helpers |
 | `ScreenAnalyticsEvent` | Backend-agnostic event: `name`, `parameters: [String: AnalyticsValue]`, plus `.screenOpened(screen:source:)`, `.screenStateChanged(screen:from:to:errorDescription:)`, `.screenLoadDuration(screen:outcome:milliseconds:)`, `.screenRetryTapped(screen:)`, `.screenNextPageLoaded(screen:)`, and `.screenNextPageFailed(screen:errorDescription:)` factories |
