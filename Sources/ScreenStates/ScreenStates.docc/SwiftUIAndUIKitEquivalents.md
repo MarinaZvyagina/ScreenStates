@@ -18,7 +18,7 @@ A single table matching every SwiftUI-side type to its UIKit counterpart (and ca
 | ``ScreenStateDefaultErrorView`` | ``ScreenStateDefaultErrorUIView`` | Same Retry button, same optional `secondaryAction`, same focus-engine tuning on tvOS, same connectivity-aware icon. The title ("Something Went Wrong"/"Connection Issue") is SwiftUI-only — UIKit's Error placeholder has no separate title slot. |
 | ``ScreenStateShimmerLoadingView`` | ``ScreenStateShimmerLoadingUIView`` | Same pulsing-skeleton shape and animation. |
 | ``ScreenStateRedactedLoadingView`` | — | Built on SwiftUI's `.redacted(reason: .placeholder)`, which has no UIKit equivalent to build on. |
-| ``ScreenStatesTheme`` / `View.screenStatesTheme(_:)` | — | Environment-based; UIKit has no concept of an inherited environment to theme through, so the UIKit default placeholders keep taking configuration directly through their initializers instead. |
+| ``ScreenStatesTheme`` / `View.screenStatesTheme(_:)` | ``ScreenStatesThemeTrait`` / `UITraitOverrides.screenStatesTheme` | Same theme type, same precedence (Increase Contrast always wins over a custom `tint`), inherited through each paradigm's own propagation mechanism — SwiftUI's `Environment`, UIKit's trait system. UIKit only picks up `tint`: there's no public `Font` → `UIFont` bridging API, so `titleFont`/`messageFont` stay SwiftUI-only. |
 | Reading `store.isRefreshing`/`store.refreshError` directly in `body` | ``ScreenStateContainerViewDelegate`` (or ``ScreenStateViewController``'s `isRefreshingDidChange(_:)`/`refreshErrorDidChange(_:)`) | SwiftUI tracks any property access inside `body` automatically; a `UIView`/`UIViewController` has no `body` to do that in, so these two are reported through a small delegate instead. |
 
 ## See Also

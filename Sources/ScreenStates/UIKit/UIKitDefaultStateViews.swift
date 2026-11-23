@@ -165,23 +165,39 @@ public final class ScreenStateDefaultLoadingUIView: UIView {
         updateGradientColors()
     }
 
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard traitCollection.screenStatesTheme != previousTraitCollection?.screenStatesTheme else { return }
+        updateGradientColors()
+    }
+
     private func updateGradientColors() {
-        updateGradientColors(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+        updateGradientColors(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled, theme: traitCollection.screenStatesTheme)
     }
 
     /// Internal (not `private`) so tests can drive this directly --
     /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
-    /// system setting that can't be toggled in a test environment.
-    func updateGradientColors(isDarkerSystemColorsEnabled: Bool) {
-        gradientRing.gradientLayer.colors =
-            isDarkerSystemColorsEnabled
-            ? [UIColor.label.cgColor, UIColor.label.cgColor]
-            : [
+    /// system setting that can't be toggled in a test environment, and a
+    /// themed trait collection can't be simulated without a live
+    /// window/scene in this module's test target. Increase Contrast always
+    /// wins over `theme.tint`, matching ``ScreenStatesTheme``'s own
+    /// documented precedence on the SwiftUI side. `theme.titleFont`/
+    /// `messageFont` have no UIKit equivalent here: there's no public
+    /// `Font` -> `UIFont` conversion, unlike `Color` -> `UIColor`.
+    func updateGradientColors(isDarkerSystemColorsEnabled: Bool, theme: ScreenStatesTheme = .standard) {
+        if isDarkerSystemColorsEnabled {
+            gradientRing.gradientLayer.colors = [UIColor.label.cgColor, UIColor.label.cgColor]
+        } else if let tint = theme.tint {
+            let tintColor = UIColor(tint).cgColor
+            gradientRing.gradientLayer.colors = [tintColor, tintColor]
+        } else {
+            gradientRing.gradientLayer.colors = [
                 UIColor.systemPink.cgColor,
                 UIColor.systemOrange.cgColor,
                 UIColor.systemYellow.cgColor,
                 UIColor.systemPink.cgColor,
             ]
+        }
     }
 
     public override func layoutSubviews() {
@@ -298,8 +314,12 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        guard traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass else { return }
-        updateAxis()
+        if traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass {
+            updateAxis()
+        }
+        if traitCollection.screenStatesTheme != previousTraitCollection?.screenStatesTheme {
+            updateIcon()
+        }
     }
 
     private func updateAxis() {
@@ -320,23 +340,42 @@ public final class ScreenStateDefaultEmptyUIView: UIView {
     }
 
     private func updateIcon() {
-        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled, theme: traitCollection.screenStatesTheme)
     }
 
     /// Internal (not `private`) so tests can drive this directly --
     /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
-    /// system setting that can't be toggled in a test environment.
-    func updateIcon(isDarkerSystemColorsEnabled: Bool) {
+    /// system setting that can't be toggled in a test environment, and a
+    /// themed trait collection can't be simulated without a live
+    /// window/scene in this module's test target. Increase Contrast always
+    /// wins over `theme.tint`, matching ``ScreenStatesTheme``'s own
+    /// documented precedence on the SwiftUI side.
+    func updateIcon(isDarkerSystemColorsEnabled: Bool, theme: ScreenStatesTheme = .standard) {
         guard let symbol else { return }
-        iconView.image =
-            isDarkerSystemColorsEnabled
-            ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
-            : gradientTintedImage(
+        if isDarkerSystemColorsEnabled {
+            iconView.image = symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
+        } else if let tint = theme.tint {
+            // Not `symbol.withTintColor(_:renderingMode:)`: that produces a
+            // UIImage whose `cgImage` doesn't reliably reflect the tint
+            // outside a real drawing pass (e.g. inside a live UIImageView).
+            // Baking via `gradientTintedImage` with a single repeated color
+            // sidesteps that the same way the gradient branch below already
+            // does.
+            let tintColor = UIColor(tint)
+            iconView.image = gradientTintedImage(
+                symbol,
+                colors: [tintColor, tintColor],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
+        } else {
+            iconView.image = gradientTintedImage(
                 symbol,
                 colors: [UIColor.systemPink, .systemOrange, .systemYellow],
                 startPoint: CGPoint(x: 0, y: 0),
                 endPoint: CGPoint(x: 1, y: 1)
             )
+        }
     }
 
     private func updateFont() {
@@ -507,8 +546,12 @@ public final class ScreenStateDefaultErrorUIView: UIView {
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        guard traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass else { return }
-        updateAxis()
+        if traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass {
+            updateAxis()
+        }
+        if traitCollection.screenStatesTheme != previousTraitCollection?.screenStatesTheme {
+            updateIcon()
+        }
     }
 
     private func updateAxis() {
@@ -529,23 +572,40 @@ public final class ScreenStateDefaultErrorUIView: UIView {
     }
 
     private func updateIcon() {
-        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled)
+        updateIcon(isDarkerSystemColorsEnabled: UIAccessibility.isDarkerSystemColorsEnabled, theme: traitCollection.screenStatesTheme)
     }
 
     /// Internal (not `private`) so tests can drive this directly --
     /// `UIAccessibility.isDarkerSystemColorsEnabled` itself is a read-only
-    /// system setting that can't be toggled in a test environment.
-    func updateIcon(isDarkerSystemColorsEnabled: Bool) {
+    /// system setting that can't be toggled in a test environment, and a
+    /// themed trait collection can't be simulated without a live
+    /// window/scene in this module's test target. Increase Contrast always
+    /// wins over `theme.tint`, matching ``ScreenStatesTheme``'s own
+    /// documented precedence on the SwiftUI side.
+    func updateIcon(isDarkerSystemColorsEnabled: Bool, theme: ScreenStatesTheme = .standard) {
         guard let symbol else { return }
-        iconView.image =
-            isDarkerSystemColorsEnabled
-            ? symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
-            : gradientTintedImage(
+        if isDarkerSystemColorsEnabled {
+            iconView.image = symbol.withTintColor(.label, renderingMode: .alwaysOriginal)
+        } else if let tint = theme.tint {
+            // See the identical comment in
+            // `ScreenStateDefaultEmptyUIView.updateIcon` — baking via
+            // `gradientTintedImage` avoids `withTintColor`'s unreliable
+            // `cgImage` outside a real drawing pass.
+            let tintColor = UIColor(tint)
+            iconView.image = gradientTintedImage(
+                symbol,
+                colors: [tintColor, tintColor],
+                startPoint: CGPoint(x: 0, y: 0),
+                endPoint: CGPoint(x: 1, y: 1)
+            )
+        } else {
+            iconView.image = gradientTintedImage(
                 symbol,
                 colors: [UIColor.systemRed, .systemOrange],
                 startPoint: CGPoint(x: 0, y: 0),
                 endPoint: CGPoint(x: 1, y: 1)
             )
+        }
     }
 
     private func updateFont() {

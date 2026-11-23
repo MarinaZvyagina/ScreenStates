@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.108.0]
+
+- Wire `ScreenStatesThemeTrait` into the three default UIKit placeholder views (`ScreenStateDefaultLoadingUIView`, `ScreenStateDefaultEmptyUIView`, `ScreenStateDefaultErrorUIView`): each now reads `traitCollection.screenStatesTheme` and, when a `tint` is set, paints its icon/ring with that solid color instead of its usual gradient — the same precedence the SwiftUI views already have, with Increase Contrast still overriding a custom tint. Live trait changes (e.g. a `traitOverrides` update elsewhere in the hierarchy) are picked up via `traitCollectionDidChange(_:)`. `theme.titleFont`/`theme.messageFont` are **not** applied on the UIKit side — there's no public `Font` → `UIFont` bridging API, so only `tint` carries over. Along the way, replaced `UIImage.withTintColor(_:renderingMode:)` for the tint case with the existing `gradientTintedImage(_:colors:startPoint:endPoint:)` helper (passing the same color twice): the regression tests added for this caught that `withTintColor`'s result doesn't reliably expose the tinted color through `cgImage` outside a real drawing pass, so the baked-bitmap approach the gradient case already used for a different reason turned out to be necessary here too.
+
 ## [1.107.0]
 
 - Add `ScreenStatesThemeTrait`, bridging `ScreenStatesTheme` into UIKit's trait system: read via `UITraitCollection.screenStatesTheme`, set via `UITraitOverrides.screenStatesTheme` (e.g. `someView.traitOverrides.screenStatesTheme = theme`), inherited by descendant views the same way any other UIKit trait is. Not yet wired to any default UIKit placeholder view — that's a separate, upcoming change. Corrects an assumption from when this was originally planned: there's no public `UITraitBridgedEnvironmentKey`-style API (that name doesn't exist in UIKit) to bridge a *custom* trait like this one automatically to/from SwiftUI's `Environment` — a few built-in traits get that treatment privately, but a custom one doesn't. Set both separately on a screen that mixes paradigms.

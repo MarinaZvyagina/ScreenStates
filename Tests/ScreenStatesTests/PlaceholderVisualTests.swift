@@ -75,6 +75,24 @@ struct PlaceholderVisualTests {
         #expect(hasSaturatedColor(view.gradientRing))
     }
 
+    @Test("ScreenStateDefaultLoadingUIView uses the theme's tint instead of its gradient, when set")
+    func loadingUIViewUsesThemeTint() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateGradientColors(isDarkerSystemColorsEnabled: false, theme: ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0)))
+        let colors = view.gradientRing.gradientLayer.colors as? [CGColor] ?? []
+        #expect(colors.allSatisfy { color in
+            guard let components = color.components, components.count >= 3 else { return false }
+            return components[0] * 255 < 30 && components[1] * 255 > 225 && components[2] * 255 < 30
+        })
+    }
+
+    @Test("ScreenStateDefaultLoadingUIView's theme tint still yields to Increase Contrast")
+    func loadingUIViewThemeTintYieldsToIncreaseContrast() {
+        let view = ScreenStateDefaultLoadingUIView()
+        view.updateGradientColors(isDarkerSystemColorsEnabled: true, theme: ScreenStatesTheme(tint: .green))
+        #expect(!hasSaturatedColor(view.gradientRing))
+    }
+
     @Test("ScreenStateDefaultLoadingUIView still renders its colorful ring at the largest accessibility Dynamic Type size")
     func loadingUIViewRendersAtLargestAccessibilitySize() {
         var view: ScreenStateDefaultLoadingUIView?
@@ -102,6 +120,42 @@ struct PlaceholderVisualTests {
         let view = ScreenStateDefaultEmptyUIView()
         view.updateIcon(isDarkerSystemColorsEnabled: true)
         #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView uses the theme's tint instead of its gradient, when set")
+    func emptyUIViewUsesThemeTint() {
+        let view = ScreenStateDefaultEmptyUIView()
+        view.updateIcon(isDarkerSystemColorsEnabled: false, theme: ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0)))
+        #expect(containsPixelMatching(view.iconView.image ?? UIImage(), target: (0, 255, 0)))
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView's theme tint still yields to Increase Contrast")
+    func emptyUIViewThemeTintYieldsToIncreaseContrast() {
+        let view = ScreenStateDefaultEmptyUIView()
+        view.updateIcon(isDarkerSystemColorsEnabled: true, theme: ScreenStatesTheme(tint: .green))
+        #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultEmptyUIView picks up a ScreenStatesThemeTrait set on an ancestor view, live")
+    func emptyUIViewPicksUpLiveThemeTraitChange() {
+        // Needs a real UIWindow: trait propagation through addSubview(_:)
+        // alone doesn't resolve without one (confirmed empirically), unlike
+        // just reading a UITraitCollection built directly from a trait/value
+        // pair (see ScreenStatesThemeTraitTests).
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        let container = UIView(frame: window.bounds)
+        let view = ScreenStateDefaultEmptyUIView()
+        window.addSubview(container)
+        container.addSubview(view)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        #expect(!containsPixelMatching(view.iconView.image ?? UIImage(), target: (0, 255, 0)))
+
+        container.traitOverrides.screenStatesTheme = ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0))
+        window.layoutIfNeeded()
+
+        #expect(containsPixelMatching(view.iconView.image ?? UIImage(), target: (0, 255, 0)))
     }
 
     @Test("ScreenStateDefaultEmptyUIView scales its title label at the largest accessibility Dynamic Type size")
@@ -196,6 +250,20 @@ struct PlaceholderVisualTests {
     func errorUIViewRespectsIncreaseContrast() {
         let view = ScreenStateDefaultErrorUIView(error: SampleError())
         view.updateIcon(isDarkerSystemColorsEnabled: true)
+        #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
+    }
+
+    @Test("ScreenStateDefaultErrorUIView uses the theme's tint instead of its gradient, when set")
+    func errorUIViewUsesThemeTint() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        view.updateIcon(isDarkerSystemColorsEnabled: false, theme: ScreenStatesTheme(tint: Color(red: 0, green: 1, blue: 0)))
+        #expect(containsPixelMatching(view.iconView.image ?? UIImage(), target: (0, 255, 0)))
+    }
+
+    @Test("ScreenStateDefaultErrorUIView's theme tint still yields to Increase Contrast")
+    func errorUIViewThemeTintYieldsToIncreaseContrast() {
+        let view = ScreenStateDefaultErrorUIView(error: SampleError())
+        view.updateIcon(isDarkerSystemColorsEnabled: true, theme: ScreenStatesTheme(tint: .green))
         #expect(!containsSaturatedColor(view.iconView.image ?? UIImage()))
     }
 
