@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.110.0]
+
+- Add regression tests for the trait-based theme override added in the previous two entries: `containerViewPropagatesThemeToItsCurrentPlaceholder` covers the direct case through the real `ScreenStateContainerView` public API; `themeTraitDoesNotAutoBridgeIntoEmbeddedSwiftUIContent`/`themeEnvironmentDoesNotAutoBridgeIntoEmbeddedUIKitContent` cover both directions of the mixed SwiftUI/UIKit hierarchy gap, using a live `UIHostingController`/`UIViewRepresentable` round trip rather than asserting the behavior. Test-only; no source changes.
+
 ## [1.109.0]
 
 - Document (in `ScreenStatesThemeTrait`'s doc comment) the explicit pattern for bridging `ScreenStatesTheme` across a mixed SwiftUI/UIKit hierarchy, now confirmed empirically rather than just asserted: a theme set via `traitOverrides` reaches every UIKit descendant, including a `UIHostingController`'s own view, but never crosses into that `UIHostingController`'s SwiftUI content's `Environment`; the same gap exists in reverse for a UIKit view embedded via `UIViewRepresentable` inside a themed SwiftUI environment. Since there's no automatic bridge for a custom trait/environment key pair, bridge explicitly at the embedding point — apply `.screenStatesTheme(_:)` to a hosted root view, or copy `context.environment.screenStatesTheme` into `traitOverrides` inside `updateUIView(_:context:)`. Docs-only; no source behavior changes.

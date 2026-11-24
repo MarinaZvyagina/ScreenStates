@@ -412,6 +412,91 @@ struct PlaceholderVisualTests {
         #expect(child.traitCollection.screenStatesTheme == theme)
     }
 
+    /// Reads `@Environment(\.screenStatesTheme)` and reports it the moment
+    /// it appears -- used to probe whether a SwiftUI view embedded in a
+    /// UIKit ancestor (via `UIHostingController`) picks up an ambient
+    /// `ScreenStatesThemeTrait` override the same way a plain `UIView`
+    /// descendant would.
+    private struct ThemeEnvironmentProbe: View {
+        let onAppearRead: (ScreenStatesTheme) -> Void
+        @Environment(\.screenStatesTheme) private var theme
+
+        var body: some View {
+            Color.clear.onAppear { onAppearRead(theme) }
+        }
+    }
+
+    /// Reports the `UIView` it wraps's resolved `screenStatesTheme` trait
+    /// on every update -- used to probe whether a UIKit view embedded in a
+    /// SwiftUI ancestor (via `UIViewRepresentable`) picks up an ambient
+    /// `.screenStatesTheme(_:)` environment value the same way a plain
+    /// `UITraitDefinition` consumer would.
+    private struct UIKitTraitProbe: UIViewRepresentable {
+        let onUpdate: (ScreenStatesTheme) -> Void
+
+        func makeUIView(context: Context) -> UIView { UIView() }
+
+        func updateUIView(_ uiView: UIView, context: Context) {
+            onUpdate(uiView.traitCollection.screenStatesTheme)
+        }
+    }
+
+    @Test("A theme set via traitOverrides on a UIKit ancestor does not automatically reach SwiftUI content embedded via UIHostingController")
+    func themeTraitDoesNotAutoBridgeIntoEmbeddedSwiftUIContent() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let parent = UIView(frame: window.bounds)
+        let theme = ScreenStatesTheme(tint: .purple)
+        parent.traitOverrides.screenStatesTheme = theme
+
+        var observedTheme: ScreenStatesTheme?
+        let hostingController = UIHostingController(rootView: ThemeEnvironmentProbe { observedTheme = $0 })
+        hostingController.view.frame = parent.bounds
+        parent.addSubview(hostingController.view)
+        window.addSubview(parent)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        // The ambient UIKit trait does reach the hosting view itself --
+        // it's a plain UIView like any other descendant.
+        #expect(hostingController.view.traitCollection.screenStatesTheme == theme)
+        // But SwiftUI's Environment is a wholly separate storage with no
+        // automatic bridge for a custom trait like this one (see
+        // `ScreenStatesThemeTrait`'s doc comment) -- the SwiftUI content
+        // still sees `.standard`.
+        #expect(observedTheme == .standard)
+    }
+
+    @Test("A theme set via .screenStatesTheme(_:) in a SwiftUI environment does not automatically reach a UIKit view embedded via UIViewRepresentable")
+    func themeEnvironmentDoesNotAutoBridgeIntoEmbeddedUIKitContent() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        var observedTheme: ScreenStatesTheme?
+        let hostingController = UIHostingController(
+            rootView: UIKitTraitProbe { observedTheme = $0 }
+                .screenStatesTheme(ScreenStatesTheme(tint: .purple))
+        )
+        hostingController.view.frame = window.bounds
+        window.addSubview(hostingController.view)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        #expect(observedTheme == .standard)
+    }
+
+    @Test("ScreenStateContainerView's traitOverrides reach the default placeholder it's currently showing")
+    func containerViewPropagatesThemeToItsCurrentPlaceholder() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let container = ScreenStateContainerView<Int> { _ in UIView() }
+        let theme = ScreenStatesTheme(tint: .purple)
+        container.frame = window.bounds
+        container.traitOverrides.screenStatesTheme = theme
+        container.state = .empty
+        window.addSubview(container)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        #expect(container.subviews.first?.traitCollection.screenStatesTheme == theme)
+    }
+
     @Test("ScreenStateDefaultLoadingView uses the theme's tint instead of its gradient, when set")
     func loadingViewUsesThemeTint() {
         let image = snapshotImage(
