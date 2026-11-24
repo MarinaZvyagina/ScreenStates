@@ -12,9 +12,29 @@ import SwiftUI
 /// Unlike a handful of built-in traits Apple bridges privately (size
 /// class, Dynamic Type, layout direction, …), there's no public API to
 /// bridge a *custom* trait like this one automatically to/from SwiftUI's
-/// Environment — on a screen that mixes both paradigms (e.g. a
-/// `UIHostingController` embedded in a UIKit navigation stack, or vice
-/// versa), set both separately.
+/// Environment. Confirmed empirically (not just assumed): a theme set via
+/// `traitOverrides` on a UIKit ancestor reaches every UIKit descendant,
+/// including a `UIHostingController`'s own view, but its SwiftUI content
+/// still reads `EnvironmentValues.screenStatesTheme` as `.standard` — the
+/// two are entirely separate storage. The same gap exists in reverse: a
+/// theme set via `.screenStatesTheme(_:)` in a SwiftUI environment never
+/// reaches a UIKit view embedded beneath it through `UIViewRepresentable`.
+///
+/// On a screen that mixes both paradigms, bridge explicitly at the
+/// embedding point instead of relying on either ambient value:
+///
+/// ```swift
+/// // UIKit embedding SwiftUI: apply the theme to the hosted root view.
+/// let hosting = UIHostingController(
+///     rootView: SomeSwiftUIView().screenStatesTheme(theme)
+/// )
+///
+/// // SwiftUI embedding UIKit: copy the environment value across in
+/// // `updateUIView(_:context:)`.
+/// func updateUIView(_ uiView: SomeUIKitView, context: Context) {
+///     uiView.traitOverrides.screenStatesTheme = context.environment.screenStatesTheme
+/// }
+/// ```
 public struct ScreenStatesThemeTrait: UITraitDefinition {
     public static let defaultValue: ScreenStatesTheme = .standard
 }
