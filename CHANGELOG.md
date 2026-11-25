@@ -3,6 +3,10 @@
 All notable changes to this project are documented in this file.
 Versioning follows [Semantic Versioning](https://semver.org/) (`major.minor.patch`).
 
+## [1.111.0]
+
+- Update the "Styling" DocC article's "Theming" section to cover `ScreenStatesThemeTrait` (the UIKit trait-based path) alongside the existing SwiftUI `Environment`-based one, split into SwiftUI/UIKit/"Mixing both paradigms" subsections. Also fixes a now-stale claim this surfaced: both `Styling.md` and the main README's usage section still said "there's no UIKit equivalent," left over from before `ScreenStatesThemeTrait` shipped two entries ago. Docs-only; no source changes.
+
 ## [1.110.0]
 
 - Add regression tests for the trait-based theme override added in the previous two entries: `containerViewPropagatesThemeToItsCurrentPlaceholder` covers the direct case through the real `ScreenStateContainerView` public API; `themeTraitDoesNotAutoBridgeIntoEmbeddedSwiftUIContent`/`themeEnvironmentDoesNotAutoBridgeIntoEmbeddedUIKitContent` cover both directions of the mixed SwiftUI/UIKit hierarchy gap, using a live `UIHostingController`/`UIViewRepresentable` round trip rather than asserting the behavior. Test-only; no source changes.

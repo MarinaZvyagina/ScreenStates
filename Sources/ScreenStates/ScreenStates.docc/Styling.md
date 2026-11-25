@@ -38,20 +38,35 @@ Both respect Reduce Motion and Increase Contrast the same way the default spinne
 
 ## Theming
 
-``ScreenStatesTheme`` lets a SwiftUI app theme every default placeholder at once — `tint`, `titleFont`, and `messageFont` — instead of passing a fully custom placeholder view at every call site. Set it once via `View.screenStatesTheme(_:)` on a container view, and every default placeholder beneath it in the view hierarchy (including ``ScreenStateShimmerLoadingView``) picks it up:
+``ScreenStatesTheme`` lets an app theme every default placeholder at once — `tint`, `titleFont`, and `messageFont` — instead of passing a fully custom placeholder view at every call site. Any property left `nil` (the default, via ``ScreenStatesTheme/standard``) keeps the built-in gradient/font. Increase Contrast still wins over `tint` regardless, in both paradigms below — it's an accessibility need, not a branding preference.
+
+### SwiftUI
+
+Set a theme via `View.screenStatesTheme(_:)` on a container view, and every default placeholder beneath it in the view hierarchy (including ``ScreenStateShimmerLoadingView``) picks it up through SwiftUI's `Environment`:
 
 ```swift
 MyScreenView()
     .screenStatesTheme(ScreenStatesTheme(tint: .indigo, titleFont: .title2, messageFont: .callout))
 ```
 
-Any property left `nil` (the default, via ``ScreenStatesTheme/standard``) keeps the built-in gradient/font. Increase Contrast still wins over `tint` regardless — it's an accessibility need, not a branding preference.
+### UIKit
 
-There's no UIKit equivalent: UIKit has no concept of an inherited environment, so the UIKit default placeholders keep taking their configuration directly through their initializers.
+``ScreenStatesThemeTrait`` is the UIKit counterpart, using UIKit's trait system in place of an `Environment`. Set it once via `traitOverrides` on a container view or view controller, and every default UIKit placeholder beneath it picks it up the same way, through `traitCollection`:
+
+```swift
+someContainerView.traitOverrides.screenStatesTheme = ScreenStatesTheme(tint: .indigo)
+```
+
+Only `tint` carries over on the UIKit side — there's no public `Font` → `UIFont` bridging API, so `titleFont`/`messageFont` stay SwiftUI-only.
+
+### Mixing both paradigms
+
+A custom trait like ``ScreenStatesThemeTrait`` isn't automatically bridged to or from SwiftUI's `Environment` the way a few of Apple's own built-in traits are. On a screen that embeds one paradigm inside the other — a `UIHostingController` in a UIKit navigation stack, or a UIKit view wrapped in `UIViewRepresentable` inside a SwiftUI screen — set the theme explicitly at the embedding point rather than relying on either ambient value to cross over on its own. See ``ScreenStatesThemeTrait``'s documentation for the exact pattern in both directions.
 
 ## See Also
 
 - ``ScreenStateDefaultEmptyView``
 - ``ScreenStateDefaultLoadingView``
 - ``ScreenStateDefaultErrorView``
+- ``ScreenStatesThemeTrait``
 - <doc:Accessibility>

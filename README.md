@@ -107,7 +107,9 @@ MyScreenView()
     .screenStatesTheme(ScreenStatesTheme(tint: .indigo, titleFont: .title2, messageFont: .callout))
 ```
 
-`tint` replaces the built-in gradient with a solid color; `titleFont`/`messageFont` replace the title and message/description text's font. Any property left `nil` (the default) keeps the built-in look. Increase Contrast still wins over `tint` — it's an accessibility need, not a branding preference. There's no UIKit equivalent: UIKit has no concept of an inherited environment, so the UIKit default placeholders keep taking configuration directly through their initializers.
+`tint` replaces the built-in gradient with a solid color; `titleFont`/`messageFont` replace the title and message/description text's font. Any property left `nil` (the default) keeps the built-in look. Increase Contrast still wins over `tint` — it's an accessibility need, not a branding preference.
+
+UIKit's equivalent is `ScreenStatesThemeTrait`, using UIKit's trait system in place of an `Environment`: set it once via `traitOverrides` on a container view or view controller, and every default UIKit placeholder beneath it picks it up through `traitCollection` — `someContainerView.traitOverrides.screenStatesTheme = ScreenStatesTheme(tint: .indigo)`. Only `tint` carries over on the UIKit side, since there's no public `Font` → `UIFont` bridging API. A custom trait like this one isn't automatically bridged to/from SwiftUI's `Environment`, so a screen mixing both paradigms (e.g. a `UIHostingController` in a UIKit stack) needs to set the theme explicitly at the embedding point — see `ScreenStatesThemeTrait`'s documentation for the pattern.
 
 The default Empty/Error placeholders' text scales with Dynamic Type — SwiftUI's via `ContentUnavailableView`'s own text styles, UIKit's via `UIFont.preferredFont(forTextStyle: .body, compatibleWith:)` — covered up to the largest accessibility size by snapshot tests.
 
